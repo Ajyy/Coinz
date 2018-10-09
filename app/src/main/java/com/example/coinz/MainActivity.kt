@@ -1,6 +1,7 @@
 package com.example.coinz
 
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.location.Location
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -21,6 +22,16 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode
+import org.json.JSONObject
+import android.os.AsyncTask
+import android.support.v4.graphics.drawable.DrawableCompat
+import com.mapbox.mapboxsdk.annotations.IconFactory
+import com.mapbox.mapboxsdk.annotations.MarkerOptions
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.net.URL
+import java.nio.charset.Charset
+
 
 class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineListener, OnMapReadyCallback {
 
@@ -40,7 +51,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         mapView = findViewById(R.id.mapView)
         mapView?.onCreate(savedInstanceState)
         mapView?.getMapAsync (this)
-
     }
 
     override fun onMapReady(mapboxMap: MapboxMap?) {
@@ -53,6 +63,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
             map?.uiSettings?.isZoomControlsEnabled = true
             // Make location information available
             enableLocation()
+            DrawGeoJson().execute()
         }
     }
 
@@ -186,4 +197,84 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         mapView?.onDestroy()
         locationEngine?.deactivate()
     }
+
+    private inner class DrawGeoJson : AsyncTask<Void, Void, List<Point>>() {
+        override fun doInBackground(vararg voids: Void): List<Point> {
+
+            val points = ArrayList<Point>()
+
+            try {
+                // Load GeoJSON file
+//                val inputStream = assets.open("geojson")
+//                val rd = BufferedReader(InputStreamReader(inputStream, Charset.forName("UTF-8")))
+//                val sb = StringBuilder()
+//                var cp: Int = rd.read()
+//                while (cp != -1) {
+//                    sb.append(cp.toChar())
+//                    cp = rd.read()
+//                }
+//                var url = URL("http://homepages.inf.ed.ac.uk/stg/coinz/2018/01/01/coinzmap.geojson");
+////                var request = url.openConnection();
+////                request.connect();
+//////                inputStream.close()
+////                var jp = JsonParser();
+                val `is` = URL("http://homepages.inf.ed.ac.uk/stg/coinz/2018/01/01/coinzmap.geojson").openStream()
+                val rd = BufferedReader(InputStreamReader(`is`, Charset.forName("UTF-8")))
+                val jsonText = StringBuilder()
+                var cp = rd.read()
+                while (cp!= -1) {
+                    jsonText.append(cp.toChar())
+                    cp = rd.read()
+                }
+
+                // Parse JSON
+                val json = JSONObject(jsonText.toString())
+                val features = json.getJSONArray("features")
+
+                for (i in 0..features.length()){
+                    val feature = features.getJSONObject(i)
+                    val properties = feature.getJSONObject("properties")
+                    val geometry = feature.getJSONObject("geometry")
+                    if (geometry != null && properties != null) {
+                        val type = geometry.getString("type")
+
+                        if(type != null && type.toString() == "Point"){
+                            val coord = geometry.getJSONArray("coordinates")
+                            val latLng = LatLng(coord.getDouble(1), coord.getDouble(0))
+                            points.add(Point(properties.getString("id"), properties.getDouble("value")
+                                    , properties.getString("currency"), properties.getString("marker-symbol")
+                                    , properties.getString("marker-color"), latLng))
+                        }
+                    }
+                }
+
+            } catch (exception: Exception) {
+                Log.e(tag, "Exception Loading GeoJSON: " + exception.toString())
+            }
+
+            return points
+        }
+
+        override fun onPostExecute(points: List<Point>) {
+            super.onPostExecute(points)
+            var iconFactory = IconFactory.getInstance(this@MainActivity)
+//            var iconDrawable = ResourcesCompat.getDrawable(resources, R.drawable.ic_marker, null)
+            //var icon = iconFactory.fromResource(R.drawable.ic_action_name)
+            if (points.isNotEmpty()) {
+                for(point in points){
+                    //var mDrawable = getDrawable(R.drawable.ic_action_name);
+                    //mDrawable.colorFilter = PorterDuffColorFilter(Color.parseColor(point.markerColor), PorterDuff.Mode.MULTIPLY)
+                    DrawableCompat.setTint(getDrawable(R.drawable.ic_action_name),
+                            Color.GREEN)
+                    var icon = iconFactory.fromResource(R.drawable.ic_action_name)
+                    map?.addMarker(MarkerOptions()
+                            .position(point.latlng)
+                            .icon(icon)
+                            .title(point.currency)
+                            .snippet("id: "+point.id))
+                }
+            }
+        }
+    }
+
 }
