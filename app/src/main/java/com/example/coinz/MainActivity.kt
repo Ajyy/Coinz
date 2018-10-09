@@ -24,7 +24,16 @@ import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode
 import org.json.JSONObject
 import android.os.AsyncTask
+import android.os.PersistableBundle
+import android.support.design.widget.NavigationView
 import android.support.v4.graphics.drawable.DrawableCompat
+import android.support.v4.view.GravityCompat
+import android.support.v4.widget.DrawerLayout
+import android.support.v7.app.ActionBarDrawerToggle
+import android.support.v7.widget.Toolbar
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import com.mapbox.mapboxsdk.annotations.IconFactory
 import com.mapbox.mapboxsdk.annotations.MarkerOptions
 import java.io.BufferedReader
@@ -33,7 +42,7 @@ import java.net.URL
 import java.nio.charset.Charset
 
 
-class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineListener, OnMapReadyCallback {
+class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineListener, OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener{
 
     private val tag = "MainActivity"
     private var mapView: MapView? = null
@@ -51,6 +60,17 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         mapView = findViewById(R.id.mapView)
         mapView?.onCreate(savedInstanceState)
         mapView?.getMapAsync (this)
+
+        val toolbar = findViewById<View>(R.id.toolbar) as Toolbar
+        setSupportActionBar(toolbar)
+        val drawer = findViewById<View>(R.id.drawer_layout) as DrawerLayout
+        val toggle = ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
+        drawer.addDrawerListener(toggle)
+        toggle.syncState()
+
+        val navigationView = findViewById<View>(R.id.nav_view) as NavigationView
+        navigationView.setNavigationItemSelectedListener(this@MainActivity)
     }
 
     override fun onMapReady(mapboxMap: MapboxMap?) {
@@ -196,6 +216,32 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         super.onDestroy()
         mapView?.onDestroy()
         locationEngine?.deactivate()
+    }
+
+    override fun onBackPressed() {
+        val drawer = findViewById<View>(R.id.drawer_layout) as DrawerLayout
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        // Handle navigation view item clicks here.
+        val id = item.itemId
+
+        if (id == R.id.nav_balance) {
+            // Handle the camera action
+        } else if (id == R.id.nav_friend) {
+
+        } else if (id == R.id.nav_share) {
+
+        }
+
+        val drawer = findViewById<View>(R.id.drawer_layout) as DrawerLayout
+        drawer.closeDrawer(GravityCompat.START)
+        return true
     }
 
     private inner class DrawGeoJson : AsyncTask<Void, Void, List<Point>>() {

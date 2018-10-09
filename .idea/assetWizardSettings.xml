@@ -48,11 +48,25 @@
                   <entry key="vectorAssetStep">
                     <value>
                       <PersistentState>
+                        <option name="children">
+                          <map>
+                            <entry key="clipartAsset">
+                              <value>
+                                <PersistentState>
+                                  <option name="values">
+                                    <map>
+                                      <entry key="url" value="jar:file:/afs/inf.ed.ac.uk/user/s18/s1889530/android-studio/plugins/android/lib/android.jar!/images/material_design_icons/social/ic_share_black_24dp.xml" />
+                                    </map>
+                                  </option>
+                                </PersistentState>
+                              </value>
+                            </entry>
+                          </map>
+                        </option>
                         <option name="values">
                           <map>
-                            <entry key="assetSourceType" value="FILE" />
-                            <entry key="outputName" value="ic_marker" />
-                            <entry key="sourceFile" value="C:\Users\JunyiAo\Desktop\marker.svg" />
+                            <entry key="outputName" value="nav_share" />
+                            <entry key="sourceFile" value="$APPLICATION_HOME_DIR$/bin/C:\Users\JunyiAo\Desktop\marker.svg" />
                           </map>
                         </option>
                       </PersistentState>

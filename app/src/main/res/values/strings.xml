@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">Coinz</string>
     <string name="access_token">pk.eyJ1IjoiYWp5eSIsImEiOiJjam14cXd3bHEza2N3M3BueHlrZXp4dG1wIn0.y9DB_p5jKf3uoVxqRwR61Q</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
 </resources>
