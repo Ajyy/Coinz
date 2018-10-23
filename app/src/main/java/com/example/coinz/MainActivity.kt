@@ -1,7 +1,9 @@
 package com.example.coinz
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.location.Location
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -304,15 +306,20 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         override fun onPostExecute(points: List<Point>) {
             super.onPostExecute(points)
             var iconFactory = IconFactory.getInstance(this@MainActivity)
-//            var iconDrawable = ResourcesCompat.getDrawable(resources, R.drawable.ic_marker, null)
-            //var icon = iconFactory.fromResource(R.drawable.ic_action_name)
+
             if (points.isNotEmpty()) {
                 for(point in points){
-                    //var mDrawable = getDrawable(R.drawable.ic_action_name);
-                    //mDrawable.colorFilter = PorterDuffColorFilter(Color.parseColor(point.markerColor), PorterDuff.Mode.MULTIPLY)
-                    DrawableCompat.setTint(getDrawable(R.drawable.ic_action_name),
-                            Color.GREEN)
-                    var icon = iconFactory.fromResource(R.drawable.ic_action_name)
+                    var icon = iconFactory.fromResource(R.drawable.marker_ff0000)
+                    if (point.markerColor == "#0000ff"){
+                        icon = iconFactory.fromResource(R.drawable.marker_0000ff)
+                    } else if (point.markerColor == "#008000"){
+                        icon = iconFactory.fromResource(R.drawable.marker_008000)
+                    } else if (point.markerColor == "#ff0000"){
+                        icon = iconFactory.fromResource(R.drawable.marker_ff0000)
+                    } else {
+                        icon = iconFactory.fromResource(R.drawable.marker_ffdf00)
+                    }
+
                     map?.addMarker(MarkerOptions()
                             .position(point.latlng)
                             .icon(icon)
@@ -322,5 +329,4 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
             }
         }
     }
-
 }
