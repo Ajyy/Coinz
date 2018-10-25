@@ -1,9 +1,6 @@
 package com.example.coinz
 
 import android.annotation.SuppressLint
-import android.content.Context
-import android.graphics.Color
-import android.graphics.drawable.Drawable
 import android.location.Location
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -26,22 +23,21 @@ import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode
 import org.json.JSONObject
 import android.os.AsyncTask
-import android.os.PersistableBundle
 import android.support.design.widget.NavigationView
-import android.support.v4.graphics.drawable.DrawableCompat
 import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.widget.Toolbar
-import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import com.mapbox.mapboxsdk.annotations.Icon
 import com.mapbox.mapboxsdk.annotations.IconFactory
 import com.mapbox.mapboxsdk.annotations.MarkerOptions
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.URL
 import java.nio.charset.Charset
+import java.util.*
 
 
 class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineListener, OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener{
@@ -251,26 +247,15 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
 
             val points = ArrayList<Point>()
 
+            val cal = Calendar.getInstance()
+            var today = String.format("%d/%02d/%02d", cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH))
+
             try {
-                // Load GeoJSON file
-//                val inputStream = assets.open("geojson")
-//                val rd = BufferedReader(InputStreamReader(inputStream, Charset.forName("UTF-8")))
-//                val sb = StringBuilder()
-//                var cp: Int = rd.read()
-//                while (cp != -1) {
-//                    sb.append(cp.toChar())
-//                    cp = rd.read()
-//                }
-//                var url = URL("http://homepages.inf.ed.ac.uk/stg/coinz/2018/01/01/coinzmap.geojson");
-////                var request = url.openConnection();
-////                request.connect();
-//////                inputStream.close()
-////                var jp = JsonParser();
-                val `is` = URL("http://homepages.inf.ed.ac.uk/stg/coinz/2018/01/01/coinzmap.geojson").openStream()
+                val `is` = URL("http://homepages.inf.ed.ac.uk/stg/coinz/$today/coinzmap.geojson").openStream()
                 val rd = BufferedReader(InputStreamReader(`is`, Charset.forName("UTF-8")))
                 val jsonText = StringBuilder()
                 var cp = rd.read()
-                while (cp!= -1) {
+                while (cp != -1) {
                     jsonText.append(cp.toChar())
                     cp = rd.read()
                 }
@@ -309,7 +294,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
 
             if (points.isNotEmpty()) {
                 for(point in points){
-                    var icon = iconFactory.fromResource(R.drawable.marker_ff0000)
+                    var icon: Icon
                     if (point.markerColor == "#0000ff"){
                         icon = iconFactory.fromResource(R.drawable.marker_0000ff)
                     } else if (point.markerColor == "#008000"){

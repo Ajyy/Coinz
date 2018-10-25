@@ -7,19 +7,19 @@
         <item
             android:id="@+id/nav_balance"
             android:icon="@drawable/nav_money"
-            android:title="Balance" />
+            android:title="@string/balance_name" />
         <item
             android:id="@+id/nav_friend"
             android:icon="@drawable/nav_friend"
-            android:title="Item" />
+            android:title="@string/friends_nav_name" />
     </group>
 
-    <item android:title="Communicate">
+    <item android:title="@string/communicate_name">
         <menu>
             <item
                 android:id="@+id/nav_share"
                 android:icon="@drawable/nav_share"
-                android:title="Share" />
+                android:title="@string/share_nav_name" />
         </menu>
     </item>
 </menu>
