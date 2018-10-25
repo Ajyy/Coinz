@@ -56,4 +56,13 @@
         android:textColor="#ffffff"
         android:textStyle="bold" />
 
+    <TextView
+        android:id="@+id/tvInf"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="5dp"
+        android:gravity="center_horizontal"
+        android:textSize="14sp" />
+
 </LinearLayout>

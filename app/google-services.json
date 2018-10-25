@@ -15,6 +15,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "449337206001-67kn6i9du5v14oj9g20b7576gl24ntk8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.coinz",
+            "certificate_hash": "c349cc05fdee40327adcb1a9af67a8c9144ebb98"
+          }
+        },
+        {
+          "client_id": "449337206001-14541pa6fvqo9ttmq9k5fvrua3bp7hgm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.coinz",
+            "certificate_hash": "9cc2508168a4f3dc3b8d7d1b2358f865a36436ca"
+          }
+        },
+        {
           "client_id": "449337206001-62mqrclb23knbgdnn083ctc99npa66f9.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,8 +45,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "449337206001-62mqrclb23knbgdnn083ctc99npa66f9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2
