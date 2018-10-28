@@ -8,12 +8,12 @@
     <string name="communicate_name">Communicate</string>
     <string name="share_nav_name">Share</string>
     <string name="navigation_descrip">Navigation Head</string>
-    <string name="user_name">AO Junyi</string>
-    <string name="user_email">J.Ao@sms.ed.ac.uk</string>
+    <string name="user_name">SetYourName</string>
+    <string name="user_email">SetYourEmail</string>
     <string name="logo_description">This is the logo</string>
     <string name="user_name_hint">please enter your email</string>
     <string name="user_password_hint">please enter your password</string>
-    <string name="btn_login_text">Login or Sign Up</string>
+    <string name="btn_login_text">Login of Sign Up</string>
     <string name="title_activity_login">Sign in</string>
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
@@ -27,4 +27,14 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="btn_sign_up_name">Sign Up</string>
+    <string name="nav_log_out_name">Log Out</string>
+    <string name="nav_profile_name">Profile</string>
+    <string name="tv_age_name">Age</string>
+    <string name="tv_name_name">Name</string>
+    <string name="tv_gender_name">Gender</string>
+    <string name="rbtn_female_name">Female</string>
+    <string name="rbtn_male_name">Male</string>
+    <string name="btn_submit_name">Submit</string>
+    <string name="rbtn_Unknown_Name">Unknown</string>
 </resources>

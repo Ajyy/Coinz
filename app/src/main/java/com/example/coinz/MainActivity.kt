@@ -1,6 +1,7 @@
 package com.example.coinz
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.location.Location
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -30,6 +31,10 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.widget.Toolbar
 import android.view.MenuItem
 import android.view.View
+import android.widget.TextView
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import com.mapbox.mapboxsdk.annotations.Icon
 import com.mapbox.mapboxsdk.annotations.IconFactory
 import com.mapbox.mapboxsdk.annotations.MarkerOptions
@@ -38,6 +43,7 @@ import java.io.InputStreamReader
 import java.net.URL
 import java.nio.charset.Charset
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineListener, OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener{
@@ -47,13 +53,31 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
     private var map: MapboxMap? = null
     private lateinit var permissionManager: PermissionsManager
     private lateinit var originLocation: Location
-
+    private lateinit var navigationView: NavigationView
+    private var tvNavUserName: TextView? = null
+    private var tvNavEmail: TextView? = null
     private var locationEngine: LocationEngine? = null//component gives us the user location
     private var locationLayerPlugin: LocationLayerPlugin? = null//showing icon representing the users current locatuon
+    private var mAuth: FirebaseAuth? = null
+    private var mDatabase: DatabaseReference? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        mAuth = FirebaseAuth.getInstance()
+        mDatabase = FirebaseDatabase.getInstance().getReference("users")
+        navigationView = findViewById<View>(R.id.nav_view) as NavigationView
+        val headView = navigationView.getHeaderView(0)
+        tvNavEmail = headView.findViewById(R.id.tvNavEmail)
+        tvNavUserName = headView.findViewById(R.id.tvNavUserName)
+        val user = mAuth!!.currentUser
+        tvNavEmail?.text = user!!.email
+        if (user.displayName != null){
+            tvNavUserName!!.text = user.displayName
+        } else {
+            Log.d(tag, "username not found")
+        }
+
         Mapbox.getInstance(applicationContext, getString(R.string.access_token))
         mapView = findViewById(R.id.mapView)
         mapView?.onCreate(savedInstanceState)
@@ -84,7 +108,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
             DrawGeoJson().execute()
         }
     }
-
 
     private fun enableLocation(){
         if (PermissionsManager.areLocationPermissionsGranted(this)){
@@ -229,12 +252,24 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         // Handle navigation view item clicks here.
         val id = item.itemId
 
-        if (id == R.id.nav_balance) {
-            // Handle the camera action
-        } else if (id == R.id.nav_friend) {
+        when (id) {
+            R.id.nav_profile -> {
+                startActivity(Intent(this@MainActivity, Profile::class.java))
+            }
+            R.id.nav_balance -> {
 
-        } else if (id == R.id.nav_share) {
+            }
+            R.id.nav_friend -> {
 
+            }
+            R.id.nav_share -> {
+
+            }
+            R.id.nav_log_out -> {
+                mAuth?.signOut()
+                finish()
+                startActivity(Intent(this@MainActivity, LoginInterface::class.java))
+            }
         }
 
         val drawer = findViewById<View>(R.id.drawer_layout) as DrawerLayout
@@ -293,6 +328,8 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
             var iconFactory = IconFactory.getInstance(this@MainActivity)
 
             if (points.isNotEmpty()) {
+                var markers = ArrayList<MarkerOptions>()
+                var icon: Icon
                 for(point in points){
                     var icon: Icon
                     if (point.markerColor == "#0000ff"){
@@ -305,12 +342,14 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                         icon = iconFactory.fromResource(R.drawable.marker_ffdf00)
                     }
 
-                    map?.addMarker(MarkerOptions()
+                    markers.add(MarkerOptions()
                             .position(point.latlng)
                             .icon(icon)
                             .title(point.currency)
                             .snippet("id: "+point.id))
                 }
+
+                map!!.addMarkers(markers)
             }
         }
     }

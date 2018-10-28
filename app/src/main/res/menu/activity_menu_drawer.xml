@@ -5,6 +5,10 @@
 
     <group android:checkableBehavior="single">
         <item
+            android:id="@+id/nav_profile"
+            android:icon="@drawable/nav_profile"
+            android:title="@string/nav_profile_name" />
+        <item
             android:id="@+id/nav_balance"
             android:icon="@drawable/nav_money"
             android:title="@string/balance_name" />
@@ -12,14 +16,14 @@
             android:id="@+id/nav_friend"
             android:icon="@drawable/nav_friend"
             android:title="@string/friends_nav_name" />
+        <item
+            android:id="@+id/nav_share"
+            android:icon="@drawable/nav_share"
+            android:title="@string/share_nav_name" />
+        <item
+            android:id="@+id/nav_log_out"
+            android:icon="@drawable/nav_log_out"
+            android:title="@string/nav_log_out_name" />
     </group>
 
-    <item android:title="@string/communicate_name">
-        <menu>
-            <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/nav_share"
-                android:title="@string/share_nav_name" />
-        </menu>
-    </item>
 </menu>
