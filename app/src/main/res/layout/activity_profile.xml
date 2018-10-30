@@ -15,7 +15,7 @@
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
         android:text="@string/tv_name_name"
-        android:textSize="18sp"
+        android:textSize="20sp"
         android:textStyle="bold" />
 
     <EditText
@@ -29,15 +29,58 @@
         android:ems="10"
         android:inputType="textPersonName" />
 
-    <TextView
-        android:id="@+id/tvAge"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="22dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="20dp"
-        android:text="@string/tv_age_name"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tvEmailTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/tv_Email_name"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnConfirm"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="200dp"
+            android:layout_weight="1"
+            android:background="@drawable/button"
+            android:elevation="15dp"
+            android:text="confirm"
+            android:textColor="#ffffff"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="22dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="15dp"
         android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvAge"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="22dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="20dp"
+        android:text="@string/tv_age_name"
+        android:textSize="20sp"
         android:textStyle="bold" />
 
     <EditText
@@ -49,7 +92,8 @@
         android:layout_marginRight="20dp"
         android:autofillHints=""
         android:ems="10"
-        android:inputType="numberDecimal" />
+        android:inputType="numberDecimal"
+        android:textSize="18sp" />
 
     <TextView
         android:id="@+id/tvGender"
@@ -59,7 +103,7 @@
         android:layout_marginTop="15dp"
         android:layout_marginEnd="20dp"
         android:text="@string/tv_gender_name"
-        android:textSize="18sp"
+        android:textSize="20sp"
         android:textStyle="bold" />
 
     <RadioGroup
@@ -79,7 +123,8 @@
             android:layout_gravity="start"
             android:layout_marginEnd="10dp"
             android:layout_weight="1"
-            android:text="@string/rbtn_male_name" />
+            android:text="@string/rbtn_male_name"
+            android:textSize="18sp" />
 
         <RadioButton
             android:id="@+id/rbtnFemale"
@@ -87,14 +132,16 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
             android:layout_weight="1"
-            android:text="@string/rbtn_female_name" />
+            android:text="@string/rbtn_female_name"
+            android:textSize="18sp" />
 
         <RadioButton
             android:id="@+id/rbtnUnknown"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/rbtn_Unknown_Name" />
+            android:text="@string/rbtn_Unknown_Name"
+            android:textSize="18sp" />
     </RadioGroup>
 
     <Button
@@ -105,9 +152,10 @@
         android:layout_marginTop="30dp"
         android:layout_marginRight="20dp"
         android:background="@color/colorPrimary"
-        android:elevation="5dp"
+        android:elevation="15dp"
         android:text="@string/btn_submit_name"
         android:textColor="#ffffff"
+        android:textSize="14sp"
         android:textStyle="bold" />
 
     <TextView

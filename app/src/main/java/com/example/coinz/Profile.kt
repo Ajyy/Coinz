@@ -4,16 +4,14 @@ import android.app.Activity
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.support.design.widget.NavigationView
 import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.RadioGroup
-import android.widget.TextView
+import android.widget.*
+import com.google.firebase.auth.ActionCodeSettings
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.database.*
+import kotlinx.android.synthetic.main.activity_profile.*
 
 
 class Profile : AppCompatActivity() {
@@ -22,10 +20,12 @@ class Profile : AppCompatActivity() {
     private var etAge: EditText? = null
     private var rgGender: RadioGroup? = null
     private var btnSubmit: Button? = null
+    private var tvNotify: TextView? = null
+    private var btnConfirm: Button? = null
+    private var tvEmail: TextView? = null
+
     private var mDatabase: DatabaseReference? = null
     private var mAuth: FirebaseAuth? = null
-    private var tvNavUserName: TextView? = null
-    private var tvNotify: TextView? = null
     private val TAG = "Profile"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,9 +36,13 @@ class Profile : AppCompatActivity() {
         rgGender = findViewById<View>(R.id.rgGender) as RadioGroup
         btnSubmit = findViewById<View>(R.id.btnSubmit) as Button
         tvNotify = findViewById<View>(R.id.tvNotify) as TextView
+        btnConfirm = findViewById<View>(R.id.btnConfirm) as Button
+        tvEmail = findViewById<View>(R.id.tvEmail) as TextView
+
         mDatabase = FirebaseDatabase.getInstance().getReference("Users")
         mAuth = FirebaseAuth.getInstance()
         var userReal = mAuth?.currentUser
+        tvEmail!!.text = userReal!!.email
 
         // initialize information
         var userRef = mDatabase!!.child(userReal!!.uid)
@@ -58,8 +62,23 @@ class Profile : AppCompatActivity() {
 
         })
 
+        if (userReal.isEmailVerified){
+            btnConfirm!!.text = "Verified"
+            btnConfirm!!.isEnabled = false
+            btnConfirm!!.elevation = 0.0F
+        } else {
+            btnConfirm!!.setOnClickListener{
+                userReal.sendEmailVerification().addOnCompleteListener { task ->
+                    if (task.isSuccessful){
+                        Toast.makeText(this@Profile, "Verification Email Sent", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this@Profile, "Verification Email fail to send", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
 
-        btnSubmit?.setOnClickListener {
+        btnSubmit!!.setOnClickListener {
             if (etName!!.text.isEmpty()){
                 tvNotify!!.text = "Please enter the name"
             } else if (etAge!!.text.isEmpty()) {

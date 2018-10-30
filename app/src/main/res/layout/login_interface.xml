@@ -44,6 +44,15 @@
         android:inputType="textPassword"
         android:autofillHints="" />
 
+    <TextView
+        android:id="@+id/tvInf"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:gravity="center_horizontal"
+        android:textSize="14sp" />
+
     <Button
         android:id="@+id/btnLogin"
         android:layout_width="match_parent"
@@ -58,12 +67,12 @@
         android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/tvInf"
-        android:layout_width="match_parent"
+        android:id="@+id/tvFPass"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="5dp"
-        android:gravity="center_horizontal"
-        android:textSize="14sp" />
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:text="Forget Password?"
+        android:textColor="@color/common_google_signin_btn_text_dark_focused" />
 
 </LinearLayout>

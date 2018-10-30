@@ -2,8 +2,11 @@ package com.example.coinz
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.ProgressDialog
 import android.content.Intent
+import android.graphics.Bitmap
 import android.location.Location
+import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -25,6 +28,8 @@ import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode
 import org.json.JSONObject
 import android.os.AsyncTask
+import android.provider.MediaStore
+import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
@@ -37,10 +42,14 @@ import android.widget.TextView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import com.mapbox.mapboxsdk.annotations.Icon
 import com.mapbox.mapboxsdk.annotations.IconFactory
 import com.mapbox.mapboxsdk.annotations.MarkerOptions
+import com.squareup.picasso.Picasso
 import java.io.BufferedReader
+import java.io.IOException
 import java.io.InputStreamReader
 import java.net.URL
 import java.nio.charset.Charset
@@ -62,19 +71,25 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
     private var tvNavUserName: TextView? = null
     private var tvNavEmail: TextView? = null
     private var ivProfilePicture: ImageView? = null
+    private var fabLocation: FloatingActionButton? = null
 
     private var mAuth: FirebaseAuth? = null
     private var mDatabase: DatabaseReference? = null
+    private var mStorageReference: StorageReference? = null
 
     private val PROFILE = 2
+    private val PICK_IMAGE = 3
+    private var filePath: Uri?= null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         mAuth = FirebaseAuth.getInstance()
         mDatabase = FirebaseDatabase.getInstance().getReference("users")
-        navigationView = findViewById<View>(R.id.nav_view) as NavigationView
+        mStorageReference = FirebaseStorage.getInstance().reference
 
+        navigationView = findViewById<View>(R.id.nav_view) as NavigationView
+        fabLocation = findViewById<View>(R.id.fabLocation) as FloatingActionButton
         val headView = navigationView.getHeaderView(0)
         tvNavEmail = headView.findViewById(R.id.tvNavEmail)
         tvNavUserName = headView.findViewById(R.id.tvNavUserName)
@@ -88,8 +103,21 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
             Log.d(tag, "username not found")
         }
 
+        var pathReference = mStorageReference!!.child("images/"+user.email+".jpg")
+        pathReference.downloadUrl
+                .addOnSuccessListener { filePath ->
+                    Picasso.get().load(filePath).into(ivProfilePicture)
+                    Log.d(tag, "down avatar: success")
+                }
+                .addOnFailureListener { exception ->
+                    Log.w(tag, "down avatar: failure\n"+exception.message)
+                }
+
         ivProfilePicture!!.setOnClickListener{
-            
+            var intent = Intent()
+            intent.type = "image/*"
+            intent.action = Intent.ACTION_GET_CONTENT
+            startActivityForResult(Intent.createChooser(intent, "select picture"), PICK_IMAGE)
         }
 
         Mapbox.getInstance(applicationContext, getString(R.string.access_token))
@@ -150,6 +178,14 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         }else{
             locationEngine?.addLocationEngineListener(this)
         }
+
+        fabLocation!!.setOnClickListener{
+            val lastLocation = locationEngine?.lastLocation
+            if (lastLocation != null) {
+                setCameraPosition(lastLocation)
+            }
+        }
+
     }
 
     @SuppressLint("MissingPermission")
@@ -185,7 +221,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
             // Open a dialogue with the user
             Toast.makeText(this, "Please allow to get your location", Toast.LENGTH_SHORT)
         }
-
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -291,6 +326,21 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         return true
     }
 
+    private fun uploadFile(bitmap: Bitmap){
+        var user = mAuth!!.currentUser
+        var riversRef = mStorageReference!!.child("images/"+user!!.email+".jpg")
+        riversRef.putFile(filePath!!)
+                .addOnSuccessListener {
+                    Toast.makeText(this@MainActivity, "File Uploaded", Toast.LENGTH_LONG).show()
+                    ivProfilePicture!!.setImageBitmap(bitmap)
+                    Log.d(tag, "File uploaded")
+                }
+                .addOnFailureListener { exception ->
+                    Toast.makeText(this@MainActivity, "Fail to upload", Toast.LENGTH_LONG).show()
+                    Log.w(tag, "Fail to Upload"+exception.message)
+                }
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -299,6 +349,18 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                 tvNavUserName!!.text = data!!.getStringExtra("name")
             } else if (resultCode == Activity.RESULT_CANCELED){
                 Toast.makeText(this@MainActivity, "No data received!", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        if (requestCode == PICK_IMAGE&&data != null&&data.data != null){
+            if (resultCode == Activity.RESULT_OK){
+                filePath = data.data
+                try {
+                    var bitmap = MediaStore.Images.Media.getBitmap(contentResolver, filePath)
+                    uploadFile(bitmap)
+                } catch (e: IOException){
+                    e.printStackTrace()
+                }
             }
         }
     }

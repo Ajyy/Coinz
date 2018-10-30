@@ -12,6 +12,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
+import org.w3c.dom.Text
 
 class LoginInterface : AppCompatActivity(){
     private var mAuth: FirebaseAuth? = null
@@ -20,6 +21,8 @@ class LoginInterface : AppCompatActivity(){
     private var etPassword: EditText? = null
     private var btnLogin: Button? = null
     private var tvInf: TextView? = null
+    private var tvFPass: TextView? = null
+
     private val TAG = "LoginInterface"
     private var user: FirebaseUser? = null
 
@@ -32,6 +35,7 @@ class LoginInterface : AppCompatActivity(){
         etUserName = findViewById<View>(R.id.etUserName) as EditText
         etPassword = findViewById<View>(R.id.etPassword) as EditText
         btnLogin = findViewById<View>(R.id.btnLogin) as Button
+        tvFPass = findViewById<View>(R.id.tvFPass) as TextView
         tvInf = findViewById<View>(R.id.tvInf) as TextView
 
         user = mAuth?.currentUser
@@ -39,13 +43,13 @@ class LoginInterface : AppCompatActivity(){
             user = mFirebaseAuth.currentUser
             if (user != null){
                 Log.d(TAG, "onAuthStateChanged:signed_in:" + user!!.uid)
+                updateUI(user)
             } else {
                 Log.d(TAG, "onAuthStateChanged:signed_out")
             }
-            updateUI(user)
         }
 
-        btnLogin?.setOnClickListener {
+        btnLogin!!.setOnClickListener {
             if (etUserName!!.text.isEmpty()&&etPassword!!.text.isEmpty()){
                 tvInf!!.text = "Please enter your email and password"
             } else if (etUserName!!.text.isEmpty()) {
@@ -60,12 +64,14 @@ class LoginInterface : AppCompatActivity(){
                 validate(etUserName!!.text.toString(), etPassword!!.text.toString())
             }
         }
+
+        tvFPass!!.setOnClickListener{
+            startActivity(Intent(this@LoginInterface, ResetPasswordActivity::class.java))
+        }
     }
 
     override fun onStart() {
         super.onStart()
-        // Check if user is signed in (non-null) and update UI accordingly
-        updateUI(user)
         tvInf!!.text = ""
     }
 
