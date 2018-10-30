@@ -1,6 +1,7 @@
 package com.example.coinz
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.location.Location
 import android.support.v7.app.AppCompatActivity
@@ -31,6 +32,7 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.widget.Toolbar
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
@@ -53,13 +55,18 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
     private var map: MapboxMap? = null
     private lateinit var permissionManager: PermissionsManager
     private lateinit var originLocation: Location
+    private var locationEngine: LocationEngine? = null//component gives us the user location
+    private var locationLayerPlugin: LocationLayerPlugin? = null//showing icon representing the users current locatuon
+
     private lateinit var navigationView: NavigationView
     private var tvNavUserName: TextView? = null
     private var tvNavEmail: TextView? = null
-    private var locationEngine: LocationEngine? = null//component gives us the user location
-    private var locationLayerPlugin: LocationLayerPlugin? = null//showing icon representing the users current locatuon
+    private var ivProfilePicture: ImageView? = null
+
     private var mAuth: FirebaseAuth? = null
     private var mDatabase: DatabaseReference? = null
+
+    private val PROFILE = 2
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,15 +74,22 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         mAuth = FirebaseAuth.getInstance()
         mDatabase = FirebaseDatabase.getInstance().getReference("users")
         navigationView = findViewById<View>(R.id.nav_view) as NavigationView
+
         val headView = navigationView.getHeaderView(0)
         tvNavEmail = headView.findViewById(R.id.tvNavEmail)
         tvNavUserName = headView.findViewById(R.id.tvNavUserName)
+        ivProfilePicture = headView.findViewById(R.id.ivProfilePicture)
+
         val user = mAuth!!.currentUser
         tvNavEmail?.text = user!!.email
         if (user.displayName != null){
             tvNavUserName!!.text = user.displayName
         } else {
             Log.d(tag, "username not found")
+        }
+
+        ivProfilePicture!!.setOnClickListener{
+            
         }
 
         Mapbox.getInstance(applicationContext, getString(R.string.access_token))
@@ -254,7 +268,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
 
         when (id) {
             R.id.nav_profile -> {
-                startActivity(Intent(this@MainActivity, Profile::class.java))
+                startActivityForResult(Intent(this@MainActivity, Profile::class.java), PROFILE)
             }
             R.id.nav_balance -> {
 
@@ -275,6 +289,18 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         val drawer = findViewById<View>(R.id.drawer_layout) as DrawerLayout
         drawer.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == PROFILE){
+            if (resultCode == Activity.RESULT_OK){
+                tvNavUserName!!.text = data!!.getStringExtra("name")
+            } else if (resultCode == Activity.RESULT_CANCELED){
+                Toast.makeText(this@MainActivity, "No data received!", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private inner class DrawGeoJson : AsyncTask<Void, Void, List<Point>>() {

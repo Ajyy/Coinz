@@ -39,16 +39,6 @@ class LoginInterface : AppCompatActivity(){
             user = mFirebaseAuth.currentUser
             if (user != null){
                 Log.d(TAG, "onAuthStateChanged:signed_in:" + user!!.uid)
-//                var emailRef = mDatabase?.child(user!!.uid)
-//                emailRef?.addListenerForSingleValueEvent(object: ValueEventListener{
-//                    override fun onDataChange(snapshot: DataSnapshot){
-//                        if (!snapshot.exists()){
-//
-//                        }
-//                    }
-//
-//                    override fun onCancelled(error: DatabaseError) {}
-//                })
             } else {
                 Log.d(TAG, "onAuthStateChanged:signed_out")
             }

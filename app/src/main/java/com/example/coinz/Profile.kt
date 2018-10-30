@@ -1,5 +1,7 @@
 package com.example.coinz
 
+import android.app.Activity
+import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.design.widget.NavigationView
@@ -65,8 +67,8 @@ class Profile : AppCompatActivity() {
             } else {
                 var gender = if (rgGender!!.checkedRadioButtonId == R.id.rbtnMale) "Male" else
                     if (rgGender!!.checkedRadioButtonId == R.id.rbtnFemale) "Female" else "Unknown"
-                var user = User(etName!!.text.toString(), userReal!!.email!!, etAge!!.text.toString().toInt(), gender)
-                var userUpdate = mapOf<String, User>(Pair("/users/" + userReal.uid, user))
+                var user = User(etName!!.text.toString(), userReal.email!!, etAge!!.text.toString().toInt(), gender)
+                var userUpdate = mapOf<String, User>(Pair(userReal.uid, user))
                 mDatabase!!.updateChildren(userUpdate).addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         Log.d(TAG, "update successful")
@@ -80,11 +82,10 @@ class Profile : AppCompatActivity() {
                                 Log.w(TAG, "UserProfileUpdated: fail")
                             }
                         }
-                        var inflaterView = layoutInflater.inflate(R.layout.activity_main, null)
-                        var navigationView = inflaterView.findViewById<View>(R.id.nav_view) as NavigationView
-                        var headView = navigationView.getHeaderView(0)
-                        tvNavUserName = headView.findViewById(R.id.tvNavUserName)
-                        tvNavUserName!!.text = etName!!.text
+
+                        var intent = Intent()
+                        intent.putExtra("name", etName!!.text.toString())
+                        setResult(Activity.RESULT_OK, intent)
                         finish()
                     } else {
                         Log.w(TAG, "fail to update")
