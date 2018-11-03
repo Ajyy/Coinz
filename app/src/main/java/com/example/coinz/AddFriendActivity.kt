@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -14,8 +15,9 @@ class AddFriendActivity : AppCompatActivity() {
 
     private var etFriendName: EditText? = null
     private var btnSearch: Button? = null
+    private var tvSearchInf: TextView? = null
     private var recyclerView: RecyclerView? = null
-    private var myAdapter: FriendAdapter? = null
+    private var myAdapter: RecyclerView.Adapter<FriendAdapter.ViewHolder>? = null
     private var layoutManager: RecyclerView.LayoutManager? =null
 
     private var db: FirebaseFirestore? = null
@@ -31,31 +33,40 @@ class AddFriendActivity : AppCompatActivity() {
 
         etFriendName = findViewById(R.id.etFriendName)
         btnSearch = findViewById(R.id.btnSearch)
+        tvSearchInf = findViewById(R.id.tvSearchInf)
 
-        recyclerView = findViewById(R.id.friend_list)
+        recyclerView = findViewById(R.id.friendSearch)
         recyclerView!!.setHasFixedSize(true)
-
-        layoutManager = LinearLayoutManager(this@AddFriendActivity)
-        recyclerView!!.layoutManager = layoutManager
 
         myAdapter = FriendAdapter(this@AddFriendActivity, friends)
 
-        if (etFriendName!!.text.isEmpty()){
-            Toast.makeText(this@AddFriendActivity, "Please enter the name", Toast.LENGTH_SHORT).show()
-        } else {
-            val query = db!!.collection("users").whereEqualTo("name", etFriendName!!.text.toString())
-            query.get().addOnCompleteListener { task ->
-                if (task.isSuccessful){
-                    for (document in task.result!!){
-                        val searchUser = document.toObject(User::class.java)
-                        friends.add(Friend(searchUser.name!!, searchUser.email!!, searchUser.age!!, searchUser.gender!!, searchUser.todayStep))
+        layoutManager = LinearLayoutManager(this@AddFriendActivity, LinearLayoutManager.VERTICAL, false)
+        recyclerView!!.layoutManager = layoutManager
+
+        recyclerView!!.adapter = myAdapter
+
+        btnSearch!!.setOnClickListener {
+            friends.clear()
+            if (etFriendName!!.text.isEmpty()){
+                tvSearchInf!!.text = "Please enter the name"
+            } else {
+                val query = db!!.collection("users").whereEqualTo("name", etFriendName!!.text.toString())
+                query.get().addOnCompleteListener { task ->
+                    if (task.isSuccessful){
+                        for (document in task.result!!){
+                            val searchUser = document.toObject(User::class.java)
+                            friends.add(Friend(document.id, searchUser.name!!, searchUser.email!!, searchUser.age!!, searchUser.gender!!, searchUser.todayStep))
+                        }
+
+                        myAdapter!!.notifyDataSetChanged()
+                        Log.d(tag, "${myAdapter!!.itemCount}")
+
+                        Log.d(tag, "SearchFriend: Success")
+                        tvSearchInf!!.text = "Find ${task.result!!.size()} people"
+                    } else {
+                        tvSearchInf!!.text = "Fail to Search"
+                        Log.w(tag, "SearchFriend: Fail")
                     }
-
-                    myAdapter!!.notifyDataSetChanged()
-
-                    Log.d(tag, "SearchFriend: Success")
-                } else {
-                    Log.w(tag, "SearchFriend: Fail")
                 }
             }
         }

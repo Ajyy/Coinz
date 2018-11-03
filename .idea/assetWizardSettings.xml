@@ -66,6 +66,7 @@
                         </option>
                         <option name="values">
                           <map>
+                            <entry key="color" value="ffffff" />
                             <entry key="outputName" value="add_icon" />
                             <entry key="sourceFile" value="D:\浏览器下载\log-out.svg" />
                           </map>

@@ -113,11 +113,7 @@ class LoginInterface : AppCompatActivity(){
                                     }
                                 }
 
-                                try {
-                                    throw task.exception!!
-                                } catch (e: Exception) {
-                                    Log.d(TAG, "Add to database: fail: " + e.message);
-                                }
+                                Log.d(TAG, "Add to database: Fail")
                             }
                 }
 
