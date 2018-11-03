@@ -2,7 +2,6 @@ package com.example.coinz
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.ProgressDialog
 import android.content.Intent
 import android.graphics.Bitmap
 import android.location.Location
@@ -40,8 +39,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.mapbox.mapboxsdk.annotations.Icon
@@ -59,7 +57,6 @@ import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineListener, OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener{
 
-    private val tag = "MainActivity"
     private var mapView: MapView? = null
     private var map: MapboxMap? = null
     private lateinit var permissionManager: PermissionsManager
@@ -74,36 +71,101 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
     private var fabLocation: FloatingActionButton? = null
 
     private var mAuth: FirebaseAuth? = null
-    private var mDatabase: DatabaseReference? = null
     private var mStorageReference: StorageReference? = null
 
-    private val PROFILE = 2
-    private val PICK_IMAGE = 3
-    private var filePath: Uri?= null
+    private val tag = "MainActivity"
+    private val profile = 2
+    private val pickName = 3
+
+    private var coins = ArrayList<Point>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         mAuth = FirebaseAuth.getInstance()
-        mDatabase = FirebaseDatabase.getInstance().getReference("users")
         mStorageReference = FirebaseStorage.getInstance().reference
 
-        navigationView = findViewById<View>(R.id.nav_view) as NavigationView
-        fabLocation = findViewById<View>(R.id.fabLocation) as FloatingActionButton
+        mapView = findViewById(R.id.mapView)
+        fabLocation = findViewById(R.id.fabLocation)
+        navigationView = findViewById(R.id.nav_view)
         val headView = navigationView.getHeaderView(0)
         tvNavEmail = headView.findViewById(R.id.tvNavEmail)
         tvNavUserName = headView.findViewById(R.id.tvNavUserName)
         ivProfilePicture = headView.findViewById(R.id.ivProfilePicture)
+        val toolbar = findViewById<View>(R.id.toolbar) as Toolbar
+        val drawer = findViewById<View>(R.id.drawer_layout) as DrawerLayout
+        val navigationView = findViewById<View>(R.id.nav_view) as NavigationView
 
         val user = mAuth!!.currentUser
-        tvNavEmail?.text = user!!.email
+        initializeUser(user!!)
+        navigationView.setNavigationItemSelectedListener(this@MainActivity)
+
+        Mapbox.getInstance(applicationContext, getString(R.string.access_token))
+        mapView?.onCreate(savedInstanceState)
+        mapView?.getMapAsync (this)
+
+        setSupportActionBar(toolbar)
+        val toggle = ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
+        drawer.addDrawerListener(toggle)
+        toggle.syncState()
+    }
+
+    @SuppressLint("MissingPermission")
+    override fun onStart() {
+        super.onStart()
+        if (PermissionsManager.areLocationPermissionsGranted(this)){
+            locationEngine?.requestLocationUpdates()
+            locationLayerPlugin?.onStart()
+        }
+
+        mapView?.onStart()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mapView?.onResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mapView?.onPause()
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        mapView?.onLowMemory()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+        if (outState != null) {
+            mapView?.onSaveInstanceState(outState)
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        locationEngine?.removeLocationUpdates()
+        locationLayerPlugin?.onStop()
+        mapView?.onStop()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mapView?.onDestroy()
+        locationEngine?.deactivate()
+    }
+
+    private fun initializeUser(user: FirebaseUser){
+        tvNavEmail?.text = user.email
         if (user.displayName != null){
             tvNavUserName!!.text = user.displayName
         } else {
             Log.d(tag, "username not found")
         }
 
-        var pathReference = mStorageReference!!.child("images/"+user.email+".jpg")
+        val pathReference = mStorageReference!!.child("images/"+user.email+".jpg")
         pathReference.downloadUrl
                 .addOnSuccessListener { filePath ->
                     Picasso.get().load(filePath).into(ivProfilePicture)
@@ -114,27 +176,26 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                 }
 
         ivProfilePicture!!.setOnClickListener{
-            var intent = Intent()
+            val intent = Intent()
             intent.type = "image/*"
             intent.action = Intent.ACTION_GET_CONTENT
-            startActivityForResult(Intent.createChooser(intent, "select picture"), PICK_IMAGE)
+            startActivityForResult(Intent.createChooser(intent, "select picture"), pickName)
         }
+    }
 
-        Mapbox.getInstance(applicationContext, getString(R.string.access_token))
-        mapView = findViewById(R.id.mapView)
-        mapView?.onCreate(savedInstanceState)
-        mapView?.getMapAsync (this)
-
-        val toolbar = findViewById<View>(R.id.toolbar) as Toolbar
-        setSupportActionBar(toolbar)
-        val drawer = findViewById<View>(R.id.drawer_layout) as DrawerLayout
-        val toggle = ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
-        drawer.addDrawerListener(toggle)
-        toggle.syncState()
-
-        val navigationView = findViewById<View>(R.id.nav_view) as NavigationView
-        navigationView.setNavigationItemSelectedListener(this@MainActivity)
+    private fun uploadFile(bitmap: Bitmap, filePath: Uri){
+        val user = mAuth!!.currentUser
+        val riversRef = mStorageReference!!.child("images/"+user!!.email+".jpg")
+        riversRef.putFile(filePath)
+                .addOnSuccessListener {
+                    Toast.makeText(this@MainActivity, "File Uploaded", Toast.LENGTH_LONG).show()
+                    ivProfilePicture!!.setImageBitmap(bitmap)
+                    Log.d(tag, "File uploaded")
+                }
+                .addOnFailureListener { exception ->
+                    Toast.makeText(this@MainActivity, "Fail to upload", Toast.LENGTH_LONG).show()
+                    Log.w(tag, "Fail to Upload"+exception.message)
+                }
     }
 
     override fun onMapReady(mapboxMap: MapboxMap?) {
@@ -156,6 +217,12 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
             Log.d(tag, "Permissions are granted")
             initializeLocationEngine()
             initializeLocationLayer()
+            fabLocation!!.setOnClickListener{
+                val lastLocation = locationEngine?.lastLocation
+                if (lastLocation != null) {
+                    setCameraPosition(lastLocation)
+                }
+            }
         }else{
             Log.d(tag, "Permissions are not granted")
             permissionManager = PermissionsManager(this)
@@ -178,14 +245,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         }else{
             locationEngine?.addLocationEngineListener(this)
         }
-
-        fabLocation!!.setOnClickListener{
-            val lastLocation = locationEngine?.lastLocation
-            if (lastLocation != null) {
-                setCameraPosition(lastLocation)
-            }
-        }
-
     }
 
     @SuppressLint("MissingPermission")
@@ -236,58 +295,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         }
     }
 
-    @SuppressLint("MissingPermission")
-    override fun onConnected() {
-        Log.d(tag, "[onConnected] requesting location updates")
-        locationEngine?.requestLocationUpdates()
-    }
-
-    @SuppressLint("MissingPermission")
-    override fun onStart() {
-        super.onStart()
-        if (PermissionsManager.areLocationPermissionsGranted(this)){
-            locationEngine?.requestLocationUpdates()
-            locationLayerPlugin?.onStart()
-        }
-
-        mapView?.onStart()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        mapView?.onResume()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        mapView?.onPause()
-    }
-
-    override fun onLowMemory() {
-        super.onLowMemory()
-        mapView?.onLowMemory()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle?) {
-        super.onSaveInstanceState(outState)
-        if (outState != null) {
-            mapView?.onSaveInstanceState(outState)
-        }
-    }
-
-    override fun onStop() {
-        super.onStop()
-        locationEngine?.removeLocationUpdates()
-        locationLayerPlugin?.onStop()
-        mapView?.onStop()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        mapView?.onDestroy()
-        locationEngine?.deactivate()
-    }
-
     override fun onBackPressed() {
         val drawer = findViewById<View>(R.id.drawer_layout) as DrawerLayout
         if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -297,19 +304,25 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         }
     }
 
+    @SuppressLint("MissingPermission")
+    override fun onConnected() {
+        Log.d(tag, "[onConnected] requesting location updates")
+        locationEngine?.requestLocationUpdates()
+    }
+
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
         val id = item.itemId
 
         when (id) {
             R.id.nav_profile -> {
-                startActivityForResult(Intent(this@MainActivity, Profile::class.java), PROFILE)
+                startActivityForResult(Intent(this@MainActivity, Profile::class.java), profile)
             }
-            R.id.nav_balance -> {
+            R.id.nav_central_park -> {
 
             }
             R.id.nav_friend -> {
-
+                startActivity(Intent(this@MainActivity, FriendActivity::class.java))
             }
             R.id.nav_share -> {
 
@@ -326,52 +339,13 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         return true
     }
 
-    private fun uploadFile(bitmap: Bitmap){
-        var user = mAuth!!.currentUser
-        var riversRef = mStorageReference!!.child("images/"+user!!.email+".jpg")
-        riversRef.putFile(filePath!!)
-                .addOnSuccessListener {
-                    Toast.makeText(this@MainActivity, "File Uploaded", Toast.LENGTH_LONG).show()
-                    ivProfilePicture!!.setImageBitmap(bitmap)
-                    Log.d(tag, "File uploaded")
-                }
-                .addOnFailureListener { exception ->
-                    Toast.makeText(this@MainActivity, "Fail to upload", Toast.LENGTH_LONG).show()
-                    Log.w(tag, "Fail to Upload"+exception.message)
-                }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == PROFILE){
-            if (resultCode == Activity.RESULT_OK){
-                tvNavUserName!!.text = data!!.getStringExtra("name")
-            } else if (resultCode == Activity.RESULT_CANCELED){
-                Toast.makeText(this@MainActivity, "No data received!", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        if (requestCode == PICK_IMAGE&&data != null&&data.data != null){
-            if (resultCode == Activity.RESULT_OK){
-                filePath = data.data
-                try {
-                    var bitmap = MediaStore.Images.Media.getBitmap(contentResolver, filePath)
-                    uploadFile(bitmap)
-                } catch (e: IOException){
-                    e.printStackTrace()
-                }
-            }
-        }
-    }
-
     private inner class DrawGeoJson : AsyncTask<Void, Void, List<Point>>() {
         override fun doInBackground(vararg voids: Void): List<Point> {
 
             val points = ArrayList<Point>()
 
             val cal = Calendar.getInstance()
-            var today = String.format("%d/%02d/%02d", cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH))
+            val today = String.format("%d/%02d/%02d", cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH))
 
             try {
                 val `is` = URL("http://homepages.inf.ed.ac.uk/stg/coinz/$today/coinzmap.geojson").openStream()
@@ -397,9 +371,11 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                         if(type != null && type.toString() == "Point"){
                             val coord = geometry.getJSONArray("coordinates")
                             val latLng = LatLng(coord.getDouble(1), coord.getDouble(0))
-                            points.add(Point(properties.getString("id"), properties.getDouble("value")
+                            val point = Point(properties.getString("id"), properties.getDouble("value")
                                     , properties.getString("currency"), properties.getString("marker-symbol")
-                                    , properties.getString("marker-color"), latLng))
+                                    , properties.getString("marker-color"), latLng)
+                            points.add(point)
+                            coins.add(point)
                         }
                     }
                 }
@@ -413,31 +389,50 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
 
         override fun onPostExecute(points: List<Point>) {
             super.onPostExecute(points)
-            var iconFactory = IconFactory.getInstance(this@MainActivity)
+            val iconFactory = IconFactory.getInstance(this@MainActivity)
 
             if (points.isNotEmpty()) {
-                var markers = ArrayList<MarkerOptions>()
-                var icon: Icon
+                val markers = ArrayList<MarkerOptions>()
                 for(point in points){
-                    var icon: Icon
-                    if (point.markerColor == "#0000ff"){
-                        icon = iconFactory.fromResource(R.drawable.marker_0000ff)
-                    } else if (point.markerColor == "#008000"){
-                        icon = iconFactory.fromResource(R.drawable.marker_008000)
-                    } else if (point.markerColor == "#ff0000"){
-                        icon = iconFactory.fromResource(R.drawable.marker_ff0000)
-                    } else {
-                        icon = iconFactory.fromResource(R.drawable.marker_ffdf00)
+                    val icon: Icon = when {
+                        point.markerColor == "#0000ff" -> iconFactory.fromResource(R.drawable.marker_0000ff)
+                        point.markerColor == "#008000" -> iconFactory.fromResource(R.drawable.marker_008000)
+                        point.markerColor == "#ff0000" -> iconFactory.fromResource(R.drawable.marker_ff0000)
+                        else -> iconFactory.fromResource(R.drawable.marker_ffdf00)
                     }
 
                     markers.add(MarkerOptions()
                             .position(point.latlng)
                             .icon(icon)
-                            .title(point.currency)
-                            .snippet("id: "+point.id))
+                            .title(point.currency+": "+point.markerSymbol)
+                            .snippet("Id: "+point.id+"\n"+"Value: "+point.value))
                 }
 
                 map!!.addMarkers(markers)
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == profile){
+            if (resultCode == Activity.RESULT_OK){
+                tvNavUserName!!.text = data!!.getStringExtra("name")
+            } else if (resultCode == Activity.RESULT_CANCELED){
+                Toast.makeText(this@MainActivity, "No data received!", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        if (requestCode == pickName&&data != null&&data.data != null){
+            if (resultCode == Activity.RESULT_OK){
+                val filePath = data.data
+                try {
+                    val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, filePath)
+                    uploadFile(bitmap, filePath!!)
+                } catch (e: IOException){
+                    e.printStackTrace()
+                }
             }
         }
     }

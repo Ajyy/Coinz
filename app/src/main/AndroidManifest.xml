@@ -30,7 +30,10 @@
             android:name=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".Profile" />
-        <activity android:name=".ResetPasswordActivity"></activity>
+        <activity android:name=".ResetPasswordActivity" />
+        <activity android:name=".FriendActivity" />
+        <activity android:name=".FriendProfile" />
+        <activity android:name=".AddFriendActivity"></activity>
     </application>
 
 </manifest>

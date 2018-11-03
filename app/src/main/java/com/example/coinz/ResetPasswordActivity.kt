@@ -13,6 +13,7 @@ class ResetPasswordActivity : AppCompatActivity() {
     private var etReEmail: EditText? = null
     private var btnSendEmail: Button? = null
     private var tvReInf: TextView? = null
+
     private var mAuth: FirebaseAuth? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,8 +23,10 @@ class ResetPasswordActivity : AppCompatActivity() {
         etReEmail = findViewById<View>(R.id.etReEmail) as EditText
         btnSendEmail = findViewById<View>(R.id.btnSendEmail) as Button
         tvReInf = findViewById<View>(R.id.tvReInf) as TextView
+
         mAuth = FirebaseAuth.getInstance()
 
+        // send email and reset password by email
         btnSendEmail!!.setOnClickListener{
             if (etReEmail!!.text.isEmpty()){
                 tvReInf!!.text = "Enter You Email"

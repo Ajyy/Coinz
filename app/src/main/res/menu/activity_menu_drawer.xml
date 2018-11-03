@@ -9,9 +9,9 @@
             android:icon="@drawable/nav_profile"
             android:title="@string/nav_profile_name" />
         <item
-            android:id="@+id/nav_balance"
+            android:id="@+id/nav_central_park"
             android:icon="@drawable/nav_money"
-            android:title="@string/balance_name" />
+            android:title="@string/central_bank_name" />
         <item
             android:id="@+id/nav_friend"
             android:icon="@drawable/nav_friend"

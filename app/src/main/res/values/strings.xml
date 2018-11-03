@@ -3,7 +3,7 @@
     <string name="access_token">pk.eyJ1IjoiYWp5eSIsImEiOiJjam14cXd3bHEza2N3M3BueHlrZXp4dG1wIn0.y9DB_p5jKf3uoVxqRwR61Q</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="balance_name">Balance</string>
+    <string name="central_bank_name">Central Bank</string>
     <string name="friends_nav_name">Friends</string>
     <string name="communicate_name">Communicate</string>
     <string name="share_nav_name">Share</string>
@@ -40,4 +40,5 @@
     <string name="tv_Email_name">Email</string>
     <string name="btn_send_reset_email_name">Send Reset Email</string>
     <string name="etReEmail_please_enter_your_email_hint">please enter your email</string>
+    <string name="picture_descr">friand avator</string>
 </resources>

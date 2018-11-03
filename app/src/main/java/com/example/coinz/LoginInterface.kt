@@ -11,12 +11,14 @@ import android.widget.TextView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.*
-import org.w3c.dom.Text
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 
 class LoginInterface : AppCompatActivity(){
     private var mAuth: FirebaseAuth? = null
-    private var mDatabase: DatabaseReference? = null
+    private var user: FirebaseUser? = null
+    private var db: FirebaseFirestore? = null
+
     private var etUserName: EditText? = null
     private var etPassword: EditText? = null
     private var btnLogin: Button? = null
@@ -24,20 +26,21 @@ class LoginInterface : AppCompatActivity(){
     private var tvFPass: TextView? = null
 
     private val TAG = "LoginInterface"
-    private var user: FirebaseUser? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.login_interface)
         mAuth = FirebaseAuth.getInstance()
-        mDatabase = FirebaseDatabase.getInstance().getReference("Users")
+        db = FirebaseFirestore.getInstance()
+
         etUserName = findViewById<View>(R.id.etUserName) as EditText
         etPassword = findViewById<View>(R.id.etPassword) as EditText
         btnLogin = findViewById<View>(R.id.btnLogin) as Button
         tvFPass = findViewById<View>(R.id.tvFPass) as TextView
         tvInf = findViewById<View>(R.id.tvInf) as TextView
 
+        // Listener to update UI
         user = mAuth?.currentUser
         mAuth?.addAuthStateListener { mFirebaseAuth ->
             user = mFirebaseAuth.currentUser
@@ -49,6 +52,7 @@ class LoginInterface : AppCompatActivity(){
             }
         }
 
+        // Login or Sign up
         btnLogin!!.setOnClickListener {
             if (etUserName!!.text.isEmpty()&&etPassword!!.text.isEmpty()){
                 tvInf!!.text = "Please enter your email and password"
@@ -96,25 +100,27 @@ class LoginInterface : AppCompatActivity(){
     private fun signUp(userName: String, password: String){
         mAuth?.createUserWithEmailAndPassword(userName, password)?.addOnCompleteListener { task ->
             if (task.isSuccessful){
-                mDatabase?.child(user!!.uid)?.setValue(User(email = user!!.email!!))?.addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        Log.d(TAG, "Add to database: success")
-                        updateUI(user)
-                    } else {
-                        mAuth?.currentUser!!.delete().addOnCompleteListener { task ->
+                db!!.collection("users").document(user!!.uid).
+                        set(User(email = user!!.email!!), SetOptions.merge()).addOnCompleteListener { task ->
                             if (task.isSuccessful) {
-                                Log.d(TAG, "Add to database: fail");
-                                tvInf!!.text = "Can not sign up"
-                            }
-                        }
+                                Log.d(TAG, "Add to database: success")
+                                // updateUI(user)
+                            } else {
+                                mAuth?.currentUser!!.delete().addOnCompleteListener { task ->
+                                    if (task.isSuccessful) {
+                                        Log.d(TAG, "Add to database: fail");
+                                        tvInf!!.text = "Can not sign up"
+                                    }
+                                }
 
-                        try {
-                            throw task.exception!!
-                        } catch (e: Exception) {
-                            Log.d(TAG, "Add to database: fail: " + e.message);
-                        }
-                    }
+                                try {
+                                    throw task.exception!!
+                                } catch (e: Exception) {
+                                    Log.d(TAG, "Add to database: fail: " + e.message);
+                                }
+                            }
                 }
+
                 Log.d(TAG, "createUserWithEmail: success")
             } else {
                 try {
