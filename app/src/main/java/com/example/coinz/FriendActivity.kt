@@ -33,7 +33,7 @@ class FriendActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.friend_list)
         recyclerView!!.setHasFixedSize(true)
 
-        layoutManager = LinearLayoutManager(this@FriendActivity)
+        layoutManager = LinearLayoutManager(this@FriendActivity, LinearLayoutManager.VERTICAL, false)
         recyclerView!!.layoutManager = layoutManager
         getFriends()
 
@@ -48,7 +48,9 @@ class FriendActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        startActivityForResult(Intent(this@FriendActivity, AddFriendActivity::class.java), addFriendActivity)
+        val intent = Intent(this@FriendActivity, AddFriendActivity::class.java)
+        intent.putExtra("friendsList", friends)
+        startActivityForResult(intent, addFriendActivity)
         return super.onOptionsItemSelected(item)
     }
 
@@ -66,8 +68,8 @@ class FriendActivity : AppCompatActivity() {
     }
 
     private fun getFriends(){
-        val userDocRef = db.collection("users").document(user!!.uid).collection("friends")
-        userDocRef.get()
+        val userDocRef = db.collection("users")
+        userDocRef.document(user!!.uid).collection("friends").get()
                 .addOnCompleteListener { task1 ->
                     if (task1.isSuccessful){
                         Log.d(tag, "getFriend: Success")
@@ -82,8 +84,12 @@ class FriendActivity : AppCompatActivity() {
                                                 val document2 = task2.result
                                                 if (document2!!.exists()){
                                                     val userFriend = document2.toObject(User::class.java)
-                                                    friends.add(Friend(user!!.uid, userFriend!!.name!!, userFriend.email!!,
+                                                    print(userFriend?.name)
+                                                    friends.add(Friend(document2.id, userFriend!!.name!!, userFriend.email!!,
                                                             userFriend.age!!, userFriend.gender!!, userFriend.todayStep, friend["isVerified"] as Boolean))
+                                                    if (myAdapter != null){
+                                                        myAdapter!!.notifyDataSetChanged()
+                                                    }
                                                 } else {
                                                     Log.w(tag, "No such user")
                                                 }

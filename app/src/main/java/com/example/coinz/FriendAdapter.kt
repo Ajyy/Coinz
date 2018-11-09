@@ -47,11 +47,15 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
                 }
 
         viewHolder.tvFriendName.text = friends[i].name
+        if (context.javaClass.simpleName == "FriendActivity"){
+            viewHolder.tvVerify!!.text = if(friends[i].isVerified) "" else "Waiting fot Accept"
+        }
     }
 
     inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
         var ivPicture: ImageView = itemView.findViewById(R.id.ivPicture)
         var tvFriendName: TextView = itemView.findViewById(R.id.tvFriendName)
+        var tvVerify: TextView? = itemView.findViewById(R.id.tvVerify)
 
         init {
             if (context.javaClass.simpleName == "AddFriendActivity"){

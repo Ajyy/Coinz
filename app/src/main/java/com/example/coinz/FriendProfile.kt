@@ -38,7 +38,7 @@ class FriendProfile : AppCompatActivity() {
         val pathReference = mStorageReference.child("images/"+friend.email+".jpg")
         pathReference.downloadUrl
                 .addOnSuccessListener { filePath ->
-                    Picasso.get().load(filePath).into(ivFriendPicture)
+                    Picasso.get().load(filePath).resize(200, 200).into(ivFriendPicture)
                     Log.d(tag, "down avatar: success")
                 }
                 .addOnFailureListener { exception ->

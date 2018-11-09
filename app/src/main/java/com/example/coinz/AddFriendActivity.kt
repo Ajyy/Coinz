@@ -9,6 +9,8 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 
 class AddFriendActivity : AppCompatActivity() {
@@ -21,15 +23,20 @@ class AddFriendActivity : AppCompatActivity() {
     private var layoutManager: RecyclerView.LayoutManager? =null
 
     private var db: FirebaseFirestore? = null
+    private var user: FirebaseUser? = null
 
-    private var friends = ArrayList<Friend>()
+    private var searchFriend = ArrayList<Friend>()
+    private var friends: ArrayList<Friend>? = null
     private val tag = "AddFriendActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_friend)
 
+        friends = intent.getSerializableExtra("friendsList") as ArrayList<Friend>
+
         db = FirebaseFirestore.getInstance()
+        user = FirebaseAuth.getInstance().currentUser
 
         etFriendName = findViewById(R.id.etFriendName)
         btnSearch = findViewById(R.id.btnSearch)
@@ -38,7 +45,7 @@ class AddFriendActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.friendSearch)
         recyclerView!!.setHasFixedSize(true)
 
-        myAdapter = FriendAdapter(this@AddFriendActivity, friends)
+        myAdapter = FriendAdapter(this@AddFriendActivity, searchFriend)
 
         layoutManager = LinearLayoutManager(this@AddFriendActivity, LinearLayoutManager.VERTICAL, false)
         recyclerView!!.layoutManager = layoutManager
@@ -46,23 +53,41 @@ class AddFriendActivity : AppCompatActivity() {
         recyclerView!!.adapter = myAdapter
 
         btnSearch!!.setOnClickListener {
-            friends.clear()
+            searchFriend.clear()
             if (etFriendName!!.text.isEmpty()){
                 tvSearchInf!!.text = "Please enter the name"
             } else {
                 val query = db!!.collection("users").whereEqualTo("name", etFriendName!!.text.toString())
                 query.get().addOnCompleteListener { task ->
                     if (task.isSuccessful){
+                        var friend_num = 0
                         for (document in task.result!!){
                             val searchUser = document.toObject(User::class.java)
-                            friends.add(Friend(document.id, searchUser.name!!, searchUser.email!!, searchUser.age!!, searchUser.gender!!, searchUser.todayStep))
+
+                            var isExist = false
+                            for (friend in friends!!){
+                                if (friend.uid == document.id){
+                                    friend_num+=1
+                                    isExist = true
+                                    break
+                                }
+                            }
+
+                            if (!isExist) {
+                                if (searchUser.name != user!!.displayName){
+                                    searchFriend.add(Friend(document.id, searchUser.name!!, searchUser.email!!, searchUser.age!!, searchUser.gender!!, searchUser.todayStep))
+                                }
+                            }
                         }
 
                         myAdapter!!.notifyDataSetChanged()
-                        Log.d(tag, "${myAdapter!!.itemCount}")
-
                         Log.d(tag, "SearchFriend: Success")
-                        tvSearchInf!!.text = "Find ${task.result!!.size()} people"
+
+                        if (friend_num == 0){
+                            tvSearchInf!!.text = "Find ${task.result!!.size()} people"
+                        } else {
+                            tvSearchInf!!.text = "Find ${task.result!!.size()} people, and $friend_num of them is/are your friends"
+                        }
                     } else {
                         tvSearchInf!!.text = "Fail to Search"
                         Log.w(tag, "SearchFriend: Fail")
