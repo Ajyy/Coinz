@@ -48,9 +48,14 @@ class FriendActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        val intent = Intent(this@FriendActivity, AddFriendActivity::class.java)
-        intent.putExtra("friendsList", friends)
-        startActivityForResult(intent, addFriendActivity)
+        if (item!!.itemId == R.id.inf_icon){
+            startActivity(Intent(this@FriendActivity, FriendInfActivity::class.java))
+        } else {
+            val intent = Intent(this@FriendActivity, AddFriendActivity::class.java)
+            intent.putExtra("friendsList", friends)
+            startActivityForResult(intent, addFriendActivity)
+        }
+
         return super.onOptionsItemSelected(item)
     }
 

@@ -20,7 +20,7 @@ class AddFriendActivity : AppCompatActivity() {
     private var tvSearchInf: TextView? = null
     private var recyclerView: RecyclerView? = null
     private var myAdapter: RecyclerView.Adapter<FriendAdapter.ViewHolder>? = null
-    private var layoutManager: RecyclerView.LayoutManager? =null
+    private var layoutManager: RecyclerView.LayoutManager? = null
 
     private var db: FirebaseFirestore? = null
     private var user: FirebaseUser? = null
@@ -60,14 +60,14 @@ class AddFriendActivity : AppCompatActivity() {
                 val query = db!!.collection("users").whereEqualTo("name", etFriendName!!.text.toString())
                 query.get().addOnCompleteListener { task ->
                     if (task.isSuccessful){
-                        var friend_num = 0
+                        var friendNum = 0
                         for (document in task.result!!){
                             val searchUser = document.toObject(User::class.java)
 
                             var isExist = false
                             for (friend in friends!!){
                                 if (friend.uid == document.id){
-                                    friend_num+=1
+                                    friendNum+=1
                                     isExist = true
                                     break
                                 }
@@ -83,10 +83,10 @@ class AddFriendActivity : AppCompatActivity() {
                         myAdapter!!.notifyDataSetChanged()
                         Log.d(tag, "SearchFriend: Success")
 
-                        if (friend_num == 0){
+                        if (friendNum == 0){
                             tvSearchInf!!.text = "Find ${task.result!!.size()} people"
                         } else {
-                            tvSearchInf!!.text = "Find ${task.result!!.size()} people, and $friend_num of them is/are your friends"
+                            tvSearchInf!!.text = "Find ${task.result!!.size()} people, and $friendNum of them is/are your friends"
                         }
                     } else {
                         tvSearchInf!!.text = "Fail to Search"

@@ -33,7 +33,8 @@
         <activity android:name=".ResetPasswordActivity" />
         <activity android:name=".FriendActivity" />
         <activity android:name=".FriendProfile" />
-        <activity android:name=".AddFriendActivity"></activity>
+        <activity android:name=".AddFriendActivity" />
+        <activity android:name=".FriendInfActivity"></activity>
     </application>
 
 </manifest>

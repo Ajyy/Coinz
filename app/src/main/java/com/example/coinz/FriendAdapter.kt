@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import com.google.firebase.auth.FirebaseAuth
@@ -48,7 +49,13 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
 
         viewHolder.tvFriendName.text = friends[i].name
         if (context.javaClass.simpleName == "FriendActivity"){
-            viewHolder.tvVerify!!.text = if(friends[i].isVerified) "" else "Waiting fot Accept"
+            viewHolder.tvVerify!!.text = if(friends[i].isVerified) "" else "Waiting for Accept"
+        } else {
+            viewHolder.tvVerify!!.visibility = View.GONE
+        }
+
+        if (context.javaClass.simpleName != "FriendInfActivity"){
+            viewHolder.btnAccept!!.visibility = View.GONE
         }
     }
 
@@ -56,11 +63,22 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
         var ivPicture: ImageView = itemView.findViewById(R.id.ivPicture)
         var tvFriendName: TextView = itemView.findViewById(R.id.tvFriendName)
         var tvVerify: TextView? = itemView.findViewById(R.id.tvVerify)
+        var btnAccept: Button? = itemView.findViewById(R.id.btnAccept)
 
         init {
-            if (context.javaClass.simpleName == "AddFriendActivity"){
-                itemView.setOnClickListener {
+            when {
+                context.javaClass.simpleName == "AddFriendActivity" -> itemView.setOnClickListener {
                     val friend = itemView.tag as Friend
+                    db.collection("users").document(friend.uid).collection("invitations").document(user!!.uid)
+                            .set(mapOf("isAccept" to false), SetOptions.merge()).addOnCompleteListener{ task ->
+                                if (task.isSuccessful) {
+                                    Log.d(tag, "Add Friend to database: Success")
+                                    // updateUI(user)
+                                } else {
+                                    Log.d(tag, "Add Friend to database: Fail")
+                                }
+                            }
+
                     db.collection("users").document(user!!.uid).collection("friends").document(friend.uid)
                             .set(mapOf("isVerified" to false), SetOptions.merge()).addOnCompleteListener{ task ->
                                 if (task.isSuccessful) {
@@ -73,11 +91,18 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
                                 }
                             }
                 }
-            } else {
-                itemView.setOnClickListener {
-                    val intent = Intent(context, FriendProfile::class.java)
-                    intent.putExtra("friend", itemView.tag as Friend)
-                    context.startActivity(intent)
+
+                context.javaClass.simpleName == "FriendActivity" -> itemView.setOnClickListener {
+                    val friend = itemView.tag as Friend
+                    if (friend.isVerified){
+                        val intent = Intent(context, FriendProfile::class.java)
+                        intent.putExtra("friend", friend)
+                        context.startActivity(intent)
+                    }
+                }
+
+                context.javaClass.simpleName == "FriendInfActivity" -> itemView.setOnClickListener {
+
                 }
             }
         }
