@@ -23,8 +23,9 @@ class FriendActivity : AppCompatActivity() {
     private var db = FirebaseFirestore.getInstance()
     private var user = FirebaseAuth.getInstance().currentUser
 
-    private val addFriendActivity = 2
+    private val AddFriendActivity = 2
     private val tag = "FriendActivity"
+    private val FriendInfActivity = 3
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,11 +50,11 @@ class FriendActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         if (item!!.itemId == R.id.inf_icon){
-            startActivity(Intent(this@FriendActivity, FriendInfActivity::class.java))
+            startActivityForResult(Intent(this@FriendActivity, FriendInfActivity::class.java), FriendInfActivity)
         } else {
             val intent = Intent(this@FriendActivity, AddFriendActivity::class.java)
             intent.putExtra("friendsList", friends)
-            startActivityForResult(intent, addFriendActivity)
+            startActivityForResult(intent, AddFriendActivity)
         }
 
         return super.onOptionsItemSelected(item)
@@ -61,7 +62,7 @@ class FriendActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == addFriendActivity){
+        if (requestCode == AddFriendActivity){
             if (resultCode == Activity.RESULT_OK){
                 friends.clear()
                 getFriends()
@@ -69,6 +70,10 @@ class FriendActivity : AppCompatActivity() {
             } else if (resultCode == Activity.RESULT_CANCELED){
                 Toast.makeText(this@FriendActivity, "No data received", Toast.LENGTH_SHORT).show()
             }
+        } else if (requestCode == FriendInfActivity){
+            friends.clear()
+            getFriends()
+            myAdapter!!.notifyDataSetChanged()
         }
     }
 

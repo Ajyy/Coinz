@@ -56,6 +56,33 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
 
         if (context.javaClass.simpleName != "FriendInfActivity"){
             viewHolder.btnAccept!!.visibility = View.GONE
+        } else {
+            if (friends[i].isAccept){
+                viewHolder.btnAccept!!.isEnabled = false
+                viewHolder.btnAccept!!.text = "Accepted"
+            } else {
+                val userDb = db.collection("users").document(user!!.uid)
+                viewHolder.btnAccept!!.setOnClickListener {
+                    userDb.collection("invitations").document(friends[i].uid).update("isAccept", true)
+                            .addOnCompleteListener { task1 ->
+                                if (task1.isSuccessful){
+                                    Log.d(tag, "Update invitation information: Success")
+                                    userDb.collection("friends").document(friends[i].uid).set(mapOf("isVerified" to true), SetOptions.merge())
+                                            .addOnCompleteListener { task1 ->
+                                                if (task1.isSuccessful){
+                                                    Log.d(tag, "Update friends information: Success")
+                                                } else {
+                                                    Log.w(tag, "Update friends information: Fail")
+                                                }
+                                            }
+                                    viewHolder.btnAccept!!.isEnabled = false
+                                    viewHolder.btnAccept!!.text = "Accepted"
+                                } else {
+                                    Log.w(tag, "Update invitation information: Fail")
+                                }
+                            }
+                }
+            }
         }
     }
 
@@ -99,10 +126,6 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
                         intent.putExtra("friend", friend)
                         context.startActivity(intent)
                     }
-                }
-
-                context.javaClass.simpleName == "FriendInfActivity" -> itemView.setOnClickListener {
-
                 }
             }
         }

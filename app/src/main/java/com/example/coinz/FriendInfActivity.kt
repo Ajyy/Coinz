@@ -45,7 +45,8 @@ class FriendInfActivity : AppCompatActivity() {
                                     .addOnCompleteListener { task2 ->
                                         if (task2.isSuccessful){
                                             val friend = task2.result!!.toObject(User::class.java)
-                                            friendInf.add(Friend(document1.id, friend!!.name!!, friend.email!!, friend.age!!, friend.gender!!, friend.todayStep, true))
+                                            friendInf.add(Friend(document1.id, friend!!.name!!, friend.email!!, friend.age!!,
+                                                    friend.gender!!, friend.todayStep, isAccept = document1.data["isAccept"] as Boolean))
 
                                             Log.d(tag, "Get invited friend: Success")
                                         } else {
