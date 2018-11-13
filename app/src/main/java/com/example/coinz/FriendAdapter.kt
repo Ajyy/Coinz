@@ -45,6 +45,7 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
                 }
                 .addOnFailureListener { exception ->
                     Log.w(tag, "down avatar: failure\n"+exception.message)
+                    viewHolder.ivPicture.setImageResource(R.mipmap.ic_launcher_round)
                 }
 
         viewHolder.tvFriendName.text = friends[i].name
@@ -61,20 +62,30 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
                 viewHolder.btnAccept!!.isEnabled = false
                 viewHolder.btnAccept!!.text = "Accepted"
             } else {
-                val userDb = db.collection("users").document(user!!.uid)
+                val userDb = db.collection("users")
                 viewHolder.btnAccept!!.setOnClickListener {
-                    userDb.collection("invitations").document(friends[i].uid).update("isAccept", true)
+                    userDb.document(user!!.uid).collection("invitations").document(friends[i].uid).update("isAccept", true)
                             .addOnCompleteListener { task1 ->
                                 if (task1.isSuccessful){
                                     Log.d(tag, "Update invitation information: Success")
-                                    userDb.collection("friends").document(friends[i].uid).set(mapOf("isVerified" to true), SetOptions.merge())
-                                            .addOnCompleteListener { task1 ->
-                                                if (task1.isSuccessful){
+                                    userDb.document(user!!.uid).collection("friends").document(friends[i].uid).set(mapOf("isVerified" to true), SetOptions.merge())
+                                            .addOnCompleteListener { task2 ->
+                                                if (task2.isSuccessful){
                                                     Log.d(tag, "Update friends information: Success")
                                                 } else {
                                                     Log.w(tag, "Update friends information: Fail")
                                                 }
                                             }
+
+                                    userDb.document(friends[i].uid).collection("friends").document(user!!.uid).update("isVerified", true)
+                                            .addOnCompleteListener { task3->
+                                                if (task3.isSuccessful){
+                                                    Log.d(tag, "Update friends information: Success")
+                                                } else {
+                                                    Log.w(tag, "Update friends information: Fail")
+                                                }
+                                            }
+
                                     viewHolder.btnAccept!!.isEnabled = false
                                     viewHolder.btnAccept!!.text = "Accepted"
                                 } else {

@@ -7,13 +7,10 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.*
-import com.google.firebase.auth.ActionCodeSettings
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
-import com.google.firebase.database.*
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.android.synthetic.main.activity_profile.*
 
 
 class Profile : AppCompatActivity() {
@@ -29,11 +26,14 @@ class Profile : AppCompatActivity() {
 
     private var mAuth: FirebaseAuth? = null
     private var db: FirebaseFirestore? = null
-    private val TAG = "Profile"
+    private val tag = "Profile"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile)
+
+        title = "Profile"
+
         etName = findViewById<View>(R.id.etName) as EditText
         etAge = findViewById<View>(R.id.etAge) as EditText
         rgGender = findViewById<View>(R.id.rgGender) as RadioGroup
@@ -44,7 +44,7 @@ class Profile : AppCompatActivity() {
 
         mAuth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
-        var user = mAuth?.currentUser
+        val user = mAuth?.currentUser
 
         // initialize user information
         initializeInf(user!!)
@@ -62,8 +62,11 @@ class Profile : AppCompatActivity() {
     }
 
     private fun updateProfile(user: FirebaseUser){
-        val gender = if (rgGender!!.checkedRadioButtonId == R.id.rbtnMale) "Male" else
-            if (rgGender!!.checkedRadioButtonId == R.id.rbtnFemale) "Female" else "Unknown"
+        val gender = when {
+            rgGender!!.checkedRadioButtonId == R.id.rbtnMale -> "Male"
+            rgGender!!.checkedRadioButtonId == R.id.rbtnFemale -> "Female"
+            else -> "Unknown"
+        }
         db!!.collection("users").document(user.uid).update(
                 "age", etAge!!.text.toString().toInt(),
                 "name", etName!!.text.toString(),
@@ -71,15 +74,15 @@ class Profile : AppCompatActivity() {
         )
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        Log.d(TAG, "update successful")
+                        Log.d(tag, "update successful")
                         user.updateProfile(UserProfileChangeRequest.Builder()
                                 .setDisplayName(etName!!.text.toString())
                                 .build())
                                 .addOnCompleteListener { task2 ->
                                     if (task2.isSuccessful){
-                                        Log.d(TAG, "UserProfileUpdated: success")
+                                        Log.d(tag, "UserProfileUpdated: success")
                                     } else {
-                                        Log.w(TAG, "UserProfileUpdated: fail")
+                                        Log.w(tag, "UserProfileUpdated: fail")
                                     }
                                 }
 
@@ -88,7 +91,7 @@ class Profile : AppCompatActivity() {
                         setResult(Activity.RESULT_OK, intent)
                         finish()
                     } else {
-                        Log.w(TAG, "fail to update")
+                        Log.w(tag, "fail to update")
                         tvNotify!!.text = "Can not update profile"
                     }
                 }
@@ -113,13 +116,13 @@ class Profile : AppCompatActivity() {
                             "Unknown" -> rgGender!!.check(R.id.rbtnUnknown)
                         }
 
-                        Log.d(TAG, "initialize profile: success")
+                        Log.d(tag, "initialize profile: success")
                     } else {
-                        Log.d(TAG, "User information does not exist")
+                        Log.d(tag, "User information does not exist")
                     }
                 }
                 .addOnFailureListener{ exception ->
-                    Log.d(TAG, "get failed with ", exception.cause);
+                    Log.d(tag, "get failed with ", exception.cause)
                 }
 
         // set the verification button

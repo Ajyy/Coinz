@@ -34,7 +34,9 @@
         <activity android:name=".FriendActivity" />
         <activity android:name=".FriendProfile" />
         <activity android:name=".AddFriendActivity" />
-        <activity android:name=".FriendInfActivity"></activity>
+        <activity android:name=".FriendInfActivity" />
+        <activity android:name=".CentralBankActivity" />
+        <activity android:name=".BalanceActivity"></activity>
     </application>
 
 </manifest>

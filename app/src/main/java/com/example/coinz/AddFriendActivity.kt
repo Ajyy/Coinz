@@ -33,6 +33,8 @@ class AddFriendActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_friend)
 
+        title = "Add Friend"
+
         friends = intent.getSerializableExtra("friendsList") as ArrayList<Friend>
 
         db = FirebaseFirestore.getInstance()

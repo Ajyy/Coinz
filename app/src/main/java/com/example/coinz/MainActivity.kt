@@ -319,7 +319,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                 startActivityForResult(Intent(this@MainActivity, Profile::class.java), profile)
             }
             R.id.nav_central_park -> {
-
+                startActivity(Intent(this@MainActivity, CentralBankActivity::class.java))
             }
             R.id.nav_friend -> {
                 startActivity(Intent(this@MainActivity, FriendActivity::class.java))
@@ -331,6 +331,9 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                 mAuth?.signOut()
                 finish()
                 startActivity(Intent(this@MainActivity, LoginInterface::class.java))
+            }
+            R.id.nav_balance -> {
+                startActivity(Intent(this@MainActivity, BalanceActivity::class.java))
             }
         }
 

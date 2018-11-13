@@ -9,13 +9,17 @@
             android:icon="@drawable/nav_profile"
             android:title="@string/nav_profile_name" />
         <item
+            android:id="@+id/nav_friend"
+            android:icon="@drawable/nav_friend"
+            android:title="@string/friends_nav_name" />
+        <item
             android:id="@+id/nav_central_park"
             android:icon="@drawable/nav_money"
             android:title="@string/central_bank_name" />
         <item
-            android:id="@+id/nav_friend"
-            android:icon="@drawable/nav_friend"
-            android:title="@string/friends_nav_name" />
+            android:id="@+id/nav_balance"
+            android:icon="@drawable/nav_balance"
+            android:title="@string/nav_balance_name" />
         <item
             android:id="@+id/nav_share"
             android:icon="@drawable/nav_share"

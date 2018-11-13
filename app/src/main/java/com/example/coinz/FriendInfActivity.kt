@@ -25,6 +25,8 @@ class FriendInfActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_friend_inf)
 
+        title = "Information"
+
         recyclerView = findViewById(R.id.friendInf)
         recyclerView!!.setHasFixedSize(true)
 
@@ -48,14 +50,13 @@ class FriendInfActivity : AppCompatActivity() {
                                             friendInf.add(Friend(document1.id, friend!!.name!!, friend.email!!, friend.age!!,
                                                     friend.gender!!, friend.todayStep, isAccept = document1.data["isAccept"] as Boolean))
 
+                                            myAdapter!!.notifyDataSetChanged()
                                             Log.d(tag, "Get invited friend: Success")
                                         } else {
                                             Log.w(tag, "Get invited friend: Fail")
                                         }
                                     }
                         }
-
-                        myAdapter!!.notifyDataSetChanged()
                     } else {
                         Log.w(tag, "Get invited friend list: Fail")
                     }

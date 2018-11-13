@@ -41,4 +41,5 @@
     <string name="btn_send_reset_email_name">Send Reset Email</string>
     <string name="etReEmail_please_enter_your_email_hint">please enter your email</string>
     <string name="picture_descr">friand avator</string>
+    <string name="nav_balance_name">Balance</string>
 </resources>

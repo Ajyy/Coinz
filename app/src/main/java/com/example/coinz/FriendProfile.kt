@@ -25,6 +25,8 @@ class FriendProfile : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_friend_profile)
 
+        title = "Profile"
+
         val intent = intent
         val friend = intent.getSerializableExtra("friend") as Friend
 

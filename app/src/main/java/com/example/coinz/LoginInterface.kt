@@ -25,12 +25,15 @@ class LoginInterface : AppCompatActivity(){
     private var tvInf: TextView? = null
     private var tvFPass: TextView? = null
 
-    private val TAG = "LoginInterface"
+    private val tag = "LoginInterface"
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.login_interface)
+
+        title = "Login"
+
         mAuth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
@@ -45,10 +48,10 @@ class LoginInterface : AppCompatActivity(){
         mAuth?.addAuthStateListener { mFirebaseAuth ->
             user = mFirebaseAuth.currentUser
             if (user != null){
-                Log.d(TAG, "onAuthStateChanged:signed_in:" + user!!.uid)
+                Log.d(tag, "onAuthStateChanged:signed_in:" + user!!.uid)
                 updateUI(user)
             } else {
-                Log.d(TAG, "onAuthStateChanged:signed_out")
+                Log.d(tag, "onAuthStateChanged:signed_out")
             }
         }
 
@@ -89,43 +92,43 @@ class LoginInterface : AppCompatActivity(){
     private fun validate(userName: String, password: String){
         mAuth?.signInWithEmailAndPassword(userName, password)?.addOnCompleteListener {task ->
             if (task.isSuccessful){
-                Log.d(TAG, "signInWithEmail: success");
+                Log.d(tag, "signInWithEmail: success")
              } else {
-                Log.d(TAG, "signInWithEmail: fail")
+                Log.d(tag, "signInWithEmail: fail")
                 signUp(etUserName?.text.toString(), etPassword?.text.toString())
             }
         }
     }
 
     private fun signUp(userName: String, password: String){
-        mAuth?.createUserWithEmailAndPassword(userName, password)?.addOnCompleteListener { task ->
-            if (task.isSuccessful){
+        mAuth?.createUserWithEmailAndPassword(userName, password)?.addOnCompleteListener { task1 ->
+            if (task1.isSuccessful){
                 db!!.collection("users").document(user!!.uid).
-                        set(User(email = user!!.email!!), SetOptions.merge()).addOnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                Log.d(TAG, "Add to database: success")
+                        set(User(email = user!!.email!!), SetOptions.merge()).addOnCompleteListener { task2 ->
+                            if (task2.isSuccessful) {
+                                Log.d(tag, "Add to database: success")
                                 // updateUI(user)
                             } else {
-                                mAuth?.currentUser!!.delete().addOnCompleteListener { task ->
-                                    if (task.isSuccessful) {
-                                        Log.d(TAG, "Add to database: fail");
+                                mAuth?.currentUser!!.delete().addOnCompleteListener { task3 ->
+                                    if (task3.isSuccessful) {
+                                        Log.d(tag, "Add to database: fail")
                                         tvInf!!.text = "Can not sign up"
                                     }
                                 }
 
-                                Log.d(TAG, "Add to database: Fail")
+                                Log.d(tag, "Add to database: Fail")
                             }
                 }
 
-                Log.d(TAG, "createUserWithEmail: success")
+                Log.d(tag, "createUserWithEmail: success")
             } else {
                 try {
-                    throw task.exception!!
+                    throw task1.exception!!
                 } catch (existEmail: FirebaseAuthUserCollisionException){
-                    Log.d(TAG, "createUserWithEmail: exist_email");
+                    Log.d(tag, "createUserWithEmail: exist_email")
                     tvInf!!.text = "Wrong password"
                 } catch (e: Exception) {
-                    Log.d(TAG, "createUserWithEmail: " + e.message);
+                    Log.d(tag, "createUserWithEmail: " + e.message)
                 }
             }
         }

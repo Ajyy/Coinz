@@ -23,13 +23,15 @@ class FriendActivity : AppCompatActivity() {
     private var db = FirebaseFirestore.getInstance()
     private var user = FirebaseAuth.getInstance().currentUser
 
-    private val AddFriendActivity = 2
+    private val addFriendActivity = 2
     private val tag = "FriendActivity"
-    private val FriendInfActivity = 3
+    private val friendInfActivity = 3
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_friend)
+
+        title = "Friends' List"
 
         recyclerView = findViewById(R.id.friend_list)
         recyclerView!!.setHasFixedSize(true)
@@ -50,11 +52,11 @@ class FriendActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         if (item!!.itemId == R.id.inf_icon){
-            startActivityForResult(Intent(this@FriendActivity, FriendInfActivity::class.java), FriendInfActivity)
+            startActivityForResult(Intent(this@FriendActivity, FriendInfActivity::class.java), friendInfActivity)
         } else {
             val intent = Intent(this@FriendActivity, AddFriendActivity::class.java)
             intent.putExtra("friendsList", friends)
-            startActivityForResult(intent, AddFriendActivity)
+            startActivityForResult(intent, addFriendActivity)
         }
 
         return super.onOptionsItemSelected(item)
@@ -62,7 +64,7 @@ class FriendActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == AddFriendActivity){
+        if (requestCode == addFriendActivity){
             if (resultCode == Activity.RESULT_OK){
                 friends.clear()
                 getFriends()
@@ -70,7 +72,7 @@ class FriendActivity : AppCompatActivity() {
             } else if (resultCode == Activity.RESULT_CANCELED){
                 Toast.makeText(this@FriendActivity, "No data received", Toast.LENGTH_SHORT).show()
             }
-        } else if (requestCode == FriendInfActivity){
+        } else if (requestCode == friendInfActivity){
             friends.clear()
             getFriends()
             myAdapter!!.notifyDataSetChanged()

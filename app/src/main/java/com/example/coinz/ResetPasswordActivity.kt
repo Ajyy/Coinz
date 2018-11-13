@@ -20,6 +20,8 @@ class ResetPasswordActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reset_password)
 
+        title = "Reset Your Password"
+
         etReEmail = findViewById<View>(R.id.etReEmail) as EditText
         btnSendEmail = findViewById<View>(R.id.btnSendEmail) as Button
         tvReInf = findViewById<View>(R.id.tvReInf) as TextView
