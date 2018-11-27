@@ -78,6 +78,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
     private val pickName = 3
 
     private var coins = ArrayList<Point>()
+    private var ratesArr = doubleArrayOf(0.0, 0.0, 0.0, 0.0)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -319,7 +320,9 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                 startActivityForResult(Intent(this@MainActivity, Profile::class.java), profile)
             }
             R.id.nav_central_park -> {
-                startActivity(Intent(this@MainActivity, CentralBankActivity::class.java))
+                val intent = Intent(this@MainActivity, CentralBankActivity::class.java)
+                intent.putExtra("rates", ratesArr)
+                startActivity(intent)
             }
             R.id.nav_friend -> {
                 startActivity(Intent(this@MainActivity, FriendActivity::class.java))
@@ -362,8 +365,13 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
 
                 // Parse JSON
                 val json = JSONObject(jsonText.toString())
-                val features = json.getJSONArray("features")
+                val rates = json.getJSONObject("rates")
+                ratesArr[0] = rates.getDouble("SHIL")
+                ratesArr[1] = rates.getDouble("DOLR")
+                ratesArr[2] = rates.getDouble("QUID")
+                ratesArr[3] = rates.getDouble("PENY")
 
+                val features = json.getJSONArray("features")
                 for (i in 0..features.length()){
                     val feature = features.getJSONObject(i)
                     val properties = feature.getJSONObject("properties")

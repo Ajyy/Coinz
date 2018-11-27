@@ -5,7 +5,7 @@ class User(){
     var email: String? = null
     var age: Int? = 0
     var gender: String? = null
-    var balance = mutableMapOf<String, Double>("GOLD" to 0.0, "SHIL" to 0.0, "DOLR" to 0.0, "QUID" to 0.0, "PENY" to 0.0)
+    var balance = mutableMapOf("GOLD" to 0.0, "SHIL" to 0.0, "DOLR" to 0.0, "QUID" to 0.0, "PENY" to 0.0)
     var todayStep: Int = 0
 
     constructor(name: String = "SetYourName", email: String, age: Int = 0, gender: String = "Unknown", todayStep: Int = 0): this(){

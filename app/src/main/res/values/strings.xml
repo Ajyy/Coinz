@@ -42,4 +42,11 @@
     <string name="etReEmail_please_enter_your_email_hint">please enter your email</string>
     <string name="picture_descr">friand avator</string>
     <string name="nav_balance_name">Balance</string>
+    <string name="btntime_text">Time Deposit</string>
+    <string name="btndeposit_text">Deposit</string>
+    <string name="btn_rate_name">Today\'s Rates</string>
+    <string name="text_view_deposit_name">Deposit Your Money</string>
+    <string name="demand_deposit_text_name">Demand Deposit</string>
+    <string name="time_deposit_text_name">Time Deposit</string>
+    <string name="time_deposit_note_textview">Note: the time deposit rate is 5%</string>
 </resources>
