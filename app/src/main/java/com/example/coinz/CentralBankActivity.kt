@@ -26,19 +26,21 @@ class CentralBankActivity : AppCompatActivity() {
         setContentView(R.layout.activity_central_bank)
         title = "Central Bank"
 
-        val intent = intent
-        ratesArray = intent.getDoubleArrayExtra("rates")
+        val intent1 = intent
+        ratesArray = intent1.getDoubleArrayExtra("rates")
 
-        btnDeposit = findViewById(R.id.btnDemand)
+        btnDeposit = findViewById(R.id.btnDeposit)
         btnRate = findViewById(R.id.btnRate)
         btnHistory = findViewById(R.id.btnHistory)
 
         btnHistory!!.setOnClickListener {
-            startActivity(Intent(this@CentralBankActivity, HistoryActivity::class.java))
+            val intent2 = Intent(this@CentralBankActivity, HistoryActivity::class.java)
+            startActivity(intent2)
         }
 
         btnDeposit!!.setOnClickListener {
-            startActivity(Intent(this@CentralBankActivity, DepositActivity::class.java))
+            val intent3 = Intent(this@CentralBankActivity, DepositActivity::class.java)
+            startActivity(intent3)
         }
 
         btnRate!!.setOnClickListener {view ->
