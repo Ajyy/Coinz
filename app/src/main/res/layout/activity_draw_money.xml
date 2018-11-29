@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
-        android:text="Deposit Your Money"
+        android:text="Draw Money"
         android:textSize="30sp"
         android:textStyle="bold|italic" />
 
@@ -27,7 +27,7 @@
         android:textStyle="bold" />
 
     <RadioGroup
-        android:id="@+id/rgCoinType"
+        android:id="@+id/rgCoinTypeDraw"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
@@ -43,10 +43,16 @@
             android:text="GOLD" />
 
         <RadioButton
-            android:id="@+id/rbQuid"
+            android:id="@+id/rbShil"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:text="SHIL" />
+
+        <RadioButton
+            android:id="@+id/rbQuid"
+            android:layout_width="118dp"
+            android:layout_height="wrap_content"
             android:text="QUID" />
 
         <RadioButton
@@ -57,17 +63,9 @@
             android:text="DOLR" />
 
         <RadioButton
-            android:id="@+id/rbShil"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="SHIL" />
-
-        <RadioButton
             android:id="@+id/rbPeny"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="3"
             android:text="PENY" />
 
     </RadioGroup>
@@ -83,7 +81,7 @@
         android:textStyle="bold" />
 
     <EditText
-        android:id="@+id/etAmount"
+        android:id="@+id/etAmountDraw"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
@@ -93,29 +91,8 @@
         android:inputType="number"
         android:text="0.0" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:text="End Time (for Time Deposit)"
-        android:textSize="20sp"
-        android:textStyle="bold" />
-
     <Button
-        android:id="@+id/btnCalendar"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/button_back"
-        android:gravity="center"
-        android:text="Calendar"
-        android:textColor="@color/common_google_signin_btn_text_dark_default" />
-
-    <Button
-        android:id="@+id/btnSubmitDeposit"
+        android:id="@+id/btnSubmitDraw"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
@@ -127,7 +104,7 @@
         android:textColor="@color/common_google_signin_btn_text_dark_default" />
 
     <TextView
-        android:id="@+id/tvDepositInf"
+        android:id="@+id/tvDrawInf"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"

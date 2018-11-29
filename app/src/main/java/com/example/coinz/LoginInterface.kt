@@ -103,8 +103,10 @@ class LoginInterface : AppCompatActivity(){
     private fun signUp(userName: String, password: String){
         mAuth?.createUserWithEmailAndPassword(userName, password)?.addOnCompleteListener { task1 ->
             if (task1.isSuccessful){
+                val addUser = User()
+                addUser.email = user!!.email!!
                 db!!.collection("users").document(user!!.uid).
-                        set(User(email = user!!.email!!), SetOptions.merge()).addOnCompleteListener { task2 ->
+                        set(addUser, SetOptions.merge()).addOnCompleteListener { task2 ->
                             if (task2.isSuccessful) {
                                 Log.d(tag, "Add to database: success")
                                 // updateUI(user)

@@ -1,6 +1,7 @@
 package com.example.coinz
 
 import android.content.Intent
+import android.icu.text.SimpleDateFormat
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
@@ -8,8 +9,11 @@ import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.TextView
+import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreSettings
 import java.time.temporal.ChronoUnit
 import java.util.*
 
@@ -20,16 +24,23 @@ class TimeDepositActivity : AppCompatActivity() {
     private var recyclerView: RecyclerView? = null
     private var myAdapter: RecordAdapter? = null
     private var layoutManager: RecyclerView.LayoutManager? =null
+    private var tvTimeInf: TextView? = null
 
     private var now = Calendar.getInstance()
     private var db = FirebaseFirestore.getInstance()
     private var user = FirebaseAuth.getInstance()
+
+    private var userClass: User? = null
     private val tag = "TimeDepositActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_time_deposit)
+        tvTimeInf = findViewById(R.id.tvTimeInf)
+
         getRecords()
+        getUserData()
+        updateRecordsBalance()
 
         title = "Central Bank"
 
@@ -60,6 +71,37 @@ class TimeDepositActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         getRecords()
+        updateRecordsBalance()
+    }
+
+    private fun updateRecordsBalance(){
+        for (record in updateRecords){
+            db.collection("users").document(user.uid!!).collection("records").document(record.id)
+                    .update("isFinish", true)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful){
+                            Log.d(tag, "update record: Success")
+                        } else {
+                            Log.d(tag, "update record: Fail")
+                        }
+                    }
+
+            if (userClass!!.demandTime[record.coinType] != "no"){
+                val lastCal = Calendar.getInstance()
+                lastCal.set(userClass!!.demandTime[record.coinType]!!.substring(6, 10).toInt(), userClass!!.demandTime[record.coinType]!!.substring(0, 2).toInt(),
+                        userClass!!.demandTime[record.coinType]!!.substring(3, 5).toInt())
+                val num = ChronoUnit.DAYS.between(lastCal.toInstant(), now!!.toInstant())
+                userClass!!.demandDeposit[record.coinType] = userClass!!.demandDeposit[record.coinType]!! *(1+(0.35/360)*num)
+            }
+
+            userClass!!.demandDeposit[record.coinType] = userClass!!.demandDeposit[record.coinType]!!+record.profit+record.deposit
+            userClass!!.demandTime[record.coinType] = SimpleDateFormat("MM/dd/yyyy").format(now!!.time)
+        }
+
+        if (updateRecords.size != 0){
+            updateUser()
+            updateRecords.clear()
+        }
     }
 
     private fun getRecords(){
@@ -96,6 +138,7 @@ class TimeDepositActivity : AppCompatActivity() {
                         records.addAll(records2)
                         if (myAdapter != null){
                             myAdapter!!.notifyDataSetChanged()
+                            tvTimeInf!!.text = "There is/are "+ task1.result!!.size()+" pieces of records"
                         }
                     } else {
                         Log.w(tag, "getRecord: Fail")
@@ -107,5 +150,39 @@ class TimeDepositActivity : AppCompatActivity() {
         val lastCal = Calendar.getInstance()
         lastCal.set(lastTime.substring(6, 10).toInt(), lastTime.substring(0, 2).toInt(), lastTime.substring(3, 5).toInt())
         return ChronoUnit.DAYS.between(lastCal.toInstant(), now!!.toInstant())
+    }
+
+    private fun getUserData(){
+        val userDocRef = db.collection("users")
+        userDocRef.document(user!!.uid!!).get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()){
+                        Log.d(tag, "get user data: Success")
+                        val userData = document.toObject(User::class.java)
+                        userClass = userData
+                    } else {
+                        Toast.makeText(this@TimeDepositActivity, "Please check your internet", Toast.LENGTH_SHORT)
+                        finish()
+                        Log.w(tag, "get user data: Fail")
+                    }
+                }
+                .addOnFailureListener{ exception ->
+                    Log.d(tag, "get failed with ", exception.cause)
+                }
+    }
+
+    private fun updateUser(){
+        db.collection("user").document(user!!.uid!!).update(
+                "demandDeposit", userClass!!.demandDeposit,
+                "demandTime", userClass!!.demandTime
+        ).addOnCompleteListener { task ->
+            if (task.isSuccessful){
+                Log.d(tag, "Update user inf: Success")
+            } else {
+                Log.w(tag, "Update user inf: Fail"+task.exception)
+                Toast.makeText(this@TimeDepositActivity, "Submit failed, please check your internet", Toast.LENGTH_SHORT)
+                finish()
+            }
+        }
     }
 }

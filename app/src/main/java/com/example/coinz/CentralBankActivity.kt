@@ -19,6 +19,7 @@ class CentralBankActivity : AppCompatActivity() {
     private var btnDeposit: Button? = null
     private var btnRate: Button? = null
     private var btnHistory: Button? = null
+    private var btnDraw: Button? = null
     private var ratesArray: DoubleArray? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,6 +33,7 @@ class CentralBankActivity : AppCompatActivity() {
         btnDeposit = findViewById(R.id.btnDeposit)
         btnRate = findViewById(R.id.btnRate)
         btnHistory = findViewById(R.id.btnHistory)
+        btnDraw = findViewById(R.id.btnDraw)
 
         btnHistory!!.setOnClickListener {
             val intent2 = Intent(this@CentralBankActivity, HistoryActivity::class.java)
@@ -41,6 +43,11 @@ class CentralBankActivity : AppCompatActivity() {
         btnDeposit!!.setOnClickListener {
             val intent3 = Intent(this@CentralBankActivity, DepositActivity::class.java)
             startActivity(intent3)
+        }
+
+        btnDraw!!.setOnClickListener {
+            val intent4 = Intent(this@CentralBankActivity, DrawMoneyActivity::class.java)
+            startActivity(intent4)
         }
 
         btnRate!!.setOnClickListener {view ->
@@ -75,7 +82,7 @@ class CentralBankActivity : AppCompatActivity() {
         popupWindow.setBackgroundDrawable(ColorDrawable())
         popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0)
 
-        popupView.setOnTouchListener { v, _ ->
+        popupView.setOnTouchListener { _, _ ->
             lp.alpha = 1f
             window.attributes = lp
             popupWindow.dismiss()

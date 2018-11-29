@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.TextView
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -19,6 +20,7 @@ class FriendActivity : AppCompatActivity() {
     private var recyclerView: RecyclerView? = null
     private var myAdapter: FriendAdapter? = null
     private var layoutManager: RecyclerView.LayoutManager? =null
+    private var tvFriendInf: TextView? = null
 
     private var db = FirebaseFirestore.getInstance()
     private var user = FirebaseAuth.getInstance().currentUser
@@ -32,6 +34,7 @@ class FriendActivity : AppCompatActivity() {
         setContentView(R.layout.activity_friend)
 
         title = "Friends' List"
+        tvFriendInf = findViewById(R.id.tvFriendsInf)
 
         recyclerView = findViewById(R.id.friend_list)
         recyclerView!!.setHasFixedSize(true)
@@ -99,9 +102,6 @@ class FriendActivity : AppCompatActivity() {
                                                     print(userFriend?.name)
                                                     friends.add(Friend(document2.id, userFriend!!.name!!, userFriend.email!!,
                                                             userFriend.age!!, userFriend.gender!!, userFriend.todayStep, friend["isVerified"] as Boolean))
-                                                    if (myAdapter != null){
-                                                        myAdapter!!.notifyDataSetChanged()
-                                                    }
                                                 } else {
                                                     Log.w(tag, "No such user")
                                                 }
@@ -112,6 +112,11 @@ class FriendActivity : AppCompatActivity() {
                             } else {
                                 Log.w(tag, "No friend")
                             }
+                        }
+
+                        if (myAdapter != null){
+                            myAdapter!!.notifyDataSetChanged()
+                            tvFriendInf!!.text = "Find "+ task1.result!!.size()+" friend(s)"
                         }
                     } else {
                         Log.w(tag, "getFriend: Fail")

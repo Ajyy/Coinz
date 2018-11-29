@@ -7,6 +7,17 @@
     android:orientation="vertical"
     tools:context=".FriendInfActivity">
 
+    <TextView
+        android:id="@+id/tvFriendInfInf"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="20dp"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/friendInf"
         android:layout_width="match_parent"

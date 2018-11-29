@@ -11,7 +11,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class DepositActivity : AppCompatActivity() {
 
-    private var records: ArrayList<Record>? = null
     private var btnTime: Button? = null
     private var btnDemand: Button? = null
 
@@ -20,15 +19,18 @@ class DepositActivity : AppCompatActivity() {
         setContentView(R.layout.activity_deposit)
         title = "Central Bank"
 
-        records = intent.getSerializableExtra("records") as ArrayList<Record>
+        btnTime = findViewById(R.id.btnTime)
+        btnDemand = findViewById(R.id.btnDemand)
 
         btnTime!!.setOnClickListener {
             val intent1 = Intent(this@DepositActivity, TimeDepositActivity::class.java)
+            intent1.putExtra("type", "time")
             startActivity(intent1)
         }
 
         btnDemand!!.setOnClickListener {
             val intent2 = Intent(this@DepositActivity, DemandDepositActivity::class.java)
+            intent2.putExtra("type", "demand")
             startActivity(intent2)
         }
 

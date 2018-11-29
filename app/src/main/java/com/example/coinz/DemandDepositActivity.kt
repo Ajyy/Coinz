@@ -22,7 +22,7 @@ class DemandDepositActivity : AppCompatActivity() {
 
     private var balance: MutableMap<String, Double>? = null
     private var db = FirebaseFirestore.getInstance()
-    private var user = FirebaseAuth.getInstance()
+    private var user = FirebaseAuth.getInstance().currentUser
     private val tag = "DemandDepositActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,7 +33,6 @@ class DemandDepositActivity : AppCompatActivity() {
 
         btnDemandDeposit = findViewById(R.id.btnDemandDeposit)
         btnDemandBalance = findViewById(R.id.btnDemandBalance)
-
         btnDemandDeposit!!.setOnClickListener {
             val intent1 = Intent(this@DemandDepositActivity, DepositSubmitActivity::class.java)
             intent1.putExtra("type", "demand")
@@ -41,13 +40,12 @@ class DemandDepositActivity : AppCompatActivity() {
         }
 
         btnDemandBalance!!.setOnClickListener {v ->
-            onButtonShowPopupWindowClick(v)
+            getBalance(v)
         }
     }
 
     @SuppressLint("InflateParams")
     fun onButtonShowPopupWindowClick(view: View){
-        getBalance()
         val inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupView = inflater.inflate(R.layout.popup_balance, null)
         val tvGoldBal = popupView.findViewById<View>(R.id.tvGoldBal) as TextView
@@ -56,13 +54,13 @@ class DemandDepositActivity : AppCompatActivity() {
         val tvQuidBal = popupView.findViewById<View>(R.id.tvQuidBal) as TextView
         val tvPenyBal = popupView.findViewById<View>(R.id.tvPenyBal) as TextView
 
-        tvGoldBal.text = balance!!["GOLD"] as String
-        tvShilBal.text = balance!!["SHIL"] as String
-        tvDolrBal.text = balance!!["DOLR"] as String
-        tvQuidBal.text = balance!!["QUID"] as String
-        tvPenyBal.text = balance!!["PENY"] as String
+        tvGoldBal.text = "GOLD: "+balance!!["GOLD"].toString()
+        tvShilBal.text = "SHIL: "+balance!!["SHIL"].toString()
+        tvDolrBal.text = "DOLR: "+balance!!["DOLR"].toString()
+        tvQuidBal.text = "QUID: "+balance!!["QUID"].toString()
+        tvPenyBal.text = "PENY: "+balance!!["PENY"].toString()
 
-        val width = LinearLayout.LayoutParams.WRAP_CONTENT
+        val width = 1000
         val height = LinearLayout.LayoutParams.WRAP_CONTENT
 
         val lp = window.attributes
@@ -83,14 +81,15 @@ class DemandDepositActivity : AppCompatActivity() {
         }
     }
 
-    private fun getBalance(){
+    private fun getBalance(v: View){
         val userDocRef = db.collection("users")
-        userDocRef.document(user!!.uid!!).get()
+        userDocRef.document(user!!.uid).get()
                 .addOnSuccessListener { document ->
                     if (document.exists()){
                         Log.d(tag, "getBalance: Success")
                         val userData = document.toObject(User::class.java)
                         balance = userData!!.balance
+                        onButtonShowPopupWindowClick(v)
                     } else {
                         Log.w(tag, "getBalance: Fail")
                     }
