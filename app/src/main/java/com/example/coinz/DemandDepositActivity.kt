@@ -2,6 +2,7 @@ package com.example.coinz
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.graphics.drawable.ColorDrawable
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -30,12 +31,13 @@ class DemandDepositActivity : AppCompatActivity() {
 
         title = "Central Bank"
 
-        getBalance()
         btnDemandDeposit = findViewById(R.id.btnDemandDeposit)
         btnDemandBalance = findViewById(R.id.btnDemandBalance)
 
         btnDemandDeposit!!.setOnClickListener {
-            
+            val intent1 = Intent(this@DemandDepositActivity, DepositSubmitActivity::class.java)
+            intent1.putExtra("type", "demand")
+            startActivity(intent1)
         }
 
         btnDemandBalance!!.setOnClickListener {v ->
@@ -45,6 +47,7 @@ class DemandDepositActivity : AppCompatActivity() {
 
     @SuppressLint("InflateParams")
     fun onButtonShowPopupWindowClick(view: View){
+        getBalance()
         val inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupView = inflater.inflate(R.layout.popup_balance, null)
         val tvGoldBal = popupView.findViewById<View>(R.id.tvGoldBal) as TextView
