@@ -19,7 +19,7 @@ class HistoryActivity : AppCompatActivity() {
     private var tvHistoryInf: TextView? = null
 
     private var db = FirebaseFirestore.getInstance()
-    private var user = FirebaseAuth.getInstance()
+    private var user = FirebaseAuth.getInstance().currentUser
     private val tag = "HistoryActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {

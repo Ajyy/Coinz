@@ -42,7 +42,9 @@
         <activity android:name=".TimeDepositActivity" />
         <activity android:name=".DemandDepositActivity" />
         <activity android:name=".DepositSubmitActivity" />
-        <activity android:name=".DrawMoneyActivity"></activity>
+        <activity android:name=".DrawMoneyActivity" />
+        <activity android:name=".AchievementActivity" />
+        <activity android:name=".ChatActivity"></activity>
     </application>
 
 </manifest>

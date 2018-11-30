@@ -131,12 +131,14 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
                 }
 
                 context.javaClass.simpleName == "FriendActivity" -> itemView.setOnClickListener {
-                    val friend = itemView.tag as Friend
-                    if (friend.isVerified){
-                        val intent = Intent(context, FriendProfile::class.java)
-                        intent.putExtra("friend", friend)
-                        context.startActivity(intent)
-                    }
+//                    val friend = itemView.tag as Friend
+//                    if (friend.isVerified){
+//                        val intent = Intent(context, FriendProfile::class.java)
+//                        intent.putExtra("friend", friend)
+//                        context.startActivity(intent)
+//
+//                    }
+                    context.startActivity(Intent(context, ChatActivity::class.java))
                 }
             }
         }

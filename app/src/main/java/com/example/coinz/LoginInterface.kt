@@ -37,11 +37,11 @@ class LoginInterface : AppCompatActivity(){
         mAuth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
-        etUserName = findViewById<View>(R.id.etUserName) as EditText
-        etPassword = findViewById<View>(R.id.etPassword) as EditText
-        btnLogin = findViewById<View>(R.id.btnLogin) as Button
-        tvFPass = findViewById<View>(R.id.tvFPass) as TextView
-        tvInf = findViewById<View>(R.id.tvInf) as TextView
+        etUserName = findViewById(R.id.etUserName)
+        etPassword = findViewById(R.id.etPassword)
+        btnLogin = findViewById(R.id.btnLogin)
+        tvFPass = findViewById(R.id.tvFPass)
+        tvInf = findViewById(R.id.tvInf)
 
         // Listener to update UI
         user = mAuth?.currentUser

@@ -63,6 +63,7 @@ class AddFriendActivity : AppCompatActivity() {
                 query.get().addOnCompleteListener { task ->
                     if (task.isSuccessful){
                         var friendNum = 0
+                        var size = task.result!!.size()
                         for (document in task.result!!){
                             val searchUser = document.toObject(User::class.java)
 
@@ -76,8 +77,10 @@ class AddFriendActivity : AppCompatActivity() {
                             }
 
                             if (!isExist) {
-                                if (searchUser.name != user!!.displayName){
-                                    searchFriend.add(Friend(document.id, searchUser.name!!, searchUser.email!!, searchUser.age!!, searchUser.gender!!, searchUser.todayStep))
+                                if (document.id != user!!.uid){
+                                    searchFriend.add(Friend(document.id, searchUser.name, searchUser.email!!, searchUser.age!!, searchUser.gender, searchUser.todayStep))
+                                } else {
+                                    size-=1
                                 }
                             }
                         }
@@ -86,9 +89,9 @@ class AddFriendActivity : AppCompatActivity() {
                         Log.d(tag, "SearchFriend: Success")
 
                         if (friendNum == 0){
-                            tvSearchInf!!.text = "Find ${task.result!!.size()} people"
+                            tvSearchInf!!.text = "Find $size people"
                         } else {
-                            tvSearchInf!!.text = "Find ${task.result!!.size()} people, and $friendNum of them is/are your friends"
+                            tvSearchInf!!.text = "Find $size people, and $friendNum of them is/are your friends"
                         }
                     } else {
                         tvSearchInf!!.text = "Fail to Search"

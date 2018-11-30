@@ -21,6 +21,10 @@
             android:icon="@drawable/nav_balance"
             android:title="@string/nav_balance_name" />
         <item
+            android:id="@+id/nav_achievement"
+            android:icon="@drawable/nav_achievement"
+            android:title="Achievement" />
+        <item
             android:id="@+id/nav_share"
             android:icon="@drawable/nav_share"
             android:title="@string/share_nav_name" />

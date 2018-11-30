@@ -28,7 +28,7 @@ class TimeDepositActivity : AppCompatActivity() {
 
     private var now = Calendar.getInstance()
     private var db = FirebaseFirestore.getInstance()
-    private var user = FirebaseAuth.getInstance()
+    private var user = FirebaseAuth.getInstance().currentUser
 
     private var userClass: User? = null
     private val tag = "TimeDepositActivity"
@@ -76,7 +76,7 @@ class TimeDepositActivity : AppCompatActivity() {
 
     private fun updateRecordsBalance(){
         for (record in updateRecords){
-            db.collection("users").document(user.uid!!).collection("records").document(record.id)
+            db.collection("users").document(user!!.uid).collection("records").document(record.id)
                     .update("isFinish", true)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful){
@@ -106,7 +106,7 @@ class TimeDepositActivity : AppCompatActivity() {
 
     private fun getRecords(){
         val userDocRef = db.collection("users")
-        userDocRef.document(user!!.uid!!).collection("records").get()
+        userDocRef.document(user!!.uid).collection("records").get()
                 .addOnCompleteListener { task1 ->
                     if (task1.isSuccessful){
                         Log.d(tag, "getRecord: Success")
@@ -154,7 +154,7 @@ class TimeDepositActivity : AppCompatActivity() {
 
     private fun getUserData(){
         val userDocRef = db.collection("users")
-        userDocRef.document(user!!.uid!!).get()
+        userDocRef.document(user!!.uid).get()
                 .addOnSuccessListener { document ->
                     if (document.exists()){
                         Log.d(tag, "get user data: Success")
@@ -172,7 +172,7 @@ class TimeDepositActivity : AppCompatActivity() {
     }
 
     private fun updateUser(){
-        db.collection("user").document(user!!.uid!!).update(
+        db.collection("user").document(user!!.uid).update(
                 "demandDeposit", userClass!!.demandDeposit,
                 "demandTime", userClass!!.demandTime
         ).addOnCompleteListener { task ->

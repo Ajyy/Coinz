@@ -328,7 +328,11 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                 startActivity(Intent(this@MainActivity, FriendActivity::class.java))
             }
             R.id.nav_share -> {
-
+                val sendIntent = Intent()
+                sendIntent.action = Intent.ACTION_SEND
+                sendIntent.putExtra(Intent.EXTRA_TEXT, "Come to Coinz and play with your friends!")
+                sendIntent.type = "text/plain"
+                startActivity(sendIntent)
             }
             R.id.nav_log_out -> {
                 mAuth?.signOut()
@@ -337,6 +341,9 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
             }
             R.id.nav_balance -> {
                 startActivity(Intent(this@MainActivity, BalanceActivity::class.java))
+            }
+            R.id.nav_achievement -> {
+                startActivity(Intent(this@MainActivity, AchievementActivity::class.java))
             }
         }
 
