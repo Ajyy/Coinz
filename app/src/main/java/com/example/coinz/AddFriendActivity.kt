@@ -55,48 +55,52 @@ class AddFriendActivity : AppCompatActivity() {
         recyclerView!!.adapter = myAdapter
 
         btnSearch!!.setOnClickListener {
-            searchFriend.clear()
-            if (etFriendName!!.text.isEmpty()){
-                tvSearchInf!!.text = "Please enter the name"
-            } else {
-                val query = db!!.collection("users").whereEqualTo("name", etFriendName!!.text.toString())
-                query.get().addOnCompleteListener { task ->
-                    if (task.isSuccessful){
-                        var friendNum = 0
-                        var size = task.result!!.size()
-                        for (document in task.result!!){
-                            val searchUser = document.toObject(User::class.java)
+            getFriendData()
+        }
+    }
 
-                            var isExist = false
-                            for (friend in friends!!){
-                                if (friend.uid == document.id){
-                                    friendNum+=1
-                                    isExist = true
-                                    break
-                                }
-                            }
+    private fun getFriendData(){
+        searchFriend.clear()
+        if (etFriendName!!.text.isEmpty()){
+            tvSearchInf!!.text = "Please enter the name"
+        } else {
+            val query = db!!.collection("users").whereEqualTo("name", etFriendName!!.text.toString())
+            query.get().addOnCompleteListener { task ->
+                if (task.isSuccessful){
+                    var friendNum = 0
+                    var size = task.result!!.size()
+                    for (document in task.result!!){
+                        val searchUser = document.toObject(User::class.java)
 
-                            if (!isExist) {
-                                if (document.id != user!!.uid){
-                                    searchFriend.add(Friend(document.id, searchUser.name, searchUser.email!!, searchUser.age!!, searchUser.gender, searchUser.todayStep))
-                                } else {
-                                    size-=1
-                                }
+                        var isExist = false
+                        for (friend in friends!!){
+                            if (friend.uid == document.id){
+                                friendNum+=1
+                                isExist = true
+                                break
                             }
                         }
 
-                        myAdapter!!.notifyDataSetChanged()
-                        Log.d(tag, "SearchFriend: Success")
-
-                        if (friendNum == 0){
-                            tvSearchInf!!.text = "Find $size people"
-                        } else {
-                            tvSearchInf!!.text = "Find $size people, and $friendNum of them is/are your friends"
+                        if (!isExist) {
+                            if (document.id != user!!.uid){
+                                searchFriend.add(Friend(document.id, searchUser.name, searchUser.email!!, searchUser.age!!, searchUser.gender, searchUser.todayStep))
+                            } else {
+                                size-=1
+                            }
                         }
-                    } else {
-                        tvSearchInf!!.text = "Fail to Search"
-                        Log.w(tag, "SearchFriend: Fail")
                     }
+
+                    myAdapter!!.notifyDataSetChanged()
+                    Log.d(tag, "SearchFriend: Success")
+
+                    if (friendNum == 0){
+                        tvSearchInf!!.text = "Find $size people"
+                    } else {
+                        tvSearchInf!!.text = "Find $size people, and $friendNum of them is/are your friends"
+                    }
+                } else {
+                    tvSearchInf!!.text = "Fail to Search"
+                    Log.w(tag, "SearchFriend: Fail")
                 }
             }
         }

@@ -111,7 +111,6 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
                             .set(mapOf("isAccept" to false), SetOptions.merge()).addOnCompleteListener{ task ->
                                 if (task.isSuccessful) {
                                     Log.d(tag, "Add Friend to database: Success")
-                                    // updateUI(user)
                                 } else {
                                     Log.d(tag, "Add Friend to database: Fail")
                                 }
@@ -123,7 +122,6 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
                                     Log.d(tag, "Add Friend to database: Success")
                                     val activity = context as Activity
                                     activity.finish()
-                                    // updateUI(user)
                                 } else {
                                     Log.d(tag, "Add Friend to database: Fail")
                                 }
@@ -131,14 +129,21 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
                 }
 
                 context.javaClass.simpleName == "FriendActivity" -> itemView.setOnClickListener {
-//                    val friend = itemView.tag as Friend
-//                    if (friend.isVerified){
-//                        val intent = Intent(context, FriendProfile::class.java)
-//                        intent.putExtra("friend", friend)
-//                        context.startActivity(intent)
-//
-//                    }
-                    context.startActivity(Intent(context, ChatActivity::class.java))
+                    val friend = itemView.tag as Friend
+                    if (friend.isVerified){
+                        val intent = Intent(context, ChatActivity::class.java)
+                        intent.putExtra("friend", friend)
+                        context.startActivity(intent)
+                    }
+                }
+
+                context.javaClass.simpleName == "SpareChangeActivity" -> itemView.setOnClickListener{
+                    val friend = itemView.tag as Friend
+                    val friendId = friend.uid
+
+                    val intent = Intent(context, SpareExchangeActivity::class.java)
+                    intent.putExtra("friendId", friendId)
+                    context.startActivity(intent)
                 }
             }
         }

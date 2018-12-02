@@ -43,7 +43,7 @@ class HistoryActivity : AppCompatActivity() {
 
     private fun getRecords(){
         val userDocRef = db.collection("users")
-        userDocRef.document(user!!.uid!!).collection("records").get()
+        userDocRef.document(user!!.uid).collection("records").get()
                 .addOnCompleteListener { task1 ->
                     if (task1.isSuccessful){
                         Log.d(tag, "getRecord: Success")

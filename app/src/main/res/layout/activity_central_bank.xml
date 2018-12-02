@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="30dp"
         android:layout_marginEnd="20dp"
         android:text="Welcome to"
         android:textSize="24sp" />
@@ -20,7 +20,7 @@
         android:id="@+id/textView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:gravity="center"
         android:text="Central Bank"
         android:textAllCaps="true"
@@ -32,7 +32,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="50dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="30dp"
         android:layout_marginEnd="50dp"
         android:background="@color/colorPrimary"
         android:drawableStart="@drawable/ic_money_deposit"
@@ -55,6 +55,20 @@
         android:paddingEnd="45dp"
         android:text="Draw Money"
         android:textColor="@color/common_google_signin_btn_text_dark_default" />
+
+    <Button
+        android:id="@+id/btnSpareChange"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="50dp"
+        android:background="@color/buttonColor"
+        android:drawableStart="@drawable/ic_exchange"
+        android:paddingStart="30dp"
+        android:paddingEnd="45dp"
+        android:text="Spare Change"
+        android:textColor="@color/buttonTextColor" />
 
     <Button
         android:id="@+id/btnHistory"

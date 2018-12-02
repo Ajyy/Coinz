@@ -19,7 +19,7 @@ class FriendActivity : AppCompatActivity() {
     private var friends = ArrayList<Friend>()
     private var recyclerView: RecyclerView? = null
     private var myAdapter: FriendAdapter? = null
-    private var layoutManager: RecyclerView.LayoutManager? =null
+    private var layoutManager: RecyclerView.LayoutManager? = null
     private var tvFriendInf: TextView? = null
 
     private var db = FirebaseFirestore.getInstance()
@@ -100,8 +100,13 @@ class FriendActivity : AppCompatActivity() {
                                                 if (document2!!.exists()){
                                                     val userFriend = document2.toObject(User::class.java)
                                                     print(userFriend?.name)
-                                                    friends.add(Friend(document2.id, userFriend!!.name!!, userFriend.email!!,
-                                                            userFriend.age!!, userFriend.gender!!, userFriend.todayStep, friend["isVerified"] as Boolean))
+                                                    friends.add(Friend(document2.id, userFriend!!.name, userFriend.email!!,
+                                                            userFriend.age!!, userFriend.gender, userFriend.todayStep, friend["isVerified"] as Boolean))
+
+                                                    if (myAdapter != null){
+                                                        myAdapter!!.notifyDataSetChanged()
+                                                    }
+
                                                 } else {
                                                     Log.w(tag, "No such user")
                                                 }
@@ -114,10 +119,7 @@ class FriendActivity : AppCompatActivity() {
                             }
                         }
 
-                        if (myAdapter != null){
-                            myAdapter!!.notifyDataSetChanged()
-                            tvFriendInf!!.text = "Find "+ task1.result!!.size()+" friend(s)"
-                        }
+                        tvFriendInf!!.text = "Find "+ task1.result!!.size()+" friend(s)"
                     } else {
                         Log.w(tag, "getFriend: Fail")
                     }

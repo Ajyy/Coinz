@@ -50,9 +50,9 @@ class FriendInfActivity : AppCompatActivity() {
                                     .addOnCompleteListener { task2 ->
                                         if (task2.isSuccessful){
                                             val friend = task2.result!!.toObject(User::class.java)
-                                            friendInf.add(Friend(document1.id, friend!!.name!!, friend.email!!, friend.age!!,
-                                                    friend.gender!!, friend.todayStep, isAccept = document1.data["isAccept"] as Boolean))
-
+                                            friendInf.add(Friend(document1.id, friend!!.name, friend.email!!, friend.age!!,
+                                                    friend.gender, friend.todayStep, isAccept = document1.data["isAccept"] as Boolean))
+                                            myAdapter!!.notifyDataSetChanged()
                                             Log.d(tag, "Get invited friend: Success")
                                         } else {
                                             Log.w(tag, "Get invited friend: Fail")
@@ -60,7 +60,6 @@ class FriendInfActivity : AppCompatActivity() {
                                     }
                         }
 
-                        myAdapter!!.notifyDataSetChanged()
                         tvFriendInfInf!!.text = "There is/are "+ task1.result!!.size()+" pieces of information"
                     } else {
                         Log.w(tag, "Get invited friend list: Fail")

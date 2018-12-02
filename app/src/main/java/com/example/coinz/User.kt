@@ -10,4 +10,7 @@ class User {
     var demandDeposit = mutableMapOf("GOLD" to 0.0, "SHIL" to 0.0, "DOLR" to 0.0, "QUID" to 0.0, "PENY" to 0.0)
     var demandTime = mutableMapOf("GOLD" to "no", "SHIL" to "no", "DOLR" to "no", "QUID" to "no", "PENY" to "no")
     var achievements = ArrayList<Int>()
+    var limit = 0
+    var depositTime = "no"
+    var isExchange = false
 }
