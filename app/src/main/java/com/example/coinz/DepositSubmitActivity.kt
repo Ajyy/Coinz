@@ -195,7 +195,6 @@ class DepositSubmitActivity : AppCompatActivity(){
 
     private fun updateUser(userClass: User, coinType: String){
         db.collection("user").document(user!!.uid).update(
-                "demandDeposit", userClass.demandDeposit,
                 "demandTime", userClass.demandTime,
                 "demandDeposit.$coinType", userClass.demandDeposit[coinType],
                 "limit", userClass.limit,

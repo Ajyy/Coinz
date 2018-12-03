@@ -80,7 +80,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
     private val pickName = 3
 
     private var coins = ArrayList<Point>()
-    private var ratesArr = doubleArrayOf(0.0, 0.0, 0.0, 0.0)
+    private var ratesArr = hashMapOf("SHIL" to 0.0, "DOLR" to 0.0, "PENY" to 0.0, "QUID" to 0.0)
     private var userData: User? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -242,6 +242,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                     setCameraPosition(lastLocation)
                 }
             }
+
         }else{
             Log.d(tag, "Permissions are not granted")
             permissionManager = PermissionsManager(this)
@@ -311,6 +312,8 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         } else {
             originLocation = location
             setCameraPosition(originLocation)
+
+
         }
     }
 
@@ -391,10 +394,10 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                 // Parse JSON
                 val json = JSONObject(jsonText.toString())
                 val rates = json.getJSONObject("rates")
-                ratesArr[0] = rates.getDouble("SHIL")
-                ratesArr[1] = rates.getDouble("DOLR")
-                ratesArr[2] = rates.getDouble("QUID")
-                ratesArr[3] = rates.getDouble("PENY")
+                ratesArr["SHIL"] = rates.getDouble("SHIL")
+                ratesArr["DOLR"] = rates.getDouble("DOLR")
+                ratesArr["QUID"] = rates.getDouble("QUID")
+                ratesArr["PENY"] = rates.getDouble("PENY")
 
                 val features = json.getJSONArray("features")
                 for (i in 0..features.length()){
@@ -441,7 +444,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                             .position(point.latlng)
                             .icon(icon)
                             .title(point.currency+": "+point.markerSymbol)
-                            .snippet("Id: "+point.id+"\n"+"Value: "+point.value))
+                            .snippet("Value: "+point.value))
                 }
 
                 map!!.addMarkers(markers)

@@ -88,7 +88,7 @@ class DemandDepositActivity : AppCompatActivity() {
                     if (document.exists()){
                         Log.d(tag, "getBalance: Success")
                         val userData = document.toObject(User::class.java)
-                        balance = userData!!.balance
+                        balance = userData!!.demandDeposit
                         onButtonShowPopupWindowClick(v)
                     } else {
                         Log.w(tag, "getBalance: Fail")
