@@ -1,22 +1,25 @@
 package com.example.coinz
 
+import android.app.Activity
+import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
-import android.widget.EditText
 import android.widget.RadioGroup
 import android.widget.TextView
+import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import java.time.temporal.ChronoUnit
 import java.util.*
+import kotlin.collections.ArrayList
 
 class SpareExchangeActivity : AppCompatActivity() {
 
     private var rgSpareType: RadioGroup? = null
-    private var etSpareAmount: EditText? = null
+    private var btnChooseSpare: Button? = null
     private var btnSubmitSpare: Button? = null
     private var tvSpareInf: TextView? = null
 
@@ -27,8 +30,14 @@ class SpareExchangeActivity : AppCompatActivity() {
     private var friendData: User? = null
     private var userData: User? = null
     private var friendId: String? = null
-    private var tag = "SpareExchangeActivity"
+    private var tvCoinInf: TextView? = null
     private var now = Calendar.getInstance()
+
+    private var tag = "SpareExchangeActivity"
+    private val chooseCoinActivity = 2
+    private var coins = ArrayList<Point>()
+    private var totalValue = 0.0
+    private var num = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,38 +46,75 @@ class SpareExchangeActivity : AppCompatActivity() {
         title = "Central Bank"
 
         rgSpareType = findViewById(R.id.rgSpareType)
-        etSpareAmount = findViewById(R.id.etSpareName)
+
+        btnChooseSpare = findViewById(R.id.btnChooseSpare)
         btnSubmitSpare = findViewById(R.id.btnSubmitSpare)
         tvSpareInf = findViewById(R.id.tvSpareInf)
+        tvCoinInf = findViewById(R.id.tvCoinInf)
+
+        tvCoinInf!!.text = "Please choose coins"
 
         friendId = intent.getStringExtra("friendId")
         getData("friend", friendId!!)
         getData("user", user!!.uid)
 
+        rgSpareType!!.setOnClickListener{
+            coins.clear()
+            tvCoinInf!!.text = "Please choose coins"
+        }
+
+        btnChooseSpare!!.setOnClickListener {
+            val coinType: String = when{
+                rgSpareType!!.checkedRadioButtonId == R.id.rbShil -> "SHIL"
+                rgSpareType!!.checkedRadioButtonId == R.id.rbDolr -> "DOLR"
+                rgSpareType!!.checkedRadioButtonId == R.id.rbQuid -> "QUID"
+                else  -> "PENY"
+            }
+
+            val intent = Intent(this@SpareExchangeActivity, ChooseCoinActivity::class.java)
+            intent.putExtra("inf", arrayListOf(coinType, "spare"))
+            startActivityForResult(intent, chooseCoinActivity)
+        }
+
         btnSubmitSpare!!.setOnClickListener {
             if (userData!!.limit >= 25){
                 val coinType: String = when{
-                    rgSpareType!!.checkedRadioButtonId == R.id.rbGold -> "GOLD"
                     rgSpareType!!.checkedRadioButtonId == R.id.rbShil -> "SHIL"
                     rgSpareType!!.checkedRadioButtonId == R.id.rbDolr -> "DOLR"
                     rgSpareType!!.checkedRadioButtonId == R.id.rbQuid -> "QUID"
                     else  -> "PENY"
                 }
 
-                if (userData!!.balance[coinType]!! < etSpareAmount!!.text.toString().toDouble()){
-                    tvSpareInf!!.text = "Amount should be smaller than your balance, balance: $userData!!.balance[coinType]"
-                } else {
-                    updateDeposit("friend", coinType)
-                    updateDeposit("user", coinType)
-                    userData!!.demandDeposit[coinType] = userData!!.demandDeposit[coinType]!!+etSpareAmount!!.text.toString().toDouble()
-                    friendData!!.demandDeposit[coinType] = friendData!!.demandDeposit[coinType]!!+etSpareAmount!!.text.toString().toDouble()
-                    userData!!.isExchange = true
+                updateDeposit("friend", coinType)
+                updateDeposit("user", coinType)
+                userData!!.demandDeposit[coinType] = userData!!.demandDeposit[coinType]!!+totalValue
+                friendData!!.demandDeposit[coinType] = friendData!!.demandDeposit[coinType]!!+totalValue
+                userData!!.isExchange = true
 
+                userData!!.balance[coinType]!!.clear()
+                for (point in coins) if (!point.isChecked) userData!!.balance[coinType]!!.add(point)
 
-                }
+                updateInf("friend", coinType)
+                updateInf("user", coinType)
 
+                Toast.makeText(this@SpareExchangeActivity, "Exchange Successfully", Toast.LENGTH_SHORT).show()
+                finish()
             } else {
                 tvSpareInf!!.text = "You should deposit more than 25 coins"
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == chooseCoinActivity){
+            if (resultCode == Activity.RESULT_OK){
+                coins = data!!.getSerializableExtra("points") as ArrayList<Point>
+                for (point in coins) if (point.isChecked) {
+                    totalValue+=point.value
+                    num++
+                }
+                tvCoinInf!!.text = "Coin number: $num Coin Value: ${totalValue}"
             }
         }
     }
@@ -112,7 +158,7 @@ class SpareExchangeActivity : AppCompatActivity() {
         val message = ChatMessage()
         message.messageTime = Date().time
         message.messageUserName = userData!!.name
-        message.messageText = "I send you ${etSpareAmount!!.text.toString().toDouble()} $coinType from my spare change, " +
+        message.messageText = "I send you $num $coinType whose value is $totalValue from my spare change, " +
                 "you can check you balance~"
 
         mDatabase.child(chatId).push().setValue(message)

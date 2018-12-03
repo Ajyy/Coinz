@@ -5,14 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".DepositSubmitActivity">
+    tools:context=".ExchangeActivity">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
-        android:text="Draw Money"
+        android:text="Deposit Your Money"
         android:textSize="30sp"
         android:textStyle="bold|italic" />
 
@@ -22,50 +22,46 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
-        android:text="Coins' Type"
+        android:text="From"
         android:textSize="20sp"
         android:textStyle="bold" />
 
     <RadioGroup
-        android:id="@+id/rgCoinTypeDraw"
+        android:id="@+id/rgCoinFrom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="20dp"
-        android:checkedButton="@id/rbGold">
+        android:checkedButton="@+id/rbQuidF"
+        android:orientation="horizontal">
 
         <RadioButton
-            android:id="@+id/rbGold"
+            android:id="@+id/rbQuidF"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="GOLD" />
-
-        <RadioButton
-            android:id="@+id/rbShil"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="SHIL" />
-
-        <RadioButton
-            android:id="@+id/rbQuid"
-            android:layout_width="118dp"
-            android:layout_height="wrap_content"
             android:text="QUID" />
 
         <RadioButton
-            android:id="@+id/rbDolr"
+            android:id="@+id/rbDolrF"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="DOLR" />
 
         <RadioButton
-            android:id="@+id/rbPeny"
+            android:id="@+id/rbShilF"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="SHIL" />
+
+        <RadioButton
+            android:id="@+id/rbPenyF"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
             android:text="PENY" />
 
     </RadioGroup>
@@ -76,39 +72,48 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
-        android:text="Amount"
+        android:text="To"
         android:textSize="20sp"
         android:textStyle="bold" />
 
-    <EditText
-        android:id="@+id/etAmountDraw"
+    <RadioGroup
+        android:id="@+id/rgCoinTo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="20dp"
-        android:ems="10"
-        android:inputType="number"
-        android:text="0.0" />
+        android:checkedButton="@+id/rbQuidT"
+        android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/btnSubmitDraw"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:background="@color/colorPrimary"
-        android:elevation="5dp"
-        android:text="Submit"
-        android:textColor="@color/common_google_signin_btn_text_dark_default" />
+        <RadioButton
+            android:id="@+id/rbQuidT"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="QUID" />
 
-    <TextView
-        android:id="@+id/tvDrawInf"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginEnd="20dp" />
+        <RadioButton
+            android:id="@+id/rbDolrT"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="DOLR" />
+
+        <RadioButton
+            android:id="@+id/rbShilT"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="SHIL" />
+
+        <RadioButton
+            android:id="@+id/rbPenyT"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:text="PENY" />
+
+    </RadioGroup>
 
 </LinearLayout>

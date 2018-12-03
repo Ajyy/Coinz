@@ -30,17 +30,11 @@
         android:id="@+id/rgCoinType"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:layout_marginStart="20dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="20dp"
-        android:checkedButton="@id/rbGold">
-
-        <RadioButton
-            android:id="@+id/rbGold"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="GOLD" />
+        android:checkedButton="@+id/rbQuid">
 
         <RadioButton
             android:id="@+id/rbQuid"
@@ -78,20 +72,35 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
-        android:text="Amount"
+        android:text="Choose your coins"
         android:textSize="20sp"
         android:textStyle="bold" />
 
-    <EditText
-        android:id="@+id/etAmount"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="20dp"
-        android:ems="10"
-        android:inputType="number"
-        android:text="0.0" />
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnChooseDeposit"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/button_back"
+            android:gravity="center"
+            android:text="Your coins"
+            android:textColor="@color/common_google_signin_btn_text_dark_default" />
+
+        <TextView
+            android:id="@+id/tvCoinInf"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1"
+            android:textSize="20sp" />
+    </LinearLayout>
 
     <TextView
         android:layout_width="match_parent"

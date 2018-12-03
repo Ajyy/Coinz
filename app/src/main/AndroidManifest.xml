@@ -42,11 +42,13 @@
         <activity android:name=".TimeDepositActivity" />
         <activity android:name=".DemandDepositActivity" />
         <activity android:name=".DepositSubmitActivity" />
-        <activity android:name=".DrawMoneyActivity" />
         <activity android:name=".AchievementActivity" />
         <activity android:name=".ChatActivity" />
         <activity android:name=".SpareChangeActivity" />
-        <activity android:name=".SpareExchangeActivity"></activity>
+        <activity android:name=".SpareExchangeActivity" />
+        <activity android:name=".ChooseCoinActivity" />
+        <activity android:name=".ExchangeInfActivity" />
+        <activity android:name=".ExchangeActivity"></activity>
     </application>
 
 </manifest>

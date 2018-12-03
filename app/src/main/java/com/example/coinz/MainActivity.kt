@@ -40,6 +40,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.mapbox.mapboxsdk.annotations.Icon
@@ -72,6 +73,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
 
     private var mAuth: FirebaseAuth? = null
     private var mStorageReference: StorageReference? = null
+    private var db: FirebaseFirestore? = null
 
     private val tag = "MainActivity"
     private val profile = 2
@@ -79,16 +81,19 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
 
     private var coins = ArrayList<Point>()
     private var ratesArr = doubleArrayOf(0.0, 0.0, 0.0, 0.0)
+    private var userData: User? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         mAuth = FirebaseAuth.getInstance()
         mStorageReference = FirebaseStorage.getInstance().reference
+        db = FirebaseFirestore.getInstance()
 
         mapView = findViewById(R.id.mapView)
         fabLocation = findViewById(R.id.fabLocation)
         navigationView = findViewById(R.id.nav_view)
+
         val headView = navigationView.getHeaderView(0)
         tvNavEmail = headView.findViewById(R.id.tvNavEmail)
         tvNavUserName = headView.findViewById(R.id.tvNavUserName)
@@ -100,6 +105,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         val user = mAuth!!.currentUser
         initializeUser(user!!)
         navigationView.setNavigationItemSelectedListener(this@MainActivity)
+        getData(user.uid)
 
         Mapbox.getInstance(applicationContext, getString(R.string.access_token))
         mapView?.onCreate(savedInstanceState)
@@ -156,6 +162,18 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         super.onDestroy()
         mapView?.onDestroy()
         locationEngine?.deactivate()
+    }
+
+    private fun getData(id: String){
+        db!!.collection("users").document(id).get()
+                .addOnCompleteListener {task ->
+                    if (task.isSuccessful){
+                        userData = task.result!!.toObject(User::class.java)
+                        Log.d(tag, "get friend data: Success")
+                    } else {
+                        Log.w(tag, "get friend data: fail")
+                    }
+                }
     }
 
     private fun initializeUser(user: FirebaseUser){

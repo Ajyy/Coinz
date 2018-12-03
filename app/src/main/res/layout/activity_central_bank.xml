@@ -43,17 +43,17 @@
         android:textColor="@color/common_google_signin_btn_text_dark_default" />
 
     <Button
-        android:id="@+id/btnDraw"
+        android:id="@+id/btnExchange"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="50dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="50dp"
         android:background="@color/colorPrimary"
-        android:drawableStart="@drawable/ic_withdraw"
+        android:drawableStart="@drawable/ic_exchange_rate"
         android:paddingStart="30dp"
         android:paddingEnd="45dp"
-        android:text="Draw Money"
+        android:text="Exchange"
         android:textColor="@color/common_google_signin_btn_text_dark_default" />
 
     <Button
@@ -82,20 +82,6 @@
         android:paddingStart="30dp"
         android:paddingEnd="45dp"
         android:text="@string/btn_history_name"
-        android:textColor="@color/common_google_signin_btn_text_dark_default" />
-
-    <Button
-        android:id="@+id/btnRate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="50dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="50dp"
-        android:background="@color/colorPrimary"
-        android:drawableStart="@drawable/ic_exchange_rate"
-        android:paddingStart="30dp"
-        android:paddingEnd="45dp"
-        android:text="@string/btn_rate_name"
         android:textColor="@color/common_google_signin_btn_text_dark_default" />
 
 </LinearLayout>

@@ -21,49 +21,53 @@
         android:id="@+id/tvGold"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="30dp"
+        android:layout_marginStart="50dp"
         android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
+        android:layout_marginEnd="50dp"
         android:textSize="18sp"
         android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/tvShil"
+    <Button
+        android:id="@+id/btnDolr"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="30dp"
+        android:layout_marginStart="50dp"
         android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        android:layout_marginEnd="50dp"
+        android:background="@color/colorPrimary"
+        android:text="DOLR Coins"
+        android:textColor="@color/common_google_signin_btn_text_dark_default" />
 
-    <TextView
-        android:id="@+id/tvDolr"
+    <Button
+        android:id="@+id/btnPeny"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="30dp"
+        android:layout_marginStart="50dp"
         android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        android:layout_marginEnd="50dp"
+        android:background="@color/colorPrimary"
+        android:text="PENY Coins"
+        android:textColor="@color/common_google_signin_btn_text_dark_default" />
 
-    <TextView
-        android:id="@+id/tvQuid"
+    <Button
+        android:id="@+id/btnQuid"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="30dp"
+        android:layout_marginStart="50dp"
         android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        android:layout_marginEnd="50dp"
+        android:background="@color/colorPrimary"
+        android:text="QUID Coins"
+        android:textColor="@color/common_google_signin_btn_text_dark_default" />
 
-    <TextView
-        android:id="@+id/tvPeny"
+    <Button
+        android:id="@+id/btnShil"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="30dp"
+        android:layout_marginStart="50dp"
         android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        android:layout_marginEnd="50dp"
+        android:background="@color/colorPrimary"
+        android:text="SHIL Coins"
+        android:textColor="@color/common_google_signin_btn_text_dark_default" />
 </LinearLayout>
