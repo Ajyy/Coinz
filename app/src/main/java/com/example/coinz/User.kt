@@ -14,4 +14,5 @@ class User {
     var limit = 0
     var depositTime = "no"
     var isExchange = false
+    var coinsId = ArrayList<String>()
 }

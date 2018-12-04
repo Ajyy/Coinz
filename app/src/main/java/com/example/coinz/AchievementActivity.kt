@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
+import android.widget.TextView
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -13,6 +14,7 @@ class AchievementActivity : AppCompatActivity() {
     private var rvAchieveList: RecyclerView?  = null
     private var myAdapter: AchievementAdapter? = null
     private var layoutManager: RecyclerView.LayoutManager? =null
+    private var tvAchieveInf: TextView? = null
 
     private var achievements = ArrayList<Achievement>()
     private var userClass: User? = null
@@ -24,6 +26,10 @@ class AchievementActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_achievement)
+
+        title = "Achievement"
+
+        tvAchieveInf = findViewById(R.id.tvAchieveInf)
 
         rvAchieveList = findViewById(R.id.rvAchieveList)
         rvAchieveList!!.setHasFixedSize(true)
@@ -70,6 +76,7 @@ class AchievementActivity : AppCompatActivity() {
                             achievements.add(achievement)
                         }
 
+                        tvAchieveInf!!.text = "Find ${task.result!!.size()} achievements"
                         myAdapter!!.notifyDataSetChanged()
                         Log.d(tag, "get achievements: Success")
                     } else {

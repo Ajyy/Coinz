@@ -52,10 +52,10 @@
         android:clickable="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.884"
+        app:layout_constraintHorizontal_bias="0.967"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.858"
+        app:layout_constraintVertical_bias="0.864"
         mapbox:srcCompat="@android:drawable/ic_menu_mylocation" />
 
 </android.support.constraint.ConstraintLayout>

@@ -72,35 +72,39 @@ class SpareExchangeActivity : AppCompatActivity() {
             }
 
             val intent = Intent(this@SpareExchangeActivity, ChooseCoinActivity::class.java)
-            intent.putExtra("inf", arrayListOf(coinType, "spare"))
+            intent.putExtra("inf", arrayOf(coinType, "spare"))
             startActivityForResult(intent, chooseCoinActivity)
         }
 
         btnSubmitSpare!!.setOnClickListener {
-            if (userData!!.limit >= 25){
-                val coinType: String = when{
-                    rgSpareType!!.checkedRadioButtonId == R.id.rbShil -> "SHIL"
-                    rgSpareType!!.checkedRadioButtonId == R.id.rbDolr -> "DOLR"
-                    rgSpareType!!.checkedRadioButtonId == R.id.rbQuid -> "QUID"
-                    else  -> "PENY"
+            if (coins.size != 0){
+                if (userData!!.limit >= 25){
+                    val coinType: String = when{
+                        rgSpareType!!.checkedRadioButtonId == R.id.rbShil -> "SHIL"
+                        rgSpareType!!.checkedRadioButtonId == R.id.rbDolr -> "DOLR"
+                        rgSpareType!!.checkedRadioButtonId == R.id.rbQuid -> "QUID"
+                        else  -> "PENY"
+                    }
+
+                    updateDeposit("friend", coinType)
+                    updateDeposit("user", coinType)
+                    userData!!.demandDeposit[coinType] = userData!!.demandDeposit[coinType]!!+totalValue
+                    friendData!!.demandDeposit[coinType] = friendData!!.demandDeposit[coinType]!!+totalValue
+                    userData!!.isExchange = true
+
+                    userData!!.balance[coinType]!!.clear()
+                    for (point in coins) if (!point.isChecked) userData!!.balance[coinType]!!.add(point)
+
+                    updateInf("friend", coinType)
+                    updateInf("user", coinType)
+
+                    Toast.makeText(this@SpareExchangeActivity, "Exchange Successfully", Toast.LENGTH_SHORT).show()
+                    finish()
+                } else {
+                    tvSpareInf!!.text = "You should deposit more than 25 coins"
                 }
-
-                updateDeposit("friend", coinType)
-                updateDeposit("user", coinType)
-                userData!!.demandDeposit[coinType] = userData!!.demandDeposit[coinType]!!+totalValue
-                friendData!!.demandDeposit[coinType] = friendData!!.demandDeposit[coinType]!!+totalValue
-                userData!!.isExchange = true
-
-                userData!!.balance[coinType]!!.clear()
-                for (point in coins) if (!point.isChecked) userData!!.balance[coinType]!!.add(point)
-
-                updateInf("friend", coinType)
-                updateInf("user", coinType)
-
-                Toast.makeText(this@SpareExchangeActivity, "Exchange Successfully", Toast.LENGTH_SHORT).show()
-                finish()
             } else {
-                tvSpareInf!!.text = "You should deposit more than 25 coins"
+                tvSpareInf!!.text = "Please choose some coins"
             }
         }
     }

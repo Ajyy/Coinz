@@ -26,52 +26,16 @@
         android:textSize="20sp"
         android:textStyle="bold" />
 
-    <RadioGroup
-        android:id="@+id/rgCoinFrom"
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/btnCoinTypeF"
+        android:layout_width="115dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginTop="10dp"
-        android:layout_marginEnd="20dp"
-        android:checkedButton="@+id/rbQuidF"
-        android:orientation="horizontal">
-
-        <RadioButton
-            android:id="@+id/rbQuidF"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="QUID" />
-
-        <RadioButton
-            android:id="@+id/rbDolrF"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="DOLR" />
-
-        <RadioButton
-            android:id="@+id/rbShilF"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="SHIL" />
-
-        <RadioButton
-            android:id="@+id/rbPenyF"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="3"
-            android:text="PENY" />
-
-    </RadioGroup>
-
-    <RadioButton
-        android:id="@+id/rbGoldF"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:text="GOLD" />
+        android:background="@drawable/button_back"
+        android:gravity="center"
+        android:text="Coin's type"
+        android:textColor="@color/common_google_signin_btn_text_dark_default" />
 
     <TextView
         android:layout_width="match_parent"
@@ -83,52 +47,16 @@
         android:textSize="20sp"
         android:textStyle="bold" />
 
-    <RadioGroup
-        android:id="@+id/rgCoinTo"
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/btnCoinTypeT"
+        android:layout_width="115dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginTop="10dp"
-        android:layout_marginEnd="20dp"
-        android:checkedButton="@+id/rbQuidT"
-        android:orientation="horizontal">
-
-        <RadioButton
-            android:id="@+id/rbQuidT"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="QUID" />
-
-        <RadioButton
-            android:id="@+id/rbDolrT"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="DOLR" />
-
-        <RadioButton
-            android:id="@+id/rbShilT"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="SHIL" />
-
-        <RadioButton
-            android:id="@+id/rbPenyT"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="3"
-            android:text="PENY" />
-
-    </RadioGroup>
-
-    <RadioButton
-        android:id="@+id/rbGoldT"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:text="GOLD" />
+        android:background="@drawable/button_back"
+        android:gravity="center"
+        android:text="Coin's Type"
+        android:textColor="@color/common_google_signin_btn_text_dark_default" />
 
     <TextView
         android:id="@+id/tvExchangeInf"
@@ -178,7 +106,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginTop="5dp"
-        android:layout_marginEnd="20dp"
-        android:text="TextView" />
+        android:layout_marginEnd="20dp" />
 
 </LinearLayout>

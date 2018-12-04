@@ -49,25 +49,25 @@ class BalanceActivity : AppCompatActivity() {
 
         btnPeny!!.setOnClickListener {
             val intent = Intent(this@BalanceActivity, ChooseCoinActivity::class.java)
-            intent.putExtra("inf", arrayListOf("PENY", "balance"))
+            intent.putExtra("inf", arrayOf("PENY", "balance"))
             startActivity(intent)
         }
 
         btnQuid!!.setOnClickListener {
             val intent = Intent(this@BalanceActivity, ChooseCoinActivity::class.java)
-            intent.putExtra("inf", arrayListOf("QUID", "balance"))
+            intent.putExtra("inf", arrayOf("QUID", "balance"))
             startActivity(intent)
         }
 
         btnShil!!.setOnClickListener {
             val intent = Intent(this@BalanceActivity, ChooseCoinActivity::class.java)
-            intent.putExtra("inf", arrayListOf("SHIL", "balance"))
+            intent.putExtra("inf", arrayOf("SHIL", "balance"))
             startActivity(intent)
         }
 
         btnDolr!!.setOnClickListener {
             val intent = Intent(this@BalanceActivity, ChooseCoinActivity::class.java)
-            intent.putExtra("inf", arrayListOf("DOLR", "balance"))
+            intent.putExtra("inf", arrayOf("DOLR", "balance"))
             startActivity(intent)
         }
     }

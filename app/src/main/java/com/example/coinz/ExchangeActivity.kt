@@ -1,9 +1,12 @@
 package com.example.coinz
 
+import android.content.DialogInterface
 import android.icu.text.SimpleDateFormat
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.app.AlertDialog
 import android.util.Log
+import android.view.View
 import android.widget.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -12,14 +15,12 @@ import java.util.*
 
 class ExchangeActivity : AppCompatActivity() {
 
-    private var rgCoinFrom: RadioGroup? = null
-    private var rgCoinTo: RadioGroup? = null
-    private var rbGoldF: RadioButton? = null
-    private var rbGoldT: RadioButton? = null
     private var etExchangeAmount: EditText? = null
     private var tvExchangeInf: TextView? = null
     private var tvExchangeInf2: TextView? = null
     private var btnSubmitExchange: Button? = null
+    private var btnCoinTypeF: Button? = null
+    private var btnCoinTypeT: Button? = null
 
     private var user = FirebaseAuth.getInstance().currentUser
     private var db = FirebaseFirestore.getInstance()
@@ -28,6 +29,7 @@ class ExchangeActivity : AppCompatActivity() {
     private val now = Calendar.getInstance()
     private var userData: User? = null
     private var ratesArray: HashMap<String, Double>? = null
+    private var coinTypes = arrayOf("GOLD", "GOLD")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,51 +38,23 @@ class ExchangeActivity : AppCompatActivity() {
         getUserData()
         ratesArray = intent.getSerializableExtra("rates") as HashMap<String, Double>
 
-        rgCoinFrom = findViewById(R.id.rgCoinFrom)
-        rgCoinTo = findViewById(R.id.rgCoinTo)
-        rbGoldF = findViewById(R.id.rbGoldF)
-        rbGoldT = findViewById(R.id.rbGoldT)
         etExchangeAmount = findViewById(R.id.etExchangeAmount)
         tvExchangeInf = findViewById(R.id.tvExchangeInf)
         tvExchangeInf2 = findViewById(R.id.tvExchangeInf2)
         btnSubmitExchange = findViewById(R.id.btnSubmitExchange)
+        btnCoinTypeF = findViewById(R.id.btnCoinTypeF)
+        btnCoinTypeT = findViewById(R.id.btnCoinTypeT)
 
-        rgCoinFrom!!.setOnClickListener {
-            rbGoldF!!.isChecked = false
-            val coinTypes = getCoinType()
-
-            tvExchangeInf!!.text = "The rate of ${coinTypes[1]}:${coinTypes[0]} is" +
-                    " ${ratesArray!![coinTypes[1]]!!/ ratesArray!![coinTypes[0]]!!}"
+        btnCoinTypeF!!.setOnClickListener {v ->
+            showAlertDialogButtonClicked(v, 0)
         }
 
-        rgCoinTo!!.setOnCheckedChangeListener { _, _ ->
-            rbGoldT!!.isChecked = false
-            val coinTypes = getCoinType()
-
-            tvExchangeInf!!.text = "The rate of ${coinTypes[1]}:${coinTypes[0]} is" +
-                    " ${ratesArray!![coinTypes[1]]!!/ ratesArray!![coinTypes[0]]!!}"
-        }
-
-        rbGoldF!!.setOnClickListener {
-            val checkedButton: RadioButton = rgCoinFrom!!.findViewById(rgCoinFrom!!.checkedRadioButtonId)
-            checkedButton.isChecked = false
-            val coinTypes = getCoinType()
-
-            tvExchangeInf!!.text = "The rate of ${coinTypes[1]}:${coinTypes[0]} is" +
-                    " ${ratesArray!![coinTypes[1]]!!/1}"
-        }
-
-        rbGoldT!!.setOnClickListener {
-            val checkedButton: RadioButton = rgCoinTo!!.findViewById(rgCoinTo!!.checkedRadioButtonId)
-            checkedButton.isChecked = false
-            val coinTypes = getCoinType()
-
-            tvExchangeInf!!.text = "The rate of ${coinTypes[1]}:${coinTypes[0]} is" +
-                    " ${1/ratesArray!![coinTypes[0]]!!}"
+        btnCoinTypeT!!.setOnClickListener {v ->
+            showAlertDialogButtonClicked(v, 1)
+            btnCoinTypeT!!.text = coinTypes[1]
         }
 
         btnSubmitExchange!!.setOnClickListener {
-            val coinTypes = getCoinType()
             val amount = etExchangeAmount!!.text.toString().toDouble()
             val rate = ratesArray!![coinTypes[1]]!!/ ratesArray!![coinTypes[0]]!!
 
@@ -102,6 +76,25 @@ class ExchangeActivity : AppCompatActivity() {
         }
     }
 
+    private fun showAlertDialogButtonClicked(v: View, index: Int){
+        val builder = AlertDialog.Builder(this@ExchangeActivity)
+        builder.setTitle("Choose coin's type")
+
+        val types = arrayOf("GOLD", "PENY", "SHIL", "DOLR", "QUID")
+        builder.setItems(types) { _: DialogInterface, i: Int ->
+            coinTypes[index] = types[i]
+            if (index == 0) btnCoinTypeF!!.text = coinTypes[0]
+            else btnCoinTypeT!!.text = coinTypes[1]
+
+            if (!(btnCoinTypeF!!.text.toString() !in types||btnCoinTypeT!!.text.toString() !in types))
+                tvExchangeInf!!.text = "The rate of ${coinTypes[1]}:${coinTypes[0]} is" +
+                    " ${ratesArray!![coinTypes[1]]!!/ ratesArray!![coinTypes[0]]!!}"
+        }
+
+        val dialog = builder.create()
+        dialog.show()
+    }
+
     private fun updateBalance(coinType: String){
         if (userData!!.demandTime[coinType] != "no"){
             val lastCal = Calendar.getInstance()
@@ -112,34 +105,6 @@ class ExchangeActivity : AppCompatActivity() {
         }
 
         userData!!.demandTime[coinType] = SimpleDateFormat("MM/dd/yyyy").format(now!!.time)
-    }
-
-    private fun getCoinType(): Array<String>{
-        val coinType1: String
-        if (rbGoldF!!.isChecked){
-            coinType1 = "GOLD"
-        } else {
-             coinType1 = when{
-                rgCoinFrom!!.checkedRadioButtonId == R.id.rbShilF -> "SHIL"
-                rgCoinFrom!!.checkedRadioButtonId == R.id.rbDolrF -> "DOLR"
-                rgCoinFrom!!.checkedRadioButtonId == R.id.rbQuidF -> "QUID"
-                else  -> "PENY"
-            }
-        }
-
-        val coinType2: String
-        if (rbGoldT!!.isChecked){
-            coinType2 = "GOLD"
-        } else {
-            coinType2= when{
-                rgCoinTo!!.checkedRadioButtonId == R.id.rbShilT -> "SHIL"
-                rgCoinTo!!.checkedRadioButtonId == R.id.rbDolrT -> "DOLR"
-                rgCoinTo!!.checkedRadioButtonId == R.id.rbQuidT -> "QUID"
-                else  -> "PENY"
-            }
-        }
-
-        return arrayOf(coinType1, coinType2)
     }
 
     private fun getUserData(){

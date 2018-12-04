@@ -50,6 +50,8 @@ class DepositSubmitActivity : AppCompatActivity(){
         btnSubmitDeposit = findViewById(R.id.btnSubmitDeposit)
         tvDepositInf = findViewById(R.id.tvDepositInf)
 
+        getUserData()
+
         val sdf = SimpleDateFormat("MM/dd/yyyy")
 
         val myCalendar = Calendar.getInstance()
@@ -87,12 +89,11 @@ class DepositSubmitActivity : AppCompatActivity(){
             }
 
             val intent = Intent(this@DepositSubmitActivity, ChooseCoinActivity::class.java)
-            intent.putExtra("inf", arrayListOf(coinType, "deposit"))
+            intent.putExtra("inf", arrayOf(coinType, "deposit"))
             startActivityForResult(intent, chooseCoinActivity)
         }
 
         btnSubmitDeposit!!.setOnClickListener {
-            getUserData()
             val coinType: String = when{
                 rgCoinType!!.checkedRadioButtonId == R.id.rbShil -> "SHIL"
                 rgCoinType!!.checkedRadioButtonId == R.id.rbDolr -> "DOLR"
@@ -101,18 +102,24 @@ class DepositSubmitActivity : AppCompatActivity(){
             }
 
             now = Calendar.getInstance()
-            if (type == "time"){
-                if (sdf.format(now!!.time) != btnCalendar!!.text){
-                    val profit =  totalValue*0.05
-                    val record = Record(System.currentTimeMillis().toString(),"time", coinType, sdf.format(now!!.time), btnCalendar!!.text as String,
-                            totalValue, profit)
+
+            if (coins.size != 0){
+                if (type == "time"){
+                    if (sdf.format(now!!.time) != btnCalendar!!.text && btnCalendar!!.text.toString() != "Calendar"){
+                        val profit =  totalValue*0.05
+                        val record = Record(System.currentTimeMillis().toString(),"time", coinType, sdf.format(now!!.time), btnCalendar!!.text as String,
+                                totalValue, profit)
+                        storeDeposit(record, coinType, type!!)
+
+                    } else {
+                        tvDepositInf!!.text = "Please choose the expired date"
+                    }
+                } else if (type == "demand") {
+                    val record = Record(System.currentTimeMillis().toString(), "demand", coinType, sdf.format(now!!.time), "null", totalValue, isFinish = true)
                     storeDeposit(record, coinType, type!!)
-                } else {
-                    tvDepositInf!!.text = "Please choose the expired date"
                 }
-            } else if (type == "demand") {
-                val record = Record(System.currentTimeMillis().toString(), "demand", coinType, sdf.format(now!!.time), "null", totalValue, isFinish = true)
-                storeDeposit(record, coinType, type!!)
+            } else {
+                tvDepositInf!!.text = "Please choose some coins"
             }
         }
     }

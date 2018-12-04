@@ -7,8 +7,19 @@
     android:orientation="vertical"
     tools:context=".ChooseCoinActivity">
 
+    <TextView
+        android:id="@+id/tvCoinInf"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rvCoinChoose"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_marginTop="10dp" />
 </LinearLayout>

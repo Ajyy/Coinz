@@ -29,7 +29,7 @@
         android:drawableStart="@drawable/ic_exchange_rate"
         android:paddingStart="30dp"
         android:paddingEnd="45dp"
-        android:text="@string/btn_rate_name"
+        android:text="Exchange"
         android:textColor="@color/common_google_signin_btn_text_dark_default" />
 
     <Button

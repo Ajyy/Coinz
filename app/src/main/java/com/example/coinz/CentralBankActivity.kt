@@ -12,7 +12,7 @@ class CentralBankActivity : AppCompatActivity() {
     private var btnSpareChange: Button? = null
     private var btnHistory: Button? = null
     private var btnExchange: Button? = null
-    private var ratesArray: DoubleArray? = null
+    private var ratesArray: HashMap<String, Double>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,7 +20,7 @@ class CentralBankActivity : AppCompatActivity() {
         title = "Central Bank"
 
         val intent1 = intent
-        ratesArray = intent1.getDoubleArrayExtra("rates")
+        ratesArray = intent1.getSerializableExtra("rates") as HashMap<String, Double>
 
         btnDeposit = findViewById(R.id.btnDeposit)
         btnRate = findViewById(R.id.btnRate)
