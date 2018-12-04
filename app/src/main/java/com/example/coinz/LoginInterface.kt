@@ -84,8 +84,8 @@ class LoginInterface : AppCompatActivity(){
 
     private fun updateUI(user: FirebaseUser?) {
         if (user != null) {
-            finish()
             startActivity(Intent(this@LoginInterface, MainActivity::class.java))
+            finish()
         }
     }
 
