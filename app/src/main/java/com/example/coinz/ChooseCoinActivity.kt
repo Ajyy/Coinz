@@ -46,11 +46,14 @@ class ChooseCoinActivity : AppCompatActivity() {
     }
 
     private fun getAllCoins(){
-        db.collection("users").document(user!!.uid).get()
+        db.collection("users").document(user!!.uid).collection("balance_"+inf!![0]).get()
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful){
                         points.clear()
-                        points.addAll(task.result!!.toObject(User::class.java)!!.balance[inf!![0]]!!)
+                        for (document in task.result!!){
+                            points.add(document.toObject(Point::class.java))
+                        }
+
                         Log.d(tag, "Get points: success")
                     } else {
                         Log.w(tag, "Get points: fail")

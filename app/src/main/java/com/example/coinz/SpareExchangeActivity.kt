@@ -92,8 +92,7 @@ class SpareExchangeActivity : AppCompatActivity() {
                     friendData!!.demandDeposit[coinType] = friendData!!.demandDeposit[coinType]!!+totalValue
                     userData!!.isExchange = true
 
-                    userData!!.balance[coinType]!!.clear()
-                    for (point in coins) if (!point.isChecked) userData!!.balance[coinType]!!.add(point)
+                    User.deleteBalance(coins, coinType)
 
                     updateInf("friend", coinType)
                     updateInf("user", coinType)

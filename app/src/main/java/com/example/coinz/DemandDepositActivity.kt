@@ -82,7 +82,7 @@ class DemandDepositActivity : AppCompatActivity() {
     }
 
     private fun getBalance(v: View){
-        val userDocRef = db.collection("users")
+        val userDocRef = FirebaseFirestore.getInstance().collection("users")
         userDocRef.document(user!!.uid).get()
                 .addOnSuccessListener { document ->
                     if (document.exists()){

@@ -26,10 +26,9 @@ class DepositSubmitActivity : AppCompatActivity(){
     private var tvDepositInf: TextView? = null
 
     private var user = FirebaseAuth.getInstance().currentUser
-    private var db = FirebaseFirestore.getInstance()
 
     private var type: String? = null
-    private var userClass: User? = null
+    private var userData = User()
     private var now: Calendar? = null
 
     private val tag = "DepositSubmitActivity"
@@ -43,14 +42,13 @@ class DepositSubmitActivity : AppCompatActivity(){
         setContentView(R.layout.activity_deposit_submit)
 
         title = "Central Bank"
+        userData.getData()
 
         rgCoinType = findViewById(R.id.rgCoinType)
         btnChooseDeposit = findViewById(R.id.btnChooseDeposit)
         btnCalendar = findViewById(R.id.btnCalendar)
         btnSubmitDeposit = findViewById(R.id.btnSubmitDeposit)
         tvDepositInf = findViewById(R.id.tvDepositInf)
-
-        getUserData()
 
         val sdf = SimpleDateFormat("MM/dd/yyyy")
 
@@ -138,82 +136,38 @@ class DepositSubmitActivity : AppCompatActivity(){
         }
     }
 
-    private fun getUserData(){
-        val userDocRef = db.collection("users")
-        userDocRef.document(user!!.uid).get()
-                .addOnSuccessListener { document ->
-                    if (document.exists()){
-                        Log.d(tag, "get user data: Success")
-                        val userData = document.toObject(User::class.java)
-                        userClass = userData
-                    } else {
-                        Toast.makeText(this@DepositSubmitActivity, "Please check your internet", Toast.LENGTH_SHORT)
-                        finish()
-                        Log.w(tag, "get user data: Fail")
-                    }
-                }
-    }
-
     private fun storeDeposit(record: Record, coinType: String, type: String){
-        userClass!!.balance[coinType]!!.clear()
-        for (point in coins) if (!point.isChecked) userClass!!.balance[coinType]!!.add(point)
+        User.deleteBalance(coins, coinType)
 
-        if (userClass!!.depositTime == "no"){
-            userClass!!.limit = num
-            userClass!!.depositTime = SimpleDateFormat("MM/dd/yyyy").format(now!!.time)
+        if (userData.depositTime == "no"){
+            userData.limit = num
+            userData.depositTime = SimpleDateFormat("MM/dd/yyyy").format(now!!.time)
         } else {
             val lastCal = Calendar.getInstance()
-            lastCal.set(userClass!!.depositTime.substring(6, 10).toInt(), userClass!!.depositTime.substring(0, 2).toInt(),
-                    userClass!!.depositTime.substring(3, 5).toInt())
+            lastCal.set(userData.depositTime.substring(6, 10).toInt(), userData.depositTime.substring(0, 2).toInt(),
+                    userData.depositTime.substring(3, 5).toInt())
             if (ChronoUnit.DAYS.between(lastCal.toInstant(), now!!.toInstant()) > 0){
-                userClass!!.limit = num
-                userClass!!.depositTime = SimpleDateFormat("MM/dd/yyyy").format(now!!.time)
+                userData.limit = num
+                userData.depositTime = SimpleDateFormat("MM/dd/yyyy").format(now!!.time)
             } else {
-                userClass!!.limit+=num
+                userData.limit+=num
             }
         }
 
         if (type == "demand"){
-            if (userClass!!.demandTime[record.coinType] != "no"){
+            if (userData.demandTime[record.coinType] != "no"){
                 val lastCal = Calendar.getInstance()
-                lastCal.set(userClass!!.demandTime[record.coinType]!!.substring(6, 10).toInt(), userClass!!.demandTime[record.coinType]!!.substring(0, 2).toInt(),
-                        userClass!!.demandTime[record.coinType]!!.substring(3, 5).toInt())
+                lastCal.set(userData.demandTime[record.coinType]!!.substring(6, 10).toInt(), userData.demandTime[record.coinType]!!.substring(0, 2).toInt(),
+                        userData.demandTime[record.coinType]!!.substring(3, 5).toInt())
                 val num = ChronoUnit.DAYS.between(lastCal.toInstant(), now!!.toInstant())
-                userClass!!.demandDeposit[record.coinType] = userClass!!.demandDeposit[record.coinType]!! *(1+(0.35/360)*num)
+                userData.demandDeposit[record.coinType] = userData.demandDeposit[record.coinType]!! *(1+(0.35/360)*num)
             }
 
-            userClass!!.demandDeposit[record.coinType] = userClass!!.demandDeposit[record.coinType]!!+record.profit+record.deposit
-            userClass!!.demandTime[record.coinType] = SimpleDateFormat("MM/dd/yyyy").format(now!!.time)
+            userData.demandDeposit[record.coinType] = userData.demandDeposit[record.coinType]!!+record.profit+record.deposit
+            userData.demandTime[record.coinType] = SimpleDateFormat("MM/dd/yyyy").format(now!!.time)
         }
 
-        updateUser(userClass!!,coinType)
-        db.collection("users").document(user!!.uid).collection("records").document(record.id)
-                .set(record, SetOptions.merge())
-                .addOnCompleteListener {task ->
-                    if (task.isSuccessful){
-                        Log.d(tag, "Submit deposit: Success")
-                    } else {
-                        Log.w(tag, "Submit deposit: Fail")
-                        finish()
-                        Toast.makeText(this@DepositSubmitActivity, "Submit failed, please check your internet", Toast.LENGTH_SHORT)
-                    }
-                }
-    }
-
-    private fun updateUser(userClass: User, coinType: String){
-        db.collection("user").document(user!!.uid).update(
-                "demandTime", userClass.demandTime,
-                "demandDeposit.$coinType", userClass.demandDeposit[coinType],
-                "limit", userClass.limit,
-                "depositTime", userClass.depositTime
-        ).addOnCompleteListener { task ->
-            if (task.isSuccessful){
-                Log.d(tag, "Update user inf: Success")
-            } else {
-                Log.w(tag, "Update user inf: Fail" )
-                Toast.makeText(this@DepositSubmitActivity, "Submit failed, please check your internet", Toast.LENGTH_SHORT)
-                finish()
-            }
-        }
+        userData.updateDemand(coinType, user!!.uid)
+        User.addRecord(record)
     }
 }
