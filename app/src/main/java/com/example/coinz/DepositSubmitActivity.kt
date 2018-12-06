@@ -127,8 +127,8 @@ class DepositSubmitActivity : AppCompatActivity(){
         if (requestCode == chooseCoinActivity){
             if (resultCode == Activity.RESULT_OK){
                 coins = data!!.getSerializableExtra("points") as ArrayList<Point>
-                for (point in coins) if (point.isChecked) {
-                    totalValue+=point.value
+                for (point in coins) if (point.isChecked!!) {
+                    totalValue+= point.value!!
                     num++
                 }
                 tvCoinInf!!.text = "Coin number: $num Coin Value: ${totalValue}"

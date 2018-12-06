@@ -21,6 +21,11 @@ import java.io.InputStreamReader
 import android.support.test.espresso.Espresso.onView
 import android.support.test.espresso.action.ViewActions.click
 import android.support.test.espresso.matcher.ViewMatchers.withId
+import android.support.test.espresso.assertion.ViewAssertions.matches
+import android.support.test.espresso.contrib.DrawerActions
+import android.support.test.espresso.contrib.DrawerMatchers.isClosed
+import android.support.test.espresso.contrib.NavigationViewActions
+import android.view.Gravity
 
 @RunWith(AndroidJUnit4::class)
 class MainActivityTest{
@@ -37,8 +42,10 @@ class MainActivityTest{
         }
     }
 
+
+
     @Test
-    fun testLocation(){
+    fun testCollectCoins(){
         val lm = mActivityRule.activity.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val criteria = Criteria()
         criteria.accuracy = Criteria.ACCURACY_FINE

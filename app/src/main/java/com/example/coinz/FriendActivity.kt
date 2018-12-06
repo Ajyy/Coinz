@@ -69,13 +69,9 @@ class FriendActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == addFriendActivity){
-            if (resultCode == Activity.RESULT_OK){
-                friends.clear()
-                getFriends()
-                myAdapter!!.notifyDataSetChanged()
-            } else if (resultCode == Activity.RESULT_CANCELED){
-                Toast.makeText(this@FriendActivity, "No data received", Toast.LENGTH_SHORT).show()
-            }
+            friends.clear()
+            getFriends()
+            myAdapter!!.notifyDataSetChanged()
         } else if (requestCode == friendInfActivity){
             friends.clear()
             getFriends()
@@ -91,7 +87,6 @@ class FriendActivity : AppCompatActivity() {
                         Log.d(tag, "getFriend: Success")
                         for (document1 in task1.result!!){
                             if (document1!!.exists()){
-                                val friend = document1.data
                                 userDocRef.document(document1.id).get()
                                         .addOnCompleteListener{ task2 ->
                                             if (task2.isSuccessful){
@@ -102,7 +97,7 @@ class FriendActivity : AppCompatActivity() {
                                                     val userFriend = document2.toObject(User::class.java)
                                                     print(userFriend?.name)
                                                     friends.add(Friend(document2.id, userFriend!!.name, userFriend.email!!,
-                                                            userFriend.age!!, userFriend.gender, userFriend.todayStep, friend["isVerified"] as Boolean))
+                                                            userFriend.age!!, userFriend.gender, userFriend.todayStep))
 
                                                     if (myAdapter != null){
                                                         myAdapter!!.notifyDataSetChanged()

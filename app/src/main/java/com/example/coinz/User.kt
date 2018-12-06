@@ -2,6 +2,7 @@ package com.example.coinz
 
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 
@@ -25,9 +26,19 @@ class User {
         private val tag = "User"
 
         fun addCoins(coins: ArrayList<Point>){
+            val db = FirebaseFirestore.getInstance().collection("users").document(mAuth!!.currentUser!!.uid)
             for (coin in coins){
-                FirebaseFirestore.getInstance().collection("users").document(mAuth!!.currentUser!!.uid).collection("balance_"+coin.currency).document(coin.id)
+                db.collection("balance_"+coin.currency).document(coin.id!!)
                         .set(coin, SetOptions.merge())
+                        .addOnCompleteListener {task ->
+                            if (task.isSuccessful){
+                                Log.d(tag, "update balance: Success")
+                            } else {
+                                Log.w(tag, "update balance: fail")
+                            }
+                        }
+
+                db.update("coinsId", FieldValue.arrayUnion(coin.id))
                         .addOnCompleteListener {task ->
                             if (task.isSuccessful){
                                 Log.d(tag, "update balance: Success")
@@ -41,7 +52,7 @@ class User {
         fun deleteBalance(coins: ArrayList<Point>, coinType: String){
             for (coin in coins){
                 FirebaseFirestore.getInstance().collection("users").document(mAuth!!.currentUser!!.uid)
-                        .collection("balance_"+coinType).document(coin.id).delete()
+                        .collection("balance_"+coinType).document(coin.id!!).delete()
                         .addOnCompleteListener {task ->
                             if (task.isSuccessful){
                                 Log.d(tag, "delete coin: Success")
@@ -66,7 +77,7 @@ class User {
     }
 
     fun getData(){
-        var userData: User? = null
+        var userData: User?
         FirebaseFirestore.getInstance().collection("users").document(mAuth!!.currentUser!!.uid).get()
                 .addOnCompleteListener {task ->
                     if (task.isSuccessful){

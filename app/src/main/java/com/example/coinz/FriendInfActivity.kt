@@ -40,27 +40,34 @@ class FriendInfActivity : AppCompatActivity() {
 
         recyclerView!!.adapter = myAdapter
 
-        db.collection("users").document(user!!.uid).collection("invitations").get()
-                .addOnCompleteListener { task1 ->
-                    if (task1.isSuccessful){
+        var num = 0
+        db.collection("users").document(user!!.uid).collection("invitation").get()
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful){
                         Log.w(tag, "Get invited friend list: Success")
 
-                        for (document1 in task1.result!!){
-                            db.collection("users").document(document1.id).get()
-                                    .addOnCompleteListener { task2 ->
-                                        if (task2.isSuccessful){
-                                            val friend = task2.result!!.toObject(User::class.java)
-                                            friendInf.add(Friend(document1.id, friend!!.name, friend.email!!, friend.age!!,
-                                                    friend.gender, friend.todayStep, isAccept = document1.data["isAccept"] as Boolean))
-                                            myAdapter!!.notifyDataSetChanged()
-                                            Log.d(tag, "Get invited friend: Success")
-                                        } else {
-                                            Log.w(tag, "Get invited friend: Fail")
-                                        }
-                                    }
+                        for (document in task.result!!){
+                            friendInf.add(Friend(uid = document.data["id"] as String, isAccepted = document.data["isAccepted"] as Long, name = document.data["name"] as String))
                         }
 
-                        tvFriendInfInf!!.text = "There is/are "+ task1.result!!.size()+" pieces of information"
+                        num+= task.result!!.size()
+                    } else {
+                        Log.w(tag, "Get invited friend list: Fail")
+                    }
+                }
+
+        db.collection("users").document(user!!.uid).collection("invite").get()
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful){
+                        Log.w(tag, "Get invited friend list: Success")
+
+                        for (document in task.result!!){
+                            friendInf.add(Friend(uid = document.data["id"] as String, isVerified = document.data["isVerified"] as Long, name = document.data["name"] as String))
+                        }
+
+                        myAdapter!!.notifyDataSetChanged()
+                        num+= task.result!!.size()
+                        tvFriendInfInf!!.text = "There is/are $num pieces of information"
                     } else {
                         Log.w(tag, "Get invited friend list: Fail")
                     }

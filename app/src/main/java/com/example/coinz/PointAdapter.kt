@@ -11,7 +11,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 
-class PointAdapter(private var context: Context, private var points: ArrayList<Point>): RecyclerView.Adapter<PointAdapter.ViewHolder>(){
+class PointAdapter(private var context: Context, private var points: ArrayList<Point>, private var type: String): RecyclerView.Adapter<PointAdapter.ViewHolder>(){
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
         val v = LayoutInflater.from(viewGroup.context).inflate(R.layout.coin_list, viewGroup, false)
 
@@ -38,11 +38,10 @@ class PointAdapter(private var context: Context, private var points: ArrayList<P
         var cvCoin: CardView = itemView.findViewById(R.id.cvCoin)
 
         init {
-            val point = itemView.tag as Point
-
             itemView.setOnClickListener {
                 when {
-                    context.javaClass.simpleName != "BalanceActivity" ->{
+                    type != "balance" ->{
+                        val point = itemView.tag as Point
                         val colorStateList = ContextCompat.getColorStateList(context, R.color.colorPrimaryLight)
                         if (cvCoin.cardBackgroundColor == colorStateList){
                             cvCoin.setCardBackgroundColor(getColor(context, R.color.secondaryText))

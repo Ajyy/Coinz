@@ -139,7 +139,9 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
     override fun onPause() {
         super.onPause()
         mapView?.onPause()
-        User.addCoins(addCoins)
+        if (addCoins.size != 0){
+            User.addCoins(addCoins)
+        }
     }
 
     override fun onLowMemory() {
@@ -159,7 +161,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         locationEngine?.removeLocationUpdates()
         locationLayerPlugin?.onStop()
         mapView?.onStop()
-        User.addCoins(addCoins)
     }
 
     override fun onDestroy() {
@@ -187,6 +188,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         if (user.displayName != null){
             tvNavUserName!!.text = user.displayName
         } else {
+            tvNavUserName!!.text = "SetYourName"
             Log.d(tag, "username not found")
         }
 
@@ -246,6 +248,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                 val lastLocation = locationEngine?.lastLocation
                 if (lastLocation != null) {
                     setCameraPosition(lastLocation)
+
                 }
             }
         }else{
@@ -281,7 +284,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
             } else {
                 locationLayerPlugin = LocationLayerPlugin(mapView!!, map!!, locationEngine)
                 locationLayerPlugin?.setLocationLayerEnabled(true)
-                locationLayerPlugin?.cameraMode = CameraMode.TRACKING
+                locationLayerPlugin?.cameraMode = CameraMode.TRACKING_GPS
                 locationLayerPlugin?.renderMode = RenderMode.NORMAL
             }
         }
@@ -323,9 +326,9 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
             var isChange = false
             val newCoins = ArrayList<Point>()
             for (coin in coins){
-                val distance = coin.latlng.distanceTo(LatLng(location.latitude, location.longitude))
+                val distance = coin.latlng!!.distanceTo(LatLng(location.latitude, location.longitude))
                 if (distance <= 25){
-                    userData!!.coinsId.add(coin.id)
+                    userData!!.coinsId.add(coin.id!!)
                     newCoins.add(coin)
                     Toast.makeText(this@MainActivity, "Get a ${coin.currency} coin with a value ${coin.value}!!", Toast.LENGTH_LONG).show()
                     isChange = true
@@ -402,7 +405,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
     private fun removeMarkers(points: List<Point>){
         for (coin in points){
             for (markerOption in markers){
-                if (coin.latlng.latitude == markerOption.position.latitude&&coin.latlng.longitude == markerOption.position.longitude){
+                if (coin.latlng!!.latitude == markerOption.position.latitude&& coin.latlng!!.longitude == markerOption.position.longitude){
                     map!!.removeMarker(markerOption.marker)
                     break
                 }
@@ -449,7 +452,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                             val latLng = LatLng(coord.getDouble(1), coord.getDouble(0))
                             val point = Point(properties.getString("id"), properties.getDouble("value")
                                     , properties.getString("currency"), properties.getString("marker-symbol")
-                                    , properties.getString("marker-color"), latLng)
+                                    , properties.getString("marker-color"), latLng, false)
 
                             if (point.id !in userData!!.coinsId){
                                 coins.add(point)

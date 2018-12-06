@@ -39,10 +39,10 @@ class ChooseCoinActivity : AppCompatActivity() {
         layoutManager = LinearLayoutManager(this@ChooseCoinActivity, LinearLayoutManager.VERTICAL, false)
         rvCoinChoose!!.layoutManager = layoutManager
         tvCoinInf = findViewById(R.id.tvCoinInf)
-        getAllCoins()
 
-        myAdapter = PointAdapter(this@ChooseCoinActivity, points)
+        myAdapter = PointAdapter(this@ChooseCoinActivity, points, inf!![1])
         rvCoinChoose!!.adapter = myAdapter
+        getAllCoins()
     }
 
     private fun getAllCoins(){
@@ -54,13 +54,17 @@ class ChooseCoinActivity : AppCompatActivity() {
                             points.add(document.toObject(Point::class.java))
                         }
 
+                        tvCoinInf!!.text = "Find ${points.size} coins whose type is ${inf!![0]}"
+
+                        if (rvCoinChoose!!.adapter != null){
+                            myAdapter!!.notifyDataSetChanged()
+                        }
+
                         Log.d(tag, "Get points: success")
                     } else {
                         Log.w(tag, "Get points: fail")
                     }
                 }
-
-        tvCoinInf!!.text = "Find ${points.size} coins"
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {

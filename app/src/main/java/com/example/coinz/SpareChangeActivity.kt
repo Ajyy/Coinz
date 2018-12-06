@@ -50,29 +50,20 @@ class SpareChangeActivity : AppCompatActivity() {
 
     private fun getFriendData(){
         if (!etSpareChange!!.text.isEmpty()){
+            val name = etSpareChange!!.text.toString()
             spareFriends.clear()
-            val query = db.collection("users").document(user!!.uid)
-                    .collection("friends").whereEqualTo("name", etSpareChange!!.text.toString())
-            query.get().addOnCompleteListener { task ->
-                if (task.isSuccessful){
-                    var size = task.result!!.size()
-                    for (document in task.result!!){
-                        if (document.data["isVerified"] as Boolean){
-                            spareFriends.add(Friend(document.id))
-                        } else {
-                            size--
+
+            db.collection("users").document(user!!.uid).collection("friends").whereEqualTo("name", name).get()
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful){
+                            if (task.result != null){
+                                for (document in task.result!!){
+                                    spareFriends.add(Friend(uid = document.id, name = document["name"] as String))
+                                }
+                            }
+
                         }
                     }
-
-                    myAdapter!!.notifyDataSetChanged()
-                    Log.d(tag, "SearchFriend: Success")
-
-                    tvSpareInf!!.text = "Find $size people"
-                } else {
-                    tvSpareInf!!.text = "Fail to Search"
-                    Log.w(tag, "SearchFriend: Fail")
-                }
-            }
         }
     }
 }

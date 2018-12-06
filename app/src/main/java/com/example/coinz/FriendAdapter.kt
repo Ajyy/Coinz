@@ -8,12 +8,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
 import com.google.firebase.storage.FirebaseStorage
 import com.squareup.picasso.Picasso
 
@@ -49,50 +46,41 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
                 }
 
         viewHolder.tvFriendName.text = friends[i].name
-        if (context.javaClass.simpleName == "FriendActivity"){
-            viewHolder.tvVerify!!.text = if(friends[i].isVerified) "" else "Waiting for Accept"
-        } else {
-            viewHolder.tvVerify!!.visibility = View.GONE
-        }
-
-        if (context.javaClass.simpleName != "FriendInfActivity"){
+        if (context.javaClass.simpleName != "FriendInfActivity") {
+            viewHolder.tvFriInf!!.visibility = View.GONE
             viewHolder.btnAccept!!.visibility = View.GONE
+            viewHolder.btnReject!!.visibility = View.GONE
         } else {
-            if (friends[i].isAccept){
-                viewHolder.btnAccept!!.isEnabled = false
-                viewHolder.btnAccept!!.text = "Accepted"
-            } else {
-                val userDb = db.collection("users")
+            if (friends[i].isAccepted == -1L){
                 viewHolder.btnAccept!!.setOnClickListener {
-                    userDb.document(user!!.uid).collection("invitations").document(friends[i].uid).update("isAccept", true)
-                            .addOnCompleteListener { task1 ->
-                                if (task1.isSuccessful){
-                                    Log.d(tag, "Update invitation information: Success")
-                                    userDb.document(user!!.uid).collection("friends").document(friends[i].uid).set(mapOf("isVerified" to true), SetOptions.merge())
-                                            .addOnCompleteListener { task2 ->
-                                                if (task2.isSuccessful){
-                                                    Log.d(tag, "Update friends information: Success")
-                                                } else {
-                                                    Log.w(tag, "Update friends information: Fail")
-                                                }
-                                            }
-
-                                    userDb.document(friends[i].uid).collection("friends").document(user!!.uid).update("isVerified", true)
-                                            .addOnCompleteListener { task3->
-                                                if (task3.isSuccessful){
-                                                    Log.d(tag, "Update friends information: Success")
-                                                } else {
-                                                    Log.w(tag, "Update friends information: Fail")
-                                                }
-                                            }
-
-                                    viewHolder.btnAccept!!.isEnabled = false
-                                    viewHolder.btnAccept!!.text = "Accepted"
-                                } else {
-                                    Log.w(tag, "Update invitation information: Fail")
-                                }
-                            }
+                    updateInviteInf(friends[i].uid, friends[i].name,1)
+                    viewHolder.btnAccept!!.visibility = View.GONE
+                    viewHolder.btnReject!!.visibility = View.GONE
+                    viewHolder.tvFriInf!!.text = "Accepted"
                 }
+
+                viewHolder.btnReject!!.setOnClickListener {
+                    updateInviteInf(friends[i].uid, friends[i].name,0)
+                    viewHolder.btnAccept!!.visibility = View.GONE
+                    viewHolder.btnReject!!.visibility = View.GONE
+                    viewHolder.tvFriInf!!.text = "Rejected"
+                }
+            } else {
+                viewHolder.btnAccept!!.visibility = View.GONE
+                viewHolder.btnReject!!.visibility = View.GONE
+                if (friends[i].isAccepted == 0L){
+                    viewHolder.tvFriInf!!.text = "Rejected"
+                } else if (friends[i].isAccepted == 1L) {
+                    viewHolder.tvFriInf!!.text = "Accepted"
+                }
+            }
+
+            if (friends[i].isVerified == 0L){
+                viewHolder.tvFriInf!!.text = "Respond: Rejected"
+            } else if (friends[i].isVerified == 1L) {
+                viewHolder.tvFriInf!!.text = "Respond: Accepted"
+            } else if (friends[i].isVerified == -1L) {
+                viewHolder.tvFriInf!!.text = "Wait for Accept"
             }
         }
     }
@@ -100,15 +88,16 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
     inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
         var ivPicture: ImageView = itemView.findViewById(R.id.ivPicture)
         var tvFriendName: TextView = itemView.findViewById(R.id.tvFriendName)
-        var tvVerify: TextView? = itemView.findViewById(R.id.tvVerify)
+        var tvFriInf: TextView? = itemView.findViewById(R.id.tvFriInf)
         var btnAccept: Button? = itemView.findViewById(R.id.btnAccept)
+        var btnReject: Button? = itemView.findViewById(R.id.btnReject)
 
         init {
             when {
                 context.javaClass.simpleName == "AddFriendActivity" -> itemView.setOnClickListener {
                     val friend = itemView.tag as Friend
-                    db.collection("users").document(friend.uid).collection("invitations").document(user!!.uid)
-                            .set(mapOf("isAccept" to false), SetOptions.merge()).addOnCompleteListener{ task ->
+                    db.collection("users").document(friend.uid).collection("invitation")
+                            .add(mapOf("id" to user!!.uid,"isAccepted" to -1, "name" to user!!.displayName)).addOnCompleteListener{ task ->
                                 if (task.isSuccessful) {
                                     Log.d(tag, "Add Friend to database: Success")
                                 } else {
@@ -116,11 +105,12 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
                                 }
                             }
 
-                    db.collection("users").document(user!!.uid).collection("friends").document(friend.uid)
-                            .set(mapOf("isVerified" to false), SetOptions.merge()).addOnCompleteListener{ task ->
+                    db.collection("users").document(user!!.uid).collection("invite")
+                            .add(mapOf("id" to friend.uid, "isVerified" to -1, "name" to friend.name)).addOnCompleteListener{ task ->
                                 if (task.isSuccessful) {
                                     Log.d(tag, "Add Friend to database: Success")
                                     val activity = context as Activity
+                                    Toast.makeText(context, "Invitation sent", Toast.LENGTH_LONG).show()
                                     activity.finish()
                                 } else {
                                     Log.d(tag, "Add Friend to database: Fail")
@@ -130,11 +120,9 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
 
                 context.javaClass.simpleName == "FriendActivity" -> itemView.setOnClickListener {
                     val friend = itemView.tag as Friend
-                    if (friend.isVerified){
-                        val intent = Intent(context, ChatActivity::class.java)
-                        intent.putExtra("friend", friend)
-                        context.startActivity(intent)
-                    }
+                    val intent = Intent(context, ChatActivity::class.java)
+                    intent.putExtra("friend", friend)
+                    context.startActivity(intent)
                 }
 
                 context.javaClass.simpleName == "SpareChangeActivity" -> itemView.setOnClickListener{
@@ -146,6 +134,101 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
                     context.startActivity(intent)
                 }
             }
+        }
+    }
+
+    private fun updateInviteInf(friendId: String, friName: String, isAccepted: Int){
+        val userDb = db.collection("users")
+        if (isAccepted == 1){
+            userDb.document(user!!.uid).collection("invitation").whereEqualTo("id", friendId).get()
+                    .addOnCompleteListener { task1 ->
+                        if (task1.isSuccessful){
+                            for (document in task1.result!!){
+                                userDb.document(user!!.uid).collection("invitation").document(document.id).update("isAccepted", 1)
+                                        .addOnCompleteListener { task2 ->
+                                            if (task2.isSuccessful){
+                                                Log.d(tag, "Update invitation information: Success")
+                                            } else {
+                                                Log.w(tag, "Update invitation information: Fail")
+                                            }
+                                        }
+                            }
+                        } else {
+                            Log.w(tag, "Update invitation information: Fail")
+                        }
+                    }
+
+            userDb.document(friendId).collection("invite").whereEqualTo("id", user!!.uid).get()
+                    .addOnCompleteListener { task1 ->
+                        if (task1.isSuccessful){
+                            for (document in task1.result!!){
+                                userDb.document(friendId).collection("invite").document(document.id).update("isVerified", 1)
+                                        .addOnCompleteListener { task2 ->
+                                            if (task2.isSuccessful){
+                                                Log.d(tag, "Update invitation information: Success")
+                                            } else {
+                                                Log.w(tag, "Update invitation information: Fail")
+                                            }
+                                        }
+                            }
+                        } else {
+                            Log.w(tag, "Update invitation information: Fail")
+                        }
+                    }
+
+            userDb.document(user!!.uid).collection("friends").document(friendId).set(mapOf("name" to friName))
+                    .addOnCompleteListener { task1 ->
+                        if (task1.isSuccessful){
+                            Log.d(tag, "Add friend: Success")
+                        } else {
+                            Log.w(tag, "Add friend: Fail")
+                        }
+                    }
+
+            userDb.document(friendId).collection("friends").document(user!!.uid).set(mapOf("name" to user!!.displayName))
+                    .addOnCompleteListener { task1 ->
+                        if (task1.isSuccessful){
+                            Log.d(tag, "Add friend: Success")
+                        } else {
+                            Log.w(tag, "Add friend: Fail")
+                        }
+                    }
+        } else {
+            userDb.document(user!!.uid).collection("invitation").whereEqualTo("id", friendId).get()
+                    .addOnCompleteListener { task1 ->
+                        if (task1.isSuccessful){
+                            for (document in task1.result!!){
+                                userDb.document(user!!.uid).collection("invitation").document(document.id).update("isAccepted", 0)
+                                        .addOnCompleteListener { task2 ->
+                                            if (task2.isSuccessful){
+                                                Log.d(tag, "Update invitation information: Success")
+                                            } else {
+                                                Log.w(tag, "Update invitation information: Fail")
+                                            }
+                                        }
+                            }
+                        } else {
+                            Log.w(tag, "Update invitation information: Fail")
+                        }
+                    }
+
+            userDb.document(friendId).collection("invite").whereEqualTo("id", user!!.uid).get()
+                    .addOnCompleteListener { task1 ->
+                        if (task1.isSuccessful){
+                            for (document in task1.result!!){
+                                userDb.document(friendId).collection("invite").document(document.id).update("isVerified", 0)
+                                        .addOnCompleteListener { task2 ->
+                                            if (task2.isSuccessful){
+                                                Log.d(tag, "Update invitation information: Success")
+                                            } else {
+                                                Log.w(tag, "Update invitation information: Fail")
+                                            }
+                                        }
+                            }
+                        } else {
+                            Log.w(tag, "Update invitation information: Fail")
+                        }
+                    }
         }
     }
 }

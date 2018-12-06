@@ -70,7 +70,7 @@ class AddFriendActivity : AppCompatActivity() {
                     var friendNum = 0
                     var size = task.result!!.size()
                     for (document in task.result!!){
-                        val searchUser = document.toObject(User::class.java)
+                        val searchUserName = document["name"] as String
 
                         var isExist = false
                         for (friend in friends!!){
@@ -83,7 +83,7 @@ class AddFriendActivity : AppCompatActivity() {
 
                         if (!isExist) {
                             if (document.id != user!!.uid){
-                                searchFriend.add(Friend(document.id, searchUser.name, searchUser.email!!, searchUser.age!!, searchUser.gender, searchUser.todayStep))
+                                searchFriend.add(Friend(uid = document.id, name = searchUserName))
                             } else {
                                 size-=1
                             }
