@@ -123,17 +123,19 @@ class ExchangeActivity : AppCompatActivity() {
     }
 
     private fun updateUser(){
-        db.collection("user").document(user!!.uid).update(
-                "demandDeposit", userData!!.demandDeposit,
-                "demandTime", userData!!.demandTime
+        db.collection("users").document(user!!.uid).update(
+                "demandDeposit.${coinTypes[0]}", userData!!.demandDeposit[coinTypes[0]],
+                "demandDeposit.${coinTypes[1]}", userData!!.demandDeposit[coinTypes[1]],
+                "demandTime.${coinTypes[0]}", userData!!.demandTime[coinTypes[0]],
+                "demandTime.${coinTypes[1]}", userData!!.demandTime[coinTypes[1]]
         ).addOnCompleteListener { task ->
             if (task.isSuccessful){
                 Log.d(tag, "Update user inf: Success")
             } else {
-                Log.w(tag, "Update user inf: Fail" )
-                Toast.makeText(this@ExchangeActivity, "Submit failed, please check your internet", Toast.LENGTH_SHORT)
-                finish()
+                Log.w(tag, "Update user inf: Fail", task.exception)
             }
+
+            finish()
         }
     }
 }

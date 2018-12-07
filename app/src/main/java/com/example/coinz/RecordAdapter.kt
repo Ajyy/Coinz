@@ -18,18 +18,12 @@ class RecordAdapter(private val context: Context, private val records: ArrayList
 
     override fun onBindViewHolder(viewHolder: RecordAdapter.ViewHolder, i: Int) {
         viewHolder.itemView.tag = records[i]
-
-        if (context.javaClass.simpleName == "HistoryActivity"){
-            viewHolder.tvRecordDetail.text = "Deposit: "+records[i].deposit+" "+records[i].coinType
-            if (records[i].type == "time"){
-                viewHolder.tvRecordTitle.text = records[i].begin+" to "+records[i].end+": "+records[i].type
-            } else if (records[i].type == "demand"){
-                viewHolder.tvRecordTitle.text = records[i].begin+": "+records[i].type
-            }
-        }else if (context.javaClass.simpleName == "TimeDepositActivity"){
-
+        viewHolder.tvRecordDetail.text = "Deposit: "+records[i].deposit+" "+records[i].coinType
+        if (records[i].type == "time"){
+            viewHolder.tvRecordTitle.text = records[i].begin+" to "+records[i].end+": "+records[i].type
+        } else if (records[i].type == "demand"){
+            viewHolder.tvRecordTitle.text = records[i].begin+": "+records[i].type
         }
-
     }
 
     inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){

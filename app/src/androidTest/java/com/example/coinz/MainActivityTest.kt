@@ -42,8 +42,6 @@ class MainActivityTest{
         }
     }
 
-
-
     @Test
     fun testCollectCoins(){
         val lm = mActivityRule.activity.getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -61,12 +59,19 @@ class MainActivityTest{
 
         val coords = ArrayList<Array<Double>>()
         try {
-            val reader = BufferedReader(InputStreamReader(mActivityRule.activity.assets.open("trace1input")))
+            var reader = BufferedReader(InputStreamReader(mActivityRule.activity.assets.open("trace1input")))
             var line = reader.readLine()
                 while (line != null){
                     coords.add(arrayOf(line.substring(0, 9).toDouble(), line.substring(10, 19).toDouble()))
                     line = reader.readLine()
                 }
+
+            reader = BufferedReader(InputStreamReader(mActivityRule.activity.assets.open("trace2input")))
+            line = reader.readLine()
+            while (line != null){
+                coords.add(arrayOf(line.substring(0, 9).toDouble(), line.substring(10, 19).toDouble()))
+                line = reader.readLine()
+            }
         } catch (e: IOException){
             print(e.localizedMessage)
         }

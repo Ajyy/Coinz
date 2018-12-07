@@ -2,14 +2,15 @@ package com.example.coinz
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.drawable.ColorDrawable
 import android.location.Location
 import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import com.mapbox.android.core.location.LocationEngine
 import com.mapbox.android.core.location.LocationEngineListener
 import com.mapbox.android.core.location.LocationEnginePriority
@@ -34,10 +35,8 @@ import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.widget.Toolbar
-import android.view.MenuItem
-import android.view.View
-import android.widget.ImageView
-import android.widget.TextView
+import android.view.*
+import android.widget.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
@@ -47,6 +46,7 @@ import com.mapbox.mapboxsdk.annotations.Icon
 import com.mapbox.mapboxsdk.annotations.IconFactory
 import com.mapbox.mapboxsdk.annotations.MarkerOptions
 import com.squareup.picasso.Picasso
+import retrofit2.http.POST
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
@@ -139,8 +139,14 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
     override fun onPause() {
         super.onPause()
         mapView?.onPause()
+
+        for (coin in addCoins){
+            userData!!.coinsId.add(coin.id!!)
+        }
+
         if (addCoins.size != 0){
             User.addCoins(addCoins)
+            addCoins.clear()
         }
     }
 
@@ -161,12 +167,72 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         locationEngine?.removeLocationUpdates()
         locationLayerPlugin?.onStop()
         mapView?.onStop()
+        for (coin in addCoins){
+            userData!!.coinsId.add(coin.id!!)
+        }
+
+        if (addCoins.size != 0){
+            User.addCoins(addCoins)
+            addCoins.clear()
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         mapView?.onDestroy()
         locationEngine?.deactivate()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.map_coins_inf, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        onInfShowPopupWindowClick(findViewById(item!!.itemId))
+
+        return super.onOptionsItemSelected(item)
+    }
+
+    @SuppressLint("InflateParams")
+    fun onInfShowPopupWindowClick(view: View){
+        val inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val popupView = inflater.inflate(R.layout.popup_map_coins_inf, null)
+        val tvOverall = popupView.findViewById<View>(R.id.tvOverall) as TextView
+        val tvShilMap = popupView.findViewById<View>(R.id.tvShilMap) as TextView
+        val tvDolrMap = popupView.findViewById<View>(R.id.tvDolrMap) as TextView
+        val tvQuidMap = popupView.findViewById<View>(R.id.tvQuidMap) as TextView
+        val tvPenyMap = popupView.findViewById<View>(R.id.tvPenyMap) as TextView
+
+        val num = intArrayOf(0, 0, 0, 0)
+        for (coin in coins){
+            if (coin.id !in userData!!.coinsId){
+                when {
+                    coin.currency == "SHIL" -> num[0]++
+                    coin.currency == "DOLR" -> num[1]++
+                    coin.currency == "QUID" -> num[2]++
+                    coin.currency == "PENY" -> num[3]++
+                }
+            }
+        }
+
+        tvOverall.text = "Overall Number: ${num.sum()}"
+        tvShilMap.text = "Number of SHIL: ${num[0]}"
+        tvDolrMap.text = "Number of DOLR: ${num[1]}"
+        tvQuidMap.text = "Number of QUID: ${num[2]}"
+        tvPenyMap.text = "Number of PENY: ${num[3]}"
+
+        val width = 1000
+        val height = LinearLayout.LayoutParams.WRAP_CONTENT
+
+        val popupWindow = PopupWindow(popupView, width, height, true)
+        popupWindow.setBackgroundDrawable(ColorDrawable())
+        popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0)
+
+        popupView.setOnTouchListener { v, _ ->
+            popupWindow.dismiss()
+            return@setOnTouchListener true
+        }
     }
 
     private fun getData(id: String){
@@ -248,7 +314,14 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                 val lastLocation = locationEngine?.lastLocation
                 if (lastLocation != null) {
                     setCameraPosition(lastLocation)
-
+                    for (coin in coins){
+                        val distance = LatLng(coin.latitude, coin.longitude).distanceTo(LatLng(lastLocation.latitude, lastLocation.longitude))
+                        if (distance <= 25&&coin !in addCoins){
+                            addCoins.add(coin)
+                            removeMarkers(coin)
+                            Toast.makeText(this@MainActivity, "Get a ${coin.currency} coin with a value ${coin.value}!!", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 }
             }
         }else{
@@ -322,27 +395,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
             setCameraPosition(originLocation)
 
             Log.d(tag, "[onLocationChanged] location is "+location.latitude+" "+location.longitude)
-
-            var isChange = false
-            val newCoins = ArrayList<Point>()
-            for (coin in coins){
-                val distance = coin.latlng!!.distanceTo(LatLng(location.latitude, location.longitude))
-                if (distance <= 25){
-                    userData!!.coinsId.add(coin.id!!)
-                    newCoins.add(coin)
-                    Toast.makeText(this@MainActivity, "Get a ${coin.currency} coin with a value ${coin.value}!!", Toast.LENGTH_LONG).show()
-                    isChange = true
-                }
-            }
-
-            for (coin in newCoins){
-                coins.remove(coin)
-            }
-
-            if (isChange) {
-                removeMarkers(newCoins)
-                addCoins.addAll(newCoins)
-            }
         }
     }
 
@@ -402,13 +454,11 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         return true
     }
 
-    private fun removeMarkers(points: List<Point>){
-        for (coin in points){
-            for (markerOption in markers){
-                if (coin.latlng!!.latitude == markerOption.position.latitude&& coin.latlng!!.longitude == markerOption.position.longitude){
-                    map!!.removeMarker(markerOption.marker)
-                    break
-                }
+    private fun removeMarkers(coin: Point){
+        for (markerOption in markers){
+            if (coin.latitude == markerOption.position.latitude&& coin.longitude == markerOption.position.longitude){
+                map!!.removeMarker(markerOption.marker)
+                break
             }
         }
     }
@@ -452,7 +502,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                             val latLng = LatLng(coord.getDouble(1), coord.getDouble(0))
                             val point = Point(properties.getString("id"), properties.getDouble("value")
                                     , properties.getString("currency"), properties.getString("marker-symbol")
-                                    , properties.getString("marker-color"), latLng, false)
+                                    , properties.getString("marker-color"), latLng.latitude, latLng.longitude, false)
 
                             if (point.id !in userData!!.coinsId){
                                 coins.add(point)
@@ -482,7 +532,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                     }
 
                     markers.add(MarkerOptions()
-                            .position(point.latlng)
+                            .position(LatLng(point.latitude, point.longitude))
                             .icon(icon)
                             .title(point.currency+": "+point.markerSymbol)
                             .snippet("Value: "+point.value))

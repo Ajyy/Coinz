@@ -24,7 +24,7 @@ class SpareChangeActivity : AppCompatActivity() {
     private var user = FirebaseAuth.getInstance().currentUser
 
     private var spareFriends = ArrayList<Friend>()
-    private val tag = "SpareChangeActivity"
+    private var tag = "SpareChangeActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +43,7 @@ class SpareChangeActivity : AppCompatActivity() {
         myAdapter = FriendAdapter(this@SpareChangeActivity, spareFriends)
         rvSpareFriends!!.adapter = myAdapter
 
-        etSpareChange!!.setOnClickListener{
+        btnSpareSearch!!.setOnClickListener{
             getFriendData()
         }
     }
@@ -56,12 +56,16 @@ class SpareChangeActivity : AppCompatActivity() {
             db.collection("users").document(user!!.uid).collection("friends").whereEqualTo("name", name).get()
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful){
-                            if (task.result != null){
-                                for (document in task.result!!){
-                                    spareFriends.add(Friend(uid = document.id, name = document["name"] as String))
-                                }
+                            for (document in task.result!!){
+                                spareFriends.add(Friend(uid = document.id, name = document["name"] as String))
                             }
 
+                            tvSpareInf!!.text = "Find ${task.result!!.size()} friend(s)"
+
+                            myAdapter!!.notifyDataSetChanged()
+                            Log.d(tag, "search friend: success")
+                        } else {
+                            Log.d(tag, "search friend: fail")
                         }
                     }
         }

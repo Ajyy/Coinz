@@ -75,7 +75,7 @@ class TimeDepositActivity : AppCompatActivity() {
 
     private fun updateRecordsBalance(){
         for (record in updateRecords){
-            db.collection("users").document(user!!.uid).collection("records").document(record.id)
+            db.collection("users").document(user!!.uid).collection("records").document(record.id!!)
                     .update("isFinish", true)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful){
@@ -90,11 +90,11 @@ class TimeDepositActivity : AppCompatActivity() {
                 lastCal.set(userClass!!.demandTime[record.coinType]!!.substring(6, 10).toInt(), userClass!!.demandTime[record.coinType]!!.substring(0, 2).toInt(),
                         userClass!!.demandTime[record.coinType]!!.substring(3, 5).toInt())
                 val num = ChronoUnit.DAYS.between(lastCal.toInstant(), now!!.toInstant())
-                userClass!!.demandDeposit[record.coinType] = userClass!!.demandDeposit[record.coinType]!! *(1+(0.35/360)*num)
+                userClass!!.demandDeposit[record.coinType!!] = userClass!!.demandDeposit[record.coinType!!]!! *(1+(0.35/360)*num)
             }
 
-            userClass!!.demandDeposit[record.coinType] = userClass!!.demandDeposit[record.coinType]!!+record.profit+record.deposit
-            userClass!!.demandTime[record.coinType] = SimpleDateFormat("MM/dd/yyyy").format(now!!.time)
+            userClass!!.demandDeposit[record.coinType!!] = userClass!!.demandDeposit[record.coinType!!]!!+record.profit+record.deposit
+            userClass!!.demandTime[record.coinType!!] = SimpleDateFormat("MM/dd/yyyy").format(now!!.time)
         }
 
         if (updateRecords.size != 0){
@@ -119,7 +119,7 @@ class TimeDepositActivity : AppCompatActivity() {
                                 }
 
                                 if (record.type == "time"&&!record.isFinish){
-                                    if (differenceDay(record.end) >= 0){
+                                    if (differenceDay(record.end!!) >= 0){
                                         record.isFinish = true
                                         updateRecords.add(record)
                                         records2.add(record)
@@ -137,7 +137,7 @@ class TimeDepositActivity : AppCompatActivity() {
                         records.addAll(records2)
                         if (myAdapter != null){
                             myAdapter!!.notifyDataSetChanged()
-                            tvTimeInf!!.text = "There is/are "+ task1.result!!.size()+" pieces of records"
+                            tvTimeInf!!.text = "There is/are "+ (records1.size+records2.size)+" pieces of records"
                         }
                     } else {
                         Log.w(tag, "getRecord: Fail")

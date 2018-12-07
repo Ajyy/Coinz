@@ -85,7 +85,7 @@
         android:layout_marginTop="10dp"
         android:layout_marginEnd="20dp"
         android:ems="10"
-        android:inputType="number"
+        android:inputType="numberDecimal"
         android:text="0.0" />
 
     <Button

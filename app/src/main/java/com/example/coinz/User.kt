@@ -52,7 +52,7 @@ class User {
         fun deleteBalance(coins: ArrayList<Point>, coinType: String){
             for (coin in coins){
                 FirebaseFirestore.getInstance().collection("users").document(mAuth!!.currentUser!!.uid)
-                        .collection("balance_"+coinType).document(coin.id!!).delete()
+                        .collection("balance_$coinType").document(coin.id!!).delete()
                         .addOnCompleteListener {task ->
                             if (task.isSuccessful){
                                 Log.d(tag, "delete coin: Success")
@@ -64,7 +64,7 @@ class User {
         }
 
         fun addRecord(record: Record){
-            FirebaseFirestore.getInstance().collection("users").document(mAuth!!.currentUser!!.uid).collection("records").document(record.id)
+            FirebaseFirestore.getInstance().collection("users").document(mAuth!!.currentUser!!.uid).collection("records").document(record.id!!)
                     .set(record, SetOptions.merge())
                     .addOnCompleteListener {task ->
                         if (task.isSuccessful){
@@ -102,8 +102,8 @@ class User {
     }
 
     fun updateDemand(coinType: String, id: String){
-        FirebaseFirestore.getInstance().collection("user").document(id).update(
-                "demandTime", demandTime,
+        FirebaseFirestore.getInstance().collection("users").document(id).update(
+                "demandTime.$coinType", demandTime[coinType],
                 "demandDeposit.$coinType", demandDeposit[coinType],
                 "limit", limit,
                 "depositTime", depositTime
@@ -111,7 +111,7 @@ class User {
             if (task.isSuccessful){
                 Log.d(tag, "Update user inf: Success")
             } else {
-                Log.w(tag, "Update user inf: Fail" )
+                Log.w(tag, "Update user inf: Fail" , task.exception)
             }
         }
     }

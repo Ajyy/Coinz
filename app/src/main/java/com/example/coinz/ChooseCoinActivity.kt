@@ -68,21 +68,24 @@ class ChooseCoinActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        if (inf!![1] == "spare"){
-            val intent = Intent(this@ChooseCoinActivity, SpareExchangeActivity::class.java)
 
-            if (points.size != 0){
-                intent.putExtra("points", points)
-                setResult(Activity.RESULT_OK, intent)
-            } else {
-                setResult(Activity.RESULT_CANCELED, intent)
+        if (inf!![1] != "balance"){
+            val checkPoints = ArrayList<Point>()
+            for (point in points){
+                if (point.isChecked!!){
+                    checkPoints.add(point)
+                }
             }
 
-        } else if (inf!![1] == "deposit"){
-            val intent = Intent(this@ChooseCoinActivity, DepositSubmitActivity::class.java)
+            val intent: Intent
+            if (inf!![1] == "spare"){
+                intent = Intent(this@ChooseCoinActivity, SpareExchangeActivity::class.java)
+            } else {
+                intent = Intent(this@ChooseCoinActivity, DepositSubmitActivity::class.java)
+            }
 
-            if (points.size != 0){
-                intent.putExtra("points", points)
+            if (checkPoints.size != 0){
+                intent.putExtra("points", checkPoints)
                 setResult(Activity.RESULT_OK, intent)
             } else {
                 setResult(Activity.RESULT_CANCELED, intent)
