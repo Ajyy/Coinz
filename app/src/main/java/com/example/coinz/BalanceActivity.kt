@@ -11,17 +11,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class BalanceActivity : AppCompatActivity() {
 
-    private var tvGold: TextView? = null
     private var btnShil: Button? = null
     private var btnDolr: Button? = null
     private var btnQuid: Button? = null
     private var btnPeny: Button? = null
-
-    private var db = FirebaseFirestore.getInstance()
-    private var user = FirebaseAuth.getInstance().currentUser
-
-    private var userData: User? = null
-    private var tag = "BalanceActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,23 +22,10 @@ class BalanceActivity : AppCompatActivity() {
 
         title = "Balance"
 
-        tvGold = findViewById(R.id.tvGold)
         btnShil = findViewById(R.id.btnShil)
         btnDolr = findViewById(R.id.btnDolr)
         btnQuid = findViewById(R.id.btnQuid)
         btnPeny = findViewById(R.id.btnPeny)
-
-        db.collection("users").document(user!!.uid).get()
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful){
-                        Log.d(tag, "Get user inf: Success")
-
-                        userData = task.result!!.toObject(User::class.java)
-                        tvGold!!.text = "GOLD: "+userData!!.gold
-                    } else {
-                        Log.w(tag, "Get user inf: Fail")
-                    }
-                }
 
         btnPeny!!.setOnClickListener {
             val intent = Intent(this@BalanceActivity, ChooseCoinActivity::class.java)

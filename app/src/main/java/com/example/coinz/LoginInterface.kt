@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ProgressBar
 import android.widget.TextView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
@@ -19,6 +20,7 @@ class LoginInterface : AppCompatActivity(){
     private var user: FirebaseUser? = null
     private var db: FirebaseFirestore? = null
 
+    private var progressBar: ProgressBar? = null
     private var etUserName: EditText? = null
     private var etPassword: EditText? = null
     private var btnLogin: Button? = null
@@ -32,11 +34,10 @@ class LoginInterface : AppCompatActivity(){
         super.onCreate(savedInstanceState)
         setContentView(R.layout.login_interface)
 
-        title = "Login"
-
         mAuth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
+        progressBar = findViewById(R.id.progressBar)
         etUserName = findViewById(R.id.etUserName)
         etPassword = findViewById(R.id.etPassword)
         btnLogin = findViewById(R.id.btnLogin)
@@ -68,6 +69,7 @@ class LoginInterface : AppCompatActivity(){
             } else if (etPassword!!.text.toString().length < 6){
                 tvInf!!.text = "The length of password should be larger than six"
             } else {
+                progressBar!!.visibility = View.VISIBLE
                 validate(etUserName!!.text.toString(), etPassword!!.text.toString())
             }
         }
@@ -119,11 +121,13 @@ class LoginInterface : AppCompatActivity(){
                                 }
 
                                 Log.d(tag, "Add to database: Fail")
+                                progressBar!!.visibility = View.GONE
                             }
                 }
 
                 Log.d(tag, "createUserWithEmail: success")
             } else {
+                progressBar!!.visibility = View.GONE
                 try {
                     throw task1.exception!!
                 } catch (existEmail: FirebaseAuthUserCollisionException){

@@ -11,25 +11,25 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 
-class PointAdapter(private var context: Context, private var points: ArrayList<Point>, private var type: String): RecyclerView.Adapter<PointAdapter.ViewHolder>(){
+class CoinAdapter(private var context: Context, private var coins: ArrayList<Coin>, private var type: String): RecyclerView.Adapter<CoinAdapter.ViewHolder>(){
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
         val v = LayoutInflater.from(viewGroup.context).inflate(R.layout.coin_list, viewGroup, false)
 
         return ViewHolder(v)
     }
 
-    override fun getItemCount(): Int = points.size
+    override fun getItemCount(): Int = coins.size
 
     override fun onBindViewHolder(viewHolder: ViewHolder, i: Int) {
-        viewHolder.itemView.tag = points[i]
+        viewHolder.itemView.tag = coins[i]
         when {
-            points[i].currency == "PENY" ->{viewHolder.ivCoin.setImageResource(R.drawable.ic_peny)}
-            points[i].currency == "QUID" ->{viewHolder.ivCoin.setImageResource(R.drawable.ic_quid)}
-            points[i].currency == "SHIL" ->{viewHolder.ivCoin.setImageResource(R.drawable.ic_shil)}
-            points[i].currency == "DOLR" ->{viewHolder.ivCoin.setImageResource(R.drawable.ic_dolr)}
+            coins[i].currency == "PENY" ->{viewHolder.ivCoin.setImageResource(R.drawable.ic_peny)}
+            coins[i].currency == "QUID" ->{viewHolder.ivCoin.setImageResource(R.drawable.ic_quid)}
+            coins[i].currency == "SHIL" ->{viewHolder.ivCoin.setImageResource(R.drawable.ic_shil)}
+            coins[i].currency == "DOLR" ->{viewHolder.ivCoin.setImageResource(R.drawable.ic_dolr)}
         }
 
-        viewHolder.tvCoinValue.text = String.format("%.4f", points[i].value)
+        viewHolder.tvCoinValue.text = String.format("%.4f", coins[i].value)
     }
 
     inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
@@ -41,7 +41,7 @@ class PointAdapter(private var context: Context, private var points: ArrayList<P
             itemView.setOnClickListener {
                 when {
                     type != "balance" ->{
-                        val point = itemView.tag as Point
+                        val point = itemView.tag as Coin
                         val colorStateList = ContextCompat.getColorStateList(context, R.color.colorPrimaryLight)
                         if (cvCoin.cardBackgroundColor == colorStateList){
                             cvCoin.setCardBackgroundColor(getColor(context, R.color.secondaryText))

@@ -97,7 +97,7 @@ class FriendActivity : AppCompatActivity() {
                                                     val userFriend = document2.toObject(User::class.java)
                                                     print(userFriend?.name)
                                                     friends.add(Friend(document2.id, userFriend!!.name, userFriend.email!!,
-                                                            userFriend.age!!, userFriend.gender, userFriend.todayStep))
+                                                            userFriend.age!!, userFriend.gender))
 
                                                     if (myAdapter != null){
                                                         myAdapter!!.notifyDataSetChanged()

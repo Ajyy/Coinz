@@ -35,7 +35,7 @@ class SpareExchangeActivity : AppCompatActivity() {
 
     private var tag = "SpareExchangeActivity"
     private val chooseCoinActivity = 2
-    private var coins = ArrayList<Point>()
+    private var coins = ArrayList<Coin>()
     private var totalValue = 0.0
     private var num = 0
 
@@ -112,7 +112,7 @@ class SpareExchangeActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == chooseCoinActivity){
             if (resultCode == Activity.RESULT_OK){
-                coins = data!!.getSerializableExtra("points") as ArrayList<Point>
+                coins = data!!.getSerializableExtra("points") as ArrayList<Coin>
                 for (point in coins) if (point.isChecked!!) {
                     totalValue+= point.value!!
                     num++

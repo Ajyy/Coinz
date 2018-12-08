@@ -17,14 +17,14 @@ class ChooseCoinActivity : AppCompatActivity() {
 
     private var layoutManager: RecyclerView.LayoutManager? = null
     private var rvCoinChoose: RecyclerView? = null
-    private var myAdapter: PointAdapter? = null
+    private var myAdapter: CoinAdapter? = null
     private var tvCoinInf: TextView? = null
 
     private var db = FirebaseFirestore.getInstance()
     private var user = FirebaseAuth.getInstance().currentUser
 
     private var inf: Array<String>? = null
-    private var points = ArrayList<Point>()
+    private var coins = ArrayList<Coin>()
     private val tag = "ChooseCoinActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,7 +40,7 @@ class ChooseCoinActivity : AppCompatActivity() {
         rvCoinChoose!!.layoutManager = layoutManager
         tvCoinInf = findViewById(R.id.tvCoinInf)
 
-        myAdapter = PointAdapter(this@ChooseCoinActivity, points, inf!![1])
+        myAdapter = CoinAdapter(this@ChooseCoinActivity, coins, inf!![1])
         rvCoinChoose!!.adapter = myAdapter
         getAllCoins()
     }
@@ -49,12 +49,12 @@ class ChooseCoinActivity : AppCompatActivity() {
         db.collection("users").document(user!!.uid).collection("balance_"+inf!![0]).get()
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful){
-                        points.clear()
+                        coins.clear()
                         for (document in task.result!!){
-                            points.add(document.toObject(Point::class.java))
+                            coins.add(document.toObject(Coin::class.java))
                         }
 
-                        tvCoinInf!!.text = "Find ${points.size} coins whose type is ${inf!![0]}"
+                        tvCoinInf!!.text = "Find ${coins.size} coins whose type is ${inf!![0]}"
 
                         if (rvCoinChoose!!.adapter != null){
                             myAdapter!!.notifyDataSetChanged()
@@ -70,10 +70,10 @@ class ChooseCoinActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
 
         if (inf!![1] != "balance"){
-            val checkPoints = ArrayList<Point>()
-            for (point in points){
-                if (point.isChecked!!){
-                    checkPoints.add(point)
+            val checkPoints = ArrayList<Coin>()
+            for (coin in coins){
+                if (coin.isChecked!!){
+                    checkPoints.add(coin)
                 }
             }
 

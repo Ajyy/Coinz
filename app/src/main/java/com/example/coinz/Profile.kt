@@ -34,13 +34,13 @@ class Profile : AppCompatActivity() {
 
         title = "Profile"
 
-        etName = findViewById<View>(R.id.etName) as EditText
-        etAge = findViewById<View>(R.id.etAge) as EditText
-        rgGender = findViewById<View>(R.id.rgGender) as RadioGroup
-        tvNotify = findViewById<View>(R.id.tvNotify) as TextView
-        tvEmail = findViewById<View>(R.id.tvEmail) as TextView
-        btnConfirm = findViewById<View>(R.id.btnConfirm) as Button
-        btnSubmit = findViewById<View>(R.id.btnSubmit) as Button
+        etName = findViewById(R.id.etName)
+        etAge = findViewById(R.id.etAge)
+        rgGender = findViewById(R.id.rgGender)
+        tvNotify = findViewById(R.id.tvNotify)
+        tvEmail = findViewById(R.id.tvEmail)
+        btnConfirm = findViewById(R.id.btnConfirm)
+        btnSubmit = findViewById(R.id.btnSubmit)
 
         mAuth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()

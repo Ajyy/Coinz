@@ -17,10 +17,9 @@ class AchievementActivity : AppCompatActivity() {
     private var tvAchieveInf: TextView? = null
 
     private var achievements = ArrayList<Achievement>()
-    private var userClass: User? = null
+    private var userData: User? = null
 
     private var db = FirebaseFirestore.getInstance()
-    private var user = FirebaseAuth.getInstance()
     private val tag = "AchievementActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,27 +39,8 @@ class AchievementActivity : AppCompatActivity() {
         myAdapter = AchievementAdapter(this@AchievementActivity, achievements)
         rvAchieveList!!.adapter = myAdapter
 
-        getUserData()
+        userData!!.getData()
         getAchievement()
-    }
-
-    private fun getUserData(){
-        val userDocRef = db.collection("users")
-        userDocRef.document(user!!. uid!!).get()
-                .addOnSuccessListener { document ->
-                    if (document.exists()){
-                        Log.d(tag, "get user data: Success")
-                        val userData = document.toObject(User::class.java)
-                        userClass = userData
-                    } else {
-                        Toast.makeText(this@AchievementActivity, "Please check your internet", Toast.LENGTH_SHORT)
-                        finish()
-                        Log.w(tag, "get user data: Fail")
-                    }
-                }
-                .addOnFailureListener{ exception ->
-                    Log.d(tag, "get failed with ", exception.cause)
-                }
     }
 
     private fun getAchievement(){
@@ -69,7 +49,7 @@ class AchievementActivity : AppCompatActivity() {
                     if (task.isSuccessful) {
                         for (document in task.result!!){
                             val achievement = document.toObject(Achievement::class.java)
-                            if (achievement.id in userClass!!.achievements){
+                            if (achievement.id in userData!!.achievements){
                                 achievement.isGet = true
                             }
 

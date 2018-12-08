@@ -5,9 +5,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
     android:fitsSystemWindows="true"
+    tools:context=".MainActivity"
     tools:openDrawer="start">
+
+    <ProgressBar
+        android:id="@+id/pgbLoadMap"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/appBarLayout" />
 
     <com.mapbox.mapboxsdk.maps.MapView
         android:id="@+id/mapView"
@@ -24,12 +38,14 @@
         mapbox:mapbox_cameraTargetLat="55.944"
         mapbox:mapbox_cameraTargetLng="-3.188396"
         mapbox:mapbox_cameraZoom="15"
-        mapbox:mapbox_styleUrl="@string/mapbox_style_mapbox_streets"
-        />
+        mapbox:mapbox_styleUrl="@string/mapbox_style_mapbox_streets" >
+
+    </com.mapbox.mapboxsdk.maps.MapView>
 
     <android.support.design.widget.AppBarLayout
-        android:layout_height="wrap_content"
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay">
 
         <android.support.v7.widget.Toolbar
@@ -37,7 +53,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay"/>
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
 
     </android.support.design.widget.AppBarLayout>
 

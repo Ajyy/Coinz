@@ -11,8 +11,6 @@ class User {
     var email: String? = null
     var age: Int? = 0
     var gender = "Unknown"
-    var gold = 0.0
-    var todayStep = 0
     var demandDeposit = mutableMapOf("GOLD" to 0.0, "SHIL" to 0.0, "DOLR" to 0.0, "QUID" to 0.0, "PENY" to 0.0)
     var demandTime = mutableMapOf("GOLD" to "no", "SHIL" to "no", "DOLR" to "no", "QUID" to "no", "PENY" to "no")
     var achievements = ArrayList<Int>()
@@ -25,7 +23,7 @@ class User {
         private var mAuth: FirebaseAuth? = FirebaseAuth.getInstance()
         private val tag = "User"
 
-        fun addCoins(coins: ArrayList<Point>){
+        fun addCoins(coins: ArrayList<Coin>){
             val db = FirebaseFirestore.getInstance().collection("users").document(mAuth!!.currentUser!!.uid)
             for (coin in coins){
                 db.collection("balance_"+coin.currency).document(coin.id!!)
@@ -49,7 +47,7 @@ class User {
             }
         }
 
-        fun deleteBalance(coins: ArrayList<Point>, coinType: String){
+        fun deleteBalance(coins: ArrayList<Coin>, coinType: String){
             for (coin in coins){
                 FirebaseFirestore.getInstance().collection("users").document(mAuth!!.currentUser!!.uid)
                         .collection("balance_$coinType").document(coin.id!!).delete()
@@ -86,8 +84,6 @@ class User {
                         email = userData!!.email
                         age = userData!!.age
                         gender = userData!!.gender
-                        gold = userData!!.gold
-                        todayStep = userData!!.todayStep
                         demandDeposit = userData!!.demandDeposit
                         achievements = userData!!.achievements
                         limit = userData!!.limit

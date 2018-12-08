@@ -29,6 +29,7 @@ import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode
 import org.json.JSONObject
 import android.os.AsyncTask
 import android.provider.MediaStore
+import android.support.constraint.ConstraintLayout
 import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
@@ -46,7 +47,6 @@ import com.mapbox.mapboxsdk.annotations.Icon
 import com.mapbox.mapboxsdk.annotations.IconFactory
 import com.mapbox.mapboxsdk.annotations.MarkerOptions
 import com.squareup.picasso.Picasso
-import retrofit2.http.POST
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
@@ -79,15 +79,16 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
     private val profile = 2
     private val pickName = 3
 
-    private var coins = ArrayList<Point>()
-    private var addCoins = ArrayList<Point>()
+    private var coins = ArrayList<Coin>()
+    private var addCoins = ArrayList<Coin>()
+    private var coinsId = ArrayList<String>()
     private var markers = ArrayList<MarkerOptions>()
     private var ratesArr = hashMapOf("SHIL" to 0.0, "DOLR" to 0.0, "PENY" to 0.0, "QUID" to 0.0, "GOLD" to 1.0)
-    private var userData: User? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
         mAuth = FirebaseAuth.getInstance()
         mStorageReference = FirebaseStorage.getInstance().reference
         db = FirebaseFirestore.getInstance()
@@ -107,7 +108,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         val user = mAuth!!.currentUser
         initializeUser(user!!)
         navigationView.setNavigationItemSelectedListener(this@MainActivity)
-        getData(user.uid)
+        getCoinsId()
 
         Mapbox.getInstance(applicationContext, getString(R.string.access_token))
         mapView?.onCreate(savedInstanceState)
@@ -141,7 +142,8 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         mapView?.onPause()
 
         for (coin in addCoins){
-            userData!!.coinsId.add(coin.id!!)
+            coinsId.add(coin.id!!)
+
         }
 
         if (addCoins.size != 0){
@@ -166,15 +168,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         super.onStop()
         locationEngine?.removeLocationUpdates()
         locationLayerPlugin?.onStop()
-        mapView?.onStop()
-        for (coin in addCoins){
-            userData!!.coinsId.add(coin.id!!)
-        }
-
-        if (addCoins.size != 0){
-            User.addCoins(addCoins)
-            addCoins.clear()
-        }
     }
 
     override fun onDestroy() {
@@ -206,7 +199,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
 
         val num = intArrayOf(0, 0, 0, 0)
         for (coin in coins){
-            if (coin.id !in userData!!.coinsId){
+            if (coin.id !in coinsId){
                 when {
                     coin.currency == "SHIL" -> num[0]++
                     coin.currency == "DOLR" -> num[1]++
@@ -229,17 +222,17 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         popupWindow.setBackgroundDrawable(ColorDrawable())
         popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0)
 
-        popupView.setOnTouchListener { v, _ ->
+        popupView.setOnTouchListener { _, _ ->
             popupWindow.dismiss()
             return@setOnTouchListener true
         }
     }
 
-    private fun getData(id: String){
-        db!!.collection("users").document(id).get()
+    private fun getCoinsId(){
+        db!!.collection("users").document(mAuth!!.currentUser!!.uid).get()
                 .addOnCompleteListener {task ->
                     if (task.isSuccessful){
-                        userData = task.result!!.toObject(User::class.java)
+                        coinsId = task.result!!["coinsId"] as ArrayList<String>
                         DrawGeoJson().execute()
                         Log.d(tag, "get user data: Success")
                     } else {
@@ -454,7 +447,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         return true
     }
 
-    private fun removeMarkers(coin: Point){
+    private fun removeMarkers(coin: Coin){
         for (markerOption in markers){
             if (coin.latitude == markerOption.position.latitude&& coin.longitude == markerOption.position.longitude){
                 map!!.removeMarker(markerOption.marker)
@@ -463,10 +456,10 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         }
     }
 
-    private inner class DrawGeoJson : AsyncTask<Void, Void, List<Point>>() {
-        override fun doInBackground(vararg voids: Void): List<Point> {
+    private inner class DrawGeoJson : AsyncTask<Void, Void, List<Coin>>() {
+        override fun doInBackground(vararg voids: Void): List<Coin> {
 
-            val points = ArrayList<Point>()
+            val points = ArrayList<Coin>()
 
             val cal = Calendar.getInstance()
             val today = String.format("%d/%02d/%02d", cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH))
@@ -497,14 +490,14 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                     if (geometry != null && properties != null) {
                         val type = geometry.getString("type")
 
-                        if(type != null && type.toString() == "Point"){
+                        if(type != null && type.toString() == "Coin"){
                             val coord = geometry.getJSONArray("coordinates")
                             val latLng = LatLng(coord.getDouble(1), coord.getDouble(0))
-                            val point = Point(properties.getString("id"), properties.getDouble("value")
+                            val point = Coin(properties.getString("id"), properties.getDouble("value")
                                     , properties.getString("currency"), properties.getString("marker-symbol")
                                     , properties.getString("marker-color"), latLng.latitude, latLng.longitude, false)
 
-                            if (point.id !in userData!!.coinsId){
+                            if (point.id !in coinsId){
                                 coins.add(point)
                                 points.add(point)
                             }
@@ -518,24 +511,24 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
             return points
         }
 
-        override fun onPostExecute(points: List<Point>) {
-            super.onPostExecute(points)
+        override fun onPostExecute(coins: List<Coin>) {
+            super.onPostExecute(coins)
             val iconFactory = IconFactory.getInstance(this@MainActivity)
 
-            if (points.isNotEmpty()) {
-                for(point in points){
+            if (coins.isNotEmpty()) {
+                for (coin in coins) {
                     val icon: Icon = when {
-                        point.markerColor == "#0000ff" -> iconFactory.fromResource(R.drawable.marker_0000ff)
-                        point.markerColor == "#008000" -> iconFactory.fromResource(R.drawable.marker_008000)
-                        point.markerColor == "#ff0000" -> iconFactory.fromResource(R.drawable.marker_ff0000)
+                        coin.markerColor == "#0000ff" -> iconFactory.fromResource(R.drawable.marker_0000ff)
+                        coin.markerColor == "#008000" -> iconFactory.fromResource(R.drawable.marker_008000)
+                        coin.markerColor == "#ff0000" -> iconFactory.fromResource(R.drawable.marker_ff0000)
                         else -> iconFactory.fromResource(R.drawable.marker_ffdf00)
                     }
 
                     markers.add(MarkerOptions()
-                            .position(LatLng(point.latitude, point.longitude))
+                            .position(LatLng(coin.latitude, coin.longitude))
                             .icon(icon)
-                            .title(point.currency+": "+point.markerSymbol)
-                            .snippet("Value: "+point.value))
+                            .title(coin.currency + ": " + coin.markerSymbol)
+                            .snippet("Value: " + coin.value))
                 }
 
                 map!!.addMarkers(markers)
@@ -549,8 +542,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         if (requestCode == profile){
             if (resultCode == Activity.RESULT_OK){
                 tvNavUserName!!.text = data!!.getStringExtra("name")
-            } else if (resultCode == Activity.RESULT_CANCELED){
-                Toast.makeText(this@MainActivity, "No data received!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity, "Update Successfully!", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -560,6 +552,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                 try {
                     val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, filePath)
                     uploadFile(bitmap, filePath!!)
+                    Toast.makeText(this@MainActivity, "Update Successfully!", Toast.LENGTH_SHORT).show()
                 } catch (e: IOException){
                     e.printStackTrace()
                 }

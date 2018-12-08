@@ -26,7 +26,6 @@ class DepositSubmitActivity : AppCompatActivity(){
     private var tvEndTime: TextView? = null
     private var etTimeDemand: EditText? = null
 
-
     private var user = FirebaseAuth.getInstance().currentUser
 
     private var type: String? = null
@@ -34,7 +33,7 @@ class DepositSubmitActivity : AppCompatActivity(){
     private var now: Calendar? = null
 
     private val chooseCoinActivity = 2
-    private var coins = ArrayList<Point>()
+    private var coins = ArrayList<Coin>()
     private var totalCoinValue = 0.0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -111,8 +110,16 @@ class DepositSubmitActivity : AppCompatActivity(){
             if (type == "time"){
                 val fromDemand = etTimeDemand!!.text.toString().toDouble()
                 if (coins.size != 0||fromDemand > 0){
-                    if (sdf.format(now!!.time) != btnCalendar!!.text && btnCalendar!!.text.toString() != "Calendar"){
-                        val profit =  (totalCoinValue+fromDemand)*0.05
+                    val time = btnCalendar!!.text.toString()
+                    if (sdf.format(now!!.time) !=  time&& time != "Calendar"){
+                        val dayNum = getDifferentToNow(time)
+                        val rate = when {
+                            dayNum <= 7 -> 0.05
+                            dayNum in 8..21 -> 0.10
+                            dayNum in 22..42 -> 0.20
+                            else -> 0.40
+                        }
+                        val profit =  (totalCoinValue+fromDemand)*rate
 
                         val record = Record(System.currentTimeMillis().toString(),"time", coinType, sdf.format(now!!.time), btnCalendar!!.text as String,
                                 totalCoinValue+fromDemand, profit)
@@ -131,8 +138,6 @@ class DepositSubmitActivity : AppCompatActivity(){
                     tvDepositInf!!.text = "Please choose some coins"
                 }
             }
-
-
         }
     }
 
@@ -140,9 +145,9 @@ class DepositSubmitActivity : AppCompatActivity(){
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == chooseCoinActivity){
             if (resultCode == Activity.RESULT_OK){
-                coins = data!!.getSerializableExtra("points") as ArrayList<Point>
-                for (point in coins) if (point.isChecked!!) {
-                    totalCoinValue+= point.value!!
+                coins = data!!.getSerializableExtra("points") as ArrayList<Coin>
+                for (coin in coins) if (coin.isChecked!!) {
+                    totalCoinValue+= coin.value!!
                 }
 
                 tvCoinInf!!.text = "Coin number: ${coins.size} Coin Value: ${totalCoinValue}"
@@ -157,10 +162,8 @@ class DepositSubmitActivity : AppCompatActivity(){
             userData.limit = coins.size
             userData.depositTime = SimpleDateFormat("MM/dd/yyyy").format(now!!.time)
         } else {
-            val lastCal = Calendar.getInstance()
-            lastCal.set(userData.depositTime.substring(6, 10).toInt(), userData.depositTime.substring(0, 2).toInt(),
-                    userData.depositTime.substring(3, 5).toInt())
-            if (ChronoUnit.DAYS.between(lastCal.toInstant(), now!!.toInstant()) > 0){
+            val dayNum = getDifferentToNow(userData.demandTime[record.coinType]!!)
+            if (dayNum > 0){
                 userData.limit = coins.size
                 userData.depositTime = SimpleDateFormat("MM/dd/yyyy").format(now!!.time)
             } else {
@@ -170,11 +173,8 @@ class DepositSubmitActivity : AppCompatActivity(){
 
         if (type == "demand"){
             if (userData.demandTime[record.coinType] != "no"){
-                val lastCal = Calendar.getInstance()
-                lastCal.set(userData.demandTime[record.coinType]!!.substring(6, 10).toInt(), userData.demandTime[record.coinType]!!.substring(0, 2).toInt(),
-                        userData.demandTime[record.coinType]!!.substring(3, 5).toInt())
-                val num = ChronoUnit.DAYS.between(lastCal.toInstant(), now!!.toInstant())
-                userData.demandDeposit[record.coinType!!] = userData.demandDeposit[record.coinType!!]!! *(1+(0.35/360)*num)
+                val dayNum = getDifferentToNow(userData.demandTime[record.coinType]!!)
+                userData.demandDeposit[record.coinType!!] = userData.demandDeposit[record.coinType!!]!! *(1+(0.35/360)*dayNum)
             }
 
             userData.demandDeposit[record.coinType!!] = userData.demandDeposit[record.coinType!!]!!+record.profit+record.deposit
@@ -185,5 +185,12 @@ class DepositSubmitActivity : AppCompatActivity(){
 
         User.addRecord(record)
         finish()
+    }
+
+    private fun getDifferentToNow(time: String): Long{
+        val lastCal = Calendar.getInstance()
+        lastCal.set(time.substring(6, 10).toInt(), time.substring(0, 2).toInt(),
+                time.substring(3, 5).toInt())
+        return ChronoUnit.DAYS.between(lastCal.toInstant(), now!!.toInstant())
     }
 }
