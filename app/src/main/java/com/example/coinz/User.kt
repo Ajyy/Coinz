@@ -20,13 +20,44 @@ class User {
     var coinsId = ArrayList<String>()
 
     companion object {
-        private var mAuth: FirebaseAuth? = FirebaseAuth.getInstance()
+        var mAuth = FirebaseAuth.getInstance()
+        var userAuth = mAuth.currentUser
+        var userDb = FirebaseFirestore.getInstance().collection("users")
         private val tag = "User"
 
-        fun addCoins(coins: ArrayList<Coin>){
-            val db = FirebaseFirestore.getInstance().collection("users").document(mAuth!!.currentUser!!.uid)
+        fun deleteBalance(coins: ArrayList<Coin>, coinType: String, id: String){
+            val realId = if (id == "self") userAuth!!.uid else id
             for (coin in coins){
-                db.collection("balance_"+coin.currency).document(coin.id!!)
+                userDb.document(realId)
+                        .collection("balance_$coinType").document(coin.id!!).delete()
+                        .addOnCompleteListener {task ->
+                            if (task.isSuccessful){
+                                Log.d(tag, "delete coin: Success")
+                            } else {
+                                Log.w(tag, "delete coin: fail")
+                            }
+                        }
+            }
+        }
+
+        fun addRecord(record: Record, id: String){
+            val realId = if (id == "self") userAuth!!.uid else id
+            userDb.document(realId).collection("records").document(record.id!!)
+                    .set(record, SetOptions.merge())
+                    .addOnCompleteListener {task ->
+                        if (task.isSuccessful){
+                            Log.d(tag, "Submit deposit: Success")
+                        } else {
+                            Log.w(tag, "Submit deposit: Fail")
+                        }
+                    }
+        }
+
+        fun addCoins(coins: ArrayList<Coin>, id: String){
+            val realId = if (id == "self") userAuth!!.uid else id
+            val db = userDb.document(realId)
+            for (coin in coins){
+                db.collection("balance_"+coin.type).document(coin.id!!)
                         .set(coin, SetOptions.merge())
                         .addOnCompleteListener {task ->
                             if (task.isSuccessful){
@@ -46,37 +77,11 @@ class User {
                         }
             }
         }
-
-        fun deleteBalance(coins: ArrayList<Coin>, coinType: String){
-            for (coin in coins){
-                FirebaseFirestore.getInstance().collection("users").document(mAuth!!.currentUser!!.uid)
-                        .collection("balance_$coinType").document(coin.id!!).delete()
-                        .addOnCompleteListener {task ->
-                            if (task.isSuccessful){
-                                Log.d(tag, "delete coin: Success")
-                            } else {
-                                Log.w(tag, "delete coin: fail")
-                            }
-                        }
-            }
-        }
-
-        fun addRecord(record: Record){
-            FirebaseFirestore.getInstance().collection("users").document(mAuth!!.currentUser!!.uid).collection("records").document(record.id!!)
-                    .set(record, SetOptions.merge())
-                    .addOnCompleteListener {task ->
-                        if (task.isSuccessful){
-                            Log.d(tag, "Submit deposit: Success")
-                        } else {
-                            Log.w(tag, "Submit deposit: Fail")
-                        }
-                    }
-        }
     }
 
     fun getData(){
         var userData: User?
-        FirebaseFirestore.getInstance().collection("users").document(mAuth!!.currentUser!!.uid).get()
+        userDb.document(userAuth!!.uid).get()
                 .addOnCompleteListener {task ->
                     if (task.isSuccessful){
                         userData = task.result!!.toObject(User::class.java)
@@ -97,8 +102,8 @@ class User {
                 }
     }
 
-    fun updateDemand(coinType: String, id: String){
-        FirebaseFirestore.getInstance().collection("users").document(id).update(
+    fun updateDemand(coinType: String){
+        userDb.document(userAuth!!.uid).update(
                 "demandTime.$coinType", demandTime[coinType],
                 "demandDeposit.$coinType", demandDeposit[coinType],
                 "limit", limit,

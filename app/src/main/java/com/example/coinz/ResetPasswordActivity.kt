@@ -16,7 +16,6 @@ class ResetPasswordActivity : AppCompatActivity() {
     private var tvReInf: TextView? = null
 
     private var mAuth: FirebaseAuth? = null
-    private var db: FirebaseFirestore? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,21 +28,20 @@ class ResetPasswordActivity : AppCompatActivity() {
         tvReInf = findViewById<View>(R.id.tvReInf) as TextView
 
         mAuth = FirebaseAuth.getInstance()
-        db = FirebaseFirestore.getInstance()
 
         // send email and reset password by email
         btnSendEmail!!.setOnClickListener{
             if (etReEmail!!.text.isEmpty()){
                 tvReInf!!.text = "Enter You Email"
             } else {
-                db!!.collection("users").whereEqualTo("email", etReEmail!!.text.toString()).get()
-                        .addOnCompleteListener {task ->
-                            if (task.isSuccessful){
-                                if (task.result!!.isEmpty){
+                User.userDb.whereEqualTo("email", etReEmail!!.text.toString()).get()
+                        .addOnCompleteListener {task1 ->
+                            if (task1.isSuccessful){
+                                if (task1.result!!.isEmpty){
                                     tvReInf!!.text = "This email is not registered"
                                 } else {
-                                    mAuth!!.sendPasswordResetEmail(etReEmail!!.text.toString()).addOnCompleteListener { task ->
-                                        if (task.isSuccessful){
+                                    mAuth!!.sendPasswordResetEmail(etReEmail!!.text.toString()).addOnCompleteListener { task2 ->
+                                        if (task2.isSuccessful){
                                             tvReInf!!.text = "Reset Email Sent"
                                         } else {
                                             tvReInf!!.text = "Reset Email fail to send"

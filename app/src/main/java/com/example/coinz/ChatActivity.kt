@@ -21,7 +21,6 @@ class ChatActivity : AppCompatActivity() {
     private var myAdapter: FirebaseListAdapter<ChatMessage>? = null
 
     private var mDatabase: DatabaseReference? = null
-    private var user = FirebaseAuth.getInstance().currentUser
 
     private var friend: Friend? = null
 
@@ -31,7 +30,7 @@ class ChatActivity : AppCompatActivity() {
 
         friend = intent.getSerializableExtra("friend") as Friend
 
-        val id = if (friend!!.uid < user!!.uid) friend!!.uid+user!!.uid else user!!.uid+friend!!.uid
+        val id = if (friend!!.uid < User.userAuth!!.uid) friend!!.uid+User.userAuth!!.uid else User.userAuth!!.uid+friend!!.uid
         mDatabase = FirebaseDatabase.getInstance().reference.child(id)
 
         btnSubmitMessage = findViewById(R.id.btnSubmitMessage)
@@ -43,7 +42,7 @@ class ChatActivity : AppCompatActivity() {
             if (message!!.text.toString() != ""){
                 val chatMessage = ChatMessage()
                 chatMessage.messageText = message.text.toString()
-                chatMessage.messageUserName = user!!.displayName
+                chatMessage.messageUserName = User.userAuth!!.displayName
                 mDatabase!!.push().setValue(chatMessage)
                 message.setText("")
                 etMessageText = message
@@ -55,7 +54,7 @@ class ChatActivity : AppCompatActivity() {
                 val tvMessageTime: TextView = v!!.findViewById(R.id.tvMessageTime)
                 val tvMessage: TextView = v.findViewById(R.id.tvMessage)
 
-                tvMessageTime.text = model!!.messageUserName+" "+DateFormat.format("dd-MM-yyyy (HH:mm:ss)", model!!.messageTime)
+                tvMessageTime.text = model!!.messageUserName+" "+DateFormat.format("dd-MM-yyyy (HH:mm:ss)", model.messageTime)
                 tvMessage.text = model.messageText
             }
         }

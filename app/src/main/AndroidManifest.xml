@@ -29,7 +29,7 @@
         <activity
             android:name=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".Profile" />
+        <activity android:name=".ProfileActivity" />
         <activity android:name=".ResetPasswordActivity" />
         <activity android:name=".FriendActivity" />
         <activity android:name=".FriendProfile" />

@@ -21,7 +21,6 @@ class DemandDepositActivity : AppCompatActivity() {
     private var btnDemandBalance: Button? = null
 
     private var balance: MutableMap<String, Double>? = null
-    private var db = FirebaseFirestore.getInstance()
     private var user = FirebaseAuth.getInstance().currentUser
     private val tag = "DemandDepositActivity"
 
@@ -73,7 +72,7 @@ class DemandDepositActivity : AppCompatActivity() {
         popupWindow.setBackgroundDrawable(ColorDrawable())
         popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0)
 
-        popupView.setOnTouchListener { v, _ ->
+        popupView.setOnTouchListener { _, _ ->
             lp.alpha = 1f
             window.attributes = lp
             popupWindow.dismiss()

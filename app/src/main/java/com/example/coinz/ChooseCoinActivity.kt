@@ -20,9 +20,6 @@ class ChooseCoinActivity : AppCompatActivity() {
     private var myAdapter: CoinAdapter? = null
     private var tvCoinInf: TextView? = null
 
-    private var db = FirebaseFirestore.getInstance()
-    private var user = FirebaseAuth.getInstance().currentUser
-
     private var inf: Array<String>? = null
     private var coins = ArrayList<Coin>()
     private val tag = "ChooseCoinActivity"
@@ -46,7 +43,7 @@ class ChooseCoinActivity : AppCompatActivity() {
     }
 
     private fun getAllCoins(){
-        db.collection("users").document(user!!.uid).collection("balance_"+inf!![0]).get()
+        User.userDb.document(User.userAuth!!.uid).collection("balance_"+inf!![0]).get()
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful){
                         coins.clear()

@@ -1,3 +1,9 @@
 package com.example.coinz
 
-data class Achievement(var id: Int, var title: String, var intro: String, var isGet: Boolean = false)
+import com.google.firebase.firestore.FirebaseFirestore
+
+class Achievement(var id: Int, var title: String, var intro: String, var isGet: Boolean = false){
+    companion object {
+        var achieveDb = FirebaseFirestore.getInstance().collection("achievements")
+    }
+}

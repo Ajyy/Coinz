@@ -23,9 +23,6 @@ class FriendActivity : AppCompatActivity() {
     private var layoutManager: RecyclerView.LayoutManager? = null
     private var tvFriendInf: TextView? = null
 
-    private var db = FirebaseFirestore.getInstance()
-    private var user = FirebaseAuth.getInstance().currentUser
-
     private val addFriendActivity = 2
     private val tag = "FriendActivity"
     private val friendInfActivity = 3
@@ -80,14 +77,13 @@ class FriendActivity : AppCompatActivity() {
     }
 
     private fun getFriends(){
-        val userDocRef = db.collection("users")
-        userDocRef.document(user!!.uid).collection("friends").get()
+        User.userDb.document(User.userAuth!!.uid).collection("friends").get()
                 .addOnCompleteListener { task1 ->
                     if (task1.isSuccessful){
                         Log.d(tag, "getFriend: Success")
                         for (document1 in task1.result!!){
                             if (document1!!.exists()){
-                                userDocRef.document(document1.id).get()
+                                User.userDb.document(document1.id).get()
                                         .addOnCompleteListener{ task2 ->
                                             if (task2.isSuccessful){
                                                 Log.d(tag, "getFriendUser: Success")

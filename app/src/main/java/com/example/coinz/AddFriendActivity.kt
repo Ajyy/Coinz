@@ -22,9 +22,6 @@ class AddFriendActivity : AppCompatActivity() {
     private var myAdapter: RecyclerView.Adapter<FriendAdapter.ViewHolder>? = null
     private var layoutManager: RecyclerView.LayoutManager? = null
 
-    private var db: FirebaseFirestore? = null
-    private var user: FirebaseUser? = null
-
     private var searchFriend = ArrayList<Friend>()
     private var friends: ArrayList<Friend>? = null
     private val tag = "AddFriendActivity"
@@ -36,9 +33,6 @@ class AddFriendActivity : AppCompatActivity() {
         title = "Add Friend"
 
         friends = intent.getSerializableExtra("friendsList") as ArrayList<Friend>
-
-        db = FirebaseFirestore.getInstance()
-        user = FirebaseAuth.getInstance().currentUser
 
         etFriendName = findViewById(R.id.etFriendName)
         btnSearch = findViewById(R.id.btnSearch)
@@ -64,7 +58,7 @@ class AddFriendActivity : AppCompatActivity() {
         if (etFriendName!!.text.isEmpty()){
             tvSearchInf!!.text = "Please enter the name"
         } else {
-            val query = db!!.collection("users").whereEqualTo("name", etFriendName!!.text.toString())
+            val query = User.userDb.whereEqualTo("name", etFriendName!!.text.toString())
             query.get().addOnCompleteListener { task ->
                 if (task.isSuccessful){
                     var friendNum = 0
@@ -82,7 +76,7 @@ class AddFriendActivity : AppCompatActivity() {
                         }
 
                         if (!isExist) {
-                            if (document.id != user!!.uid){
+                            if (document.id != User.userAuth!!.uid){
                                 searchFriend.add(Friend(uid = document.id, name = searchUserName))
                             } else {
                                 size-=1

@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.util.Log
-import android.view.View
 import android.widget.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -21,9 +20,6 @@ class ExchangeActivity : AppCompatActivity() {
     private var btnSubmitExchange: Button? = null
     private var btnCoinTypeF: Button? = null
     private var btnCoinTypeT: Button? = null
-
-    private var user = FirebaseAuth.getInstance().currentUser
-    private var db = FirebaseFirestore.getInstance()
 
     private val tag = "ExchangeActivity"
     private val now = Calendar.getInstance()
@@ -45,12 +41,12 @@ class ExchangeActivity : AppCompatActivity() {
         btnCoinTypeF = findViewById(R.id.btnCoinTypeF)
         btnCoinTypeT = findViewById(R.id.btnCoinTypeT)
 
-        btnCoinTypeF!!.setOnClickListener {v ->
-            showAlertDialogButtonClicked(v, 0)
+        btnCoinTypeF!!.setOnClickListener {
+            showAlertDialogButtonClicked(0)
         }
 
-        btnCoinTypeT!!.setOnClickListener {v ->
-            showAlertDialogButtonClicked(v, 1)
+        btnCoinTypeT!!.setOnClickListener {
+            showAlertDialogButtonClicked(1)
             btnCoinTypeT!!.text = coinTypes[1]
         }
 
@@ -76,7 +72,7 @@ class ExchangeActivity : AppCompatActivity() {
         }
     }
 
-    private fun showAlertDialogButtonClicked(v: View, index: Int){
+    private fun showAlertDialogButtonClicked(index: Int){
         val builder = AlertDialog.Builder(this@ExchangeActivity)
         builder.setTitle("Choose coin's type")
 
@@ -108,8 +104,7 @@ class ExchangeActivity : AppCompatActivity() {
     }
 
     private fun getUserData(){
-        val userDocRef = db.collection("users")
-        userDocRef.document(user!!.uid).get()
+        User.userDb.document(User.userAuth!!.uid).get()
                 .addOnSuccessListener { document ->
                     if (document.exists()){
                         Log.d(tag, "get user data: Success")
@@ -123,7 +118,7 @@ class ExchangeActivity : AppCompatActivity() {
     }
 
     private fun updateUser(){
-        db.collection("users").document(user!!.uid).update(
+        User.userDb.document(User.userAuth!!.uid).update(
                 "demandDeposit.${coinTypes[0]}", userData!!.demandDeposit[coinTypes[0]],
                 "demandDeposit.${coinTypes[1]}", userData!!.demandDeposit[coinTypes[1]],
                 "demandTime.${coinTypes[0]}", userData!!.demandTime[coinTypes[0]],

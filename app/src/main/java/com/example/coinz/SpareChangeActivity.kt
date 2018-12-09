@@ -20,9 +20,6 @@ class SpareChangeActivity : AppCompatActivity() {
     private var myAdapter: FriendAdapter? = null
     private var layoutManager: RecyclerView.LayoutManager? =null
 
-    private var db = FirebaseFirestore.getInstance()
-    private var user = FirebaseAuth.getInstance().currentUser
-
     private var spareFriends = ArrayList<Friend>()
     private var tag = "SpareChangeActivity"
 
@@ -53,7 +50,7 @@ class SpareChangeActivity : AppCompatActivity() {
             val name = etSpareChange!!.text.toString()
             spareFriends.clear()
 
-            db.collection("users").document(user!!.uid).collection("friends").whereEqualTo("name", name).get()
+            User.userDb.document(User.userAuth!!.uid).collection("friends").whereEqualTo("name", name).get()
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful){
                             for (document in task.result!!){

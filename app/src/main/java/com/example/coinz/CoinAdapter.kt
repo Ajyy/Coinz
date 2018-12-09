@@ -23,10 +23,10 @@ class CoinAdapter(private var context: Context, private var coins: ArrayList<Coi
     override fun onBindViewHolder(viewHolder: ViewHolder, i: Int) {
         viewHolder.itemView.tag = coins[i]
         when {
-            coins[i].currency == "PENY" ->{viewHolder.ivCoin.setImageResource(R.drawable.ic_peny)}
-            coins[i].currency == "QUID" ->{viewHolder.ivCoin.setImageResource(R.drawable.ic_quid)}
-            coins[i].currency == "SHIL" ->{viewHolder.ivCoin.setImageResource(R.drawable.ic_shil)}
-            coins[i].currency == "DOLR" ->{viewHolder.ivCoin.setImageResource(R.drawable.ic_dolr)}
+            coins[i].type == "PENY" ->{viewHolder.ivCoin.setImageResource(R.drawable.ic_peny)}
+            coins[i].type == "QUID" ->{viewHolder.ivCoin.setImageResource(R.drawable.ic_quid)}
+            coins[i].type == "SHIL" ->{viewHolder.ivCoin.setImageResource(R.drawable.ic_shil)}
+            coins[i].type == "DOLR" ->{viewHolder.ivCoin.setImageResource(R.drawable.ic_dolr)}
         }
 
         viewHolder.tvCoinValue.text = String.format("%.4f", coins[i].value)

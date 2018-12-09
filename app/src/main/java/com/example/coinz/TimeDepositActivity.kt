@@ -11,8 +11,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
 import android.widget.Toast
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import java.time.temporal.ChronoUnit
 import java.util.*
 
@@ -26,8 +24,6 @@ class TimeDepositActivity : AppCompatActivity() {
     private var tvTimeInf: TextView? = null
 
     private var now = Calendar.getInstance()
-    private var db = FirebaseFirestore.getInstance()
-    private var user = FirebaseAuth.getInstance().currentUser
 
     private var userClass: User? = null
     private val tag = "TimeDepositActivity"
@@ -75,7 +71,7 @@ class TimeDepositActivity : AppCompatActivity() {
 
     private fun updateRecordsBalance(){
         for (record in updateRecords){
-            db.collection("users").document(user!!.uid).collection("records").document(record.id!!)
+            User.userDb.document(User.userAuth!!.uid).collection("records").document(record.id!!)
                     .update("isFinish", true)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful){
@@ -93,7 +89,7 @@ class TimeDepositActivity : AppCompatActivity() {
                 userClass!!.demandDeposit[record.coinType!!] = userClass!!.demandDeposit[record.coinType!!]!! *(1+(0.35/360)*num)
             }
 
-            userClass!!.demandDeposit[record.coinType!!] = userClass!!.demandDeposit[record.coinType!!]!!+record.profit+record.deposit
+            userClass!!.demandDeposit[record.coinType!!] = userClass!!.demandDeposit[record.coinType!!]!!+record.interest+record.deposit
             userClass!!.demandTime[record.coinType!!] = SimpleDateFormat("MM/dd/yyyy").format(now!!.time)
         }
 
@@ -104,8 +100,7 @@ class TimeDepositActivity : AppCompatActivity() {
     }
 
     private fun getRecords(){
-        val userDocRef = db.collection("users")
-        userDocRef.document(user!!.uid).collection("records").get()
+        User.userDb.document(User.userAuth!!.uid).collection("records").get()
                 .addOnCompleteListener { task1 ->
                     if (task1.isSuccessful){
                         Log.d(tag, "getRecord: Success")
@@ -152,8 +147,7 @@ class TimeDepositActivity : AppCompatActivity() {
     }
 
     private fun getUserData(){
-        val userDocRef = db.collection("users")
-        userDocRef.document(user!!.uid).get()
+        User.userDb.document(User.userAuth!!.uid).get()
                 .addOnSuccessListener { document ->
                     if (document.exists()){
                         Log.d(tag, "get user data: Success")
@@ -171,7 +165,7 @@ class TimeDepositActivity : AppCompatActivity() {
     }
 
     private fun updateUser(){
-        db.collection("user").document(user!!.uid).update(
+        User.userDb.document(User.userAuth!!.uid).update(
                 "demandDeposit", userClass!!.demandDeposit,
                 "demandTime", userClass!!.demandTime
         ).addOnCompleteListener { task ->

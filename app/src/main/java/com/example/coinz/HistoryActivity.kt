@@ -15,11 +15,8 @@ class HistoryActivity : AppCompatActivity() {
     private var recyclerView: RecyclerView? = null
     private var myAdapter: RecordAdapter? = null
     private var layoutManager: RecyclerView.LayoutManager? =null
-
     private var tvHistoryInf: TextView? = null
 
-    private var db = FirebaseFirestore.getInstance()
-    private var user = FirebaseAuth.getInstance().currentUser
     private val tag = "HistoryActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,8 +39,7 @@ class HistoryActivity : AppCompatActivity() {
     }
 
     private fun getRecords(){
-        val userDocRef = db.collection("users")
-        userDocRef.document(user!!.uid).collection("records").get()
+        User.userDb.document(User.userAuth!!.uid).collection("records").get()
                 .addOnCompleteListener { task1 ->
                     if (task1.isSuccessful){
                         Log.d(tag, "getRecord: Success")

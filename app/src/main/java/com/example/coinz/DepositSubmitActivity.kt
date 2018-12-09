@@ -8,7 +8,6 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.*
-import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_deposit_submit.*
 import java.time.temporal.ChronoUnit
 import java.util.*
@@ -26,12 +25,9 @@ class DepositSubmitActivity : AppCompatActivity(){
     private var tvEndTime: TextView? = null
     private var etTimeDemand: EditText? = null
 
-    private var user = FirebaseAuth.getInstance().currentUser
-
     private var type: String? = null
     private var userData = User()
     private var now: Calendar? = null
-
     private val chooseCoinActivity = 2
     private var coins = ArrayList<Coin>()
     private var totalCoinValue = 0.0
@@ -55,7 +51,7 @@ class DepositSubmitActivity : AppCompatActivity(){
         val sdf = SimpleDateFormat("MM/dd/yyyy")
 
         val myCalendar = Calendar.getInstance()
-        val date = DatePickerDialog.OnDateSetListener{ datePicker: DatePicker, year: Int, monthofYear: Int, dayofMonth: Int ->
+        val date = DatePickerDialog.OnDateSetListener{ _: DatePicker, year: Int, monthofYear: Int, dayofMonth: Int ->
             myCalendar.set(Calendar.YEAR, year)
             myCalendar.set(Calendar.MONTH, monthofYear)
             myCalendar.set(Calendar.DAY_OF_MONTH, dayofMonth)
@@ -156,7 +152,7 @@ class DepositSubmitActivity : AppCompatActivity(){
     }
 
     private fun storeDeposit(record: Record, coinType: String, type: String){
-        User.deleteBalance(coins, coinType)
+        User.deleteBalance(coins, coinType, "self")
 
         if (userData.depositTime == "no"){
             userData.limit = coins.size
@@ -177,13 +173,12 @@ class DepositSubmitActivity : AppCompatActivity(){
                 userData.demandDeposit[record.coinType!!] = userData.demandDeposit[record.coinType!!]!! *(1+(0.35/360)*dayNum)
             }
 
-            userData.demandDeposit[record.coinType!!] = userData.demandDeposit[record.coinType!!]!!+record.profit+record.deposit
+            userData.demandDeposit[record.coinType!!] = userData.demandDeposit[record.coinType!!]!!+record.interest+record.deposit
             userData.demandTime[record.coinType!!] = SimpleDateFormat("MM/dd/yyyy").format(now!!.time)
-            userData.updateDemand(coinType, user!!.uid)
-            userData.updateDemand(coinType, user!!.uid)
+            userData.updateDemand(coinType)
         }
 
-        User.addRecord(record)
+        User.addRecord(record, "self")
         finish()
     }
 

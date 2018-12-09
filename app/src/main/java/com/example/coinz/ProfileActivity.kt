@@ -5,7 +5,6 @@ import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -13,7 +12,7 @@ import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
 
 
-class Profile : AppCompatActivity() {
+class ProfileActivity : AppCompatActivity() {
 
     private var etName: EditText? = null
     private var etAge: EditText? = null
@@ -26,7 +25,7 @@ class Profile : AppCompatActivity() {
 
     private var mAuth: FirebaseAuth? = null
     private var db: FirebaseFirestore? = null
-    private val tag = "Profile"
+    private val tag = "ProfileActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -134,9 +133,9 @@ class Profile : AppCompatActivity() {
             btnConfirm!!.setOnClickListener{
                 user.sendEmailVerification().addOnCompleteListener { task ->
                     if (task.isSuccessful){
-                        Toast.makeText(this@Profile, "Verification Email Sent", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@ProfileActivity, "Verification Email Sent", Toast.LENGTH_SHORT).show()
                     } else {
-                        Toast.makeText(this@Profile, "Verification Email fail to send", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@ProfileActivity, "Verification Email fail to send", Toast.LENGTH_SHORT).show()
                     }
                 }
             }

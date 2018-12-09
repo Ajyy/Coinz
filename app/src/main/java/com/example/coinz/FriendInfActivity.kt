@@ -17,10 +17,6 @@ class FriendInfActivity : AppCompatActivity() {
     private var tvFriendInfInf: TextView? = null
 
     private var friendInf = ArrayList<Friend>()
-
-    private var user = FirebaseAuth.getInstance().currentUser
-    private var db = FirebaseFirestore.getInstance()
-
     private val tag = "FriendInfActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,7 +37,7 @@ class FriendInfActivity : AppCompatActivity() {
         recyclerView!!.adapter = myAdapter
 
         var num = 0
-        db.collection("users").document(user!!.uid).collection("invitation").get()
+        User.userDb.document(User.userAuth!!.uid).collection("invitation").get()
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful){
                         Log.w(tag, "Get invited friend list: Success")
@@ -56,7 +52,7 @@ class FriendInfActivity : AppCompatActivity() {
                     }
                 }
 
-        db.collection("users").document(user!!.uid).collection("invite").get()
+        User.userDb.document(User.userAuth!!.uid).collection("invite").get()
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful){
                         Log.w(tag, "Get invited friend list: Success")

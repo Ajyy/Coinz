@@ -23,8 +23,6 @@ class SpareExchangeActivity : AppCompatActivity() {
     private var btnSubmitSpare: Button? = null
     private var tvSpareInf: TextView? = null
 
-    private var db = FirebaseFirestore.getInstance()
-    private var user = FirebaseAuth.getInstance().currentUser
     private var mDatabase = FirebaseDatabase.getInstance().reference
 
     private var friendData: User? = null
@@ -33,7 +31,6 @@ class SpareExchangeActivity : AppCompatActivity() {
     private var tvCoinInf: TextView? = null
     private var now = Calendar.getInstance()
 
-    private var tag = "SpareExchangeActivity"
     private val chooseCoinActivity = 2
     private var coins = ArrayList<Coin>()
     private var totalValue = 0.0
@@ -55,8 +52,8 @@ class SpareExchangeActivity : AppCompatActivity() {
         tvCoinInf!!.text = "Please choose coins"
 
         friendId = intent.getStringExtra("friendId")
-        getData("friend", friendId!!)
-        getData("user", user!!.uid)
+        friendData!!.getData()
+        userData!!.getData()
 
         rgSpareType!!.setOnClickListener{
             coins.clear()
@@ -92,10 +89,10 @@ class SpareExchangeActivity : AppCompatActivity() {
                     friendData!!.demandDeposit[coinType] = friendData!!.demandDeposit[coinType]!!+totalValue
                     userData!!.isExchange = true
 
-                    User.deleteBalance(coins, coinType)
+                    User.deleteBalance(coins, coinType, "self")
 
-                    updateInf("friend", coinType)
-                    updateInf("user", coinType)
+                    updateData("friend", coinType)
+                    updateData("user", coinType)
 
                     Toast.makeText(this@SpareExchangeActivity, "Exchange Successfully", Toast.LENGTH_SHORT).show()
                     finish()
@@ -134,30 +131,16 @@ class SpareExchangeActivity : AppCompatActivity() {
         }
     }
 
-    private fun getData(type: String, id: String){
-        db.collection("users").document(id).get()
-                .addOnCompleteListener {task ->
-                    if (task.isSuccessful){
-                        if (type == "friend") friendData = task.result!!.toObject(User::class.java)
-                        else if (type == "user") userData = task.result!!.toObject(User::class.java)
-
-                        Log.d(tag, "get friend data: Success")
-                    } else {
-                        Log.w(tag, "get friend data: fail")
-                    }
-                }
-    }
-
-    private fun updateInf(type: String, coinType: String){
-        val id: String = if (type == "friend") friendId!! else user!!.uid
+    private fun updateData(type: String, coinType: String){
+        val id: String = if (type == "friend") friendId!! else User.userAuth!!.uid
         val data: User = if (type == "friend") friendData!! else userData!!
 
-        db.collection("user").document(id).update(
+        User.userDb.document(id).update(
                 "demandDeposit.$coinType", data.demandDeposit[coinType],
                 "isExchange", data.isExchange
         )
 
-        val chatId = if (friendId!! < user!!.uid) friendId+user!!.uid else user!!.uid+friendId
+        val chatId = if (friendId!! < User.userAuth!!.uid) friendId+User.userAuth!!.uid else User.userAuth!!.uid+friendId
         val message = ChatMessage()
         message.messageTime = Date().time
         message.messageUserName = userData!!.name

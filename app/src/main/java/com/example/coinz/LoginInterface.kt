@@ -16,10 +16,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 
 class LoginInterface : AppCompatActivity(){
-    private var mAuth: FirebaseAuth? = null
-    private var user: FirebaseUser? = null
-    private var db: FirebaseFirestore? = null
-
     private var progressBar: ProgressBar? = null
     private var etUserName: EditText? = null
     private var etPassword: EditText? = null
@@ -34,9 +30,6 @@ class LoginInterface : AppCompatActivity(){
         super.onCreate(savedInstanceState)
         setContentView(R.layout.login_interface)
 
-        mAuth = FirebaseAuth.getInstance()
-        db = FirebaseFirestore.getInstance()
-
         progressBar = findViewById(R.id.progressBar)
         etUserName = findViewById(R.id.etUserName)
         etPassword = findViewById(R.id.etPassword)
@@ -45,12 +38,11 @@ class LoginInterface : AppCompatActivity(){
         tvInf = findViewById(R.id.tvInf)
 
         // Listener to update UI
-        user = mAuth?.currentUser
-        mAuth?.addAuthStateListener { mFirebaseAuth ->
-            user = mFirebaseAuth.currentUser
-            if (user != null){
-                Log.d(tag, "onAuthStateChanged:signed_in:" + user!!.uid)
-                updateUI(user)
+        User.mAuth.addAuthStateListener { mFirebaseAuth ->
+            if (User.mAuth.currentUser != null){
+                User.userAuth = User.mAuth.currentUser
+                Log.d(tag, "onAuthStateChanged:signed_in:" + User.userAuth!!.uid)
+                updateUI(User.userAuth)
             } else {
                 Log.d(tag, "onAuthStateChanged:signed_out")
             }
@@ -92,7 +84,7 @@ class LoginInterface : AppCompatActivity(){
     }
 
     private fun validate(userName: String, password: String){
-        mAuth?.signInWithEmailAndPassword(userName, password)?.addOnCompleteListener {task ->
+        User.mAuth.signInWithEmailAndPassword(userName, password).addOnCompleteListener {task ->
             if (task.isSuccessful){
                 Log.d(tag, "signInWithEmail: success")
              } else {
@@ -103,17 +95,17 @@ class LoginInterface : AppCompatActivity(){
     }
 
     private fun signUp(userName: String, password: String){
-        mAuth?.createUserWithEmailAndPassword(userName, password)?.addOnCompleteListener { task1 ->
+        User.mAuth.createUserWithEmailAndPassword(userName, password).addOnCompleteListener { task1 ->
             if (task1.isSuccessful){
                 val addUser = User()
-                addUser.email = user!!.email!!
-                db!!.collection("users").document(user!!.uid).
+                addUser.email = User.userAuth!!.email
+                User.userDb.document(User.userAuth!!.uid).
                         set(addUser, SetOptions.merge()).addOnCompleteListener { task2 ->
                             if (task2.isSuccessful) {
                                 Log.d(tag, "Add to database: success")
                                 // updateUI(user)
                             } else {
-                                mAuth?.currentUser!!.delete().addOnCompleteListener { task3 ->
+                                User.userAuth!!.delete().addOnCompleteListener { task3 ->
                                     if (task3.isSuccessful) {
                                         Log.d(tag, "Add to database: fail")
                                         tvInf!!.text = "Can not sign up"

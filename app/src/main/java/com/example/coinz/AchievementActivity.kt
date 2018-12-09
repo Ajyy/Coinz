@@ -19,7 +19,6 @@ class AchievementActivity : AppCompatActivity() {
     private var achievements = ArrayList<Achievement>()
     private var userData: User? = null
 
-    private var db = FirebaseFirestore.getInstance()
     private val tag = "AchievementActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,7 +43,7 @@ class AchievementActivity : AppCompatActivity() {
     }
 
     private fun getAchievement(){
-        db.collection("achievements").get()
+        Achievement.achieveDb.get()
                 .addOnCompleteListener {task ->
                     if (task.isSuccessful) {
                         for (document in task.result!!){

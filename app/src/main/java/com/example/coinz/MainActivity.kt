@@ -29,7 +29,6 @@ import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode
 import org.json.JSONObject
 import android.os.AsyncTask
 import android.provider.MediaStore
-import android.support.constraint.ConstraintLayout
 import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
@@ -38,9 +37,7 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.widget.Toolbar
 import android.view.*
 import android.widget.*
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.mapbox.mapboxsdk.annotations.Icon
@@ -71,9 +68,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
     private var ivProfilePicture: ImageView? = null
     private var fabLocation: FloatingActionButton? = null
 
-    private var mAuth: FirebaseAuth? = null
     private var mStorageReference: StorageReference? = null
-    private var db: FirebaseFirestore? = null
 
     private val tag = "MainActivity"
     private val profile = 2
@@ -89,9 +84,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        mAuth = FirebaseAuth.getInstance()
         mStorageReference = FirebaseStorage.getInstance().reference
-        db = FirebaseFirestore.getInstance()
 
         mapView = findViewById(R.id.mapView)
         fabLocation = findViewById(R.id.fabLocation)
@@ -105,8 +98,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         val drawer = findViewById<View>(R.id.drawer_layout) as DrawerLayout
         val navigationView = findViewById<View>(R.id.nav_view) as NavigationView
 
-        val user = mAuth!!.currentUser
-        initializeUser(user!!)
+        initializeUser(User.userAuth!!)
         navigationView.setNavigationItemSelectedListener(this@MainActivity)
         getCoinsId()
 
@@ -147,7 +139,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         }
 
         if (addCoins.size != 0){
-            User.addCoins(addCoins)
+            User.addCoins(addCoins, "self")
             addCoins.clear()
         }
     }
@@ -201,10 +193,10 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         for (coin in coins){
             if (coin.id !in coinsId){
                 when {
-                    coin.currency == "SHIL" -> num[0]++
-                    coin.currency == "DOLR" -> num[1]++
-                    coin.currency == "QUID" -> num[2]++
-                    coin.currency == "PENY" -> num[3]++
+                    coin.type == "SHIL" -> num[0]++
+                    coin.type == "DOLR" -> num[1]++
+                    coin.type == "QUID" -> num[2]++
+                    coin.type == "PENY" -> num[3]++
                 }
             }
         }
@@ -229,7 +221,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
     }
 
     private fun getCoinsId(){
-        db!!.collection("users").document(mAuth!!.currentUser!!.uid).get()
+        User.userDb.document(User.userAuth!!.uid).get()
                 .addOnCompleteListener {task ->
                     if (task.isSuccessful){
                         coinsId = task.result!!["coinsId"] as ArrayList<String>
@@ -244,7 +236,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
 
     private fun initializeUser(user: FirebaseUser){
         tvNavEmail?.text = user.email
-        if (user.displayName != null){
+        if (user.displayName != ""){
             tvNavUserName!!.text = user.displayName
         } else {
             tvNavUserName!!.text = "SetYourName"
@@ -270,8 +262,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
     }
 
     private fun uploadFile(bitmap: Bitmap, filePath: Uri){
-        val user = mAuth!!.currentUser
-        val riversRef = mStorageReference!!.child("images/"+user!!.email+".jpg")
+        val riversRef = mStorageReference!!.child("images/"+User.userAuth!!.email+".jpg")
         riversRef.putFile(filePath)
                 .addOnSuccessListener {
                     Toast.makeText(this@MainActivity, "File Uploaded", Toast.LENGTH_LONG).show()
@@ -312,7 +303,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                         if (distance <= 25&&coin !in addCoins){
                             addCoins.add(coin)
                             removeMarkers(coin)
-                            Toast.makeText(this@MainActivity, "Get a ${coin.currency} coin with a value ${coin.value}!!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@MainActivity, "Get a ${coin.type} coin with a value ${coin.value}!!", Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
@@ -412,7 +403,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
 
         when (id) {
             R.id.nav_profile -> {
-                startActivityForResult(Intent(this@MainActivity, Profile::class.java), profile)
+                startActivityForResult(Intent(this@MainActivity, ProfileActivity::class.java), profile)
             }
             R.id.nav_central_park -> {
                 val intent = Intent(this@MainActivity, CentralBankActivity::class.java)
@@ -430,7 +421,8 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                 startActivity(sendIntent)
             }
             R.id.nav_log_out -> {
-                mAuth?.signOut()
+                User.mAuth.signOut()
+                User.userAuth = User.mAuth.currentUser
                 finish()
                 startActivity(Intent(this@MainActivity, LoginInterface::class.java))
             }
@@ -490,11 +482,11 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                     if (geometry != null && properties != null) {
                         val type = geometry.getString("type")
 
-                        if(type != null && type.toString() == "Coin"){
+                        if(type != null && type.toString() == "Point"){
                             val coord = geometry.getJSONArray("coordinates")
                             val latLng = LatLng(coord.getDouble(1), coord.getDouble(0))
                             val point = Coin(properties.getString("id"), properties.getDouble("value")
-                                    , properties.getString("currency"), properties.getString("marker-symbol")
+                                    , properties.getString("type"), properties.getString("marker-symbol")
                                     , properties.getString("marker-color"), latLng.latitude, latLng.longitude, false)
 
                             if (point.id !in coinsId){
@@ -527,7 +519,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                     markers.add(MarkerOptions()
                             .position(LatLng(coin.latitude, coin.longitude))
                             .icon(icon)
-                            .title(coin.currency + ": " + coin.markerSymbol)
+                            .title(coin.type + ": " + coin.markerSymbol)
                             .snippet("Value: " + coin.value))
                 }
 

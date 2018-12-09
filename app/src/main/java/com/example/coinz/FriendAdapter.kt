@@ -17,10 +17,6 @@ import com.squareup.picasso.Picasso
 class FriendAdapter(private val context: Context, private val friends: ArrayList<Friend>): RecyclerView.Adapter<FriendAdapter.ViewHolder>(){
 
     private var mStorageReference = FirebaseStorage.getInstance().reference
-    private var db = FirebaseFirestore.getInstance()
-    private var mAuth = FirebaseAuth.getInstance()
-    private var user = mAuth.currentUser
-
     private val tag = "FriendActivity"
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): FriendAdapter.ViewHolder {
@@ -96,8 +92,8 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
             when {
                 context.javaClass.simpleName == "AddFriendActivity" -> itemView.setOnClickListener {
                     val friend = itemView.tag as Friend
-                    db.collection("users").document(friend.uid).collection("invitation")
-                            .add(mapOf("id" to user!!.uid,"isAccepted" to -1, "name" to user!!.displayName)).addOnCompleteListener{ task ->
+                    User.userDb.document(friend.uid).collection("invitation")
+                            .add(mapOf("id" to User.userAuth!!.uid,"isAccepted" to -1, "name" to User.userAuth!!.displayName)).addOnCompleteListener{ task ->
                                 if (task.isSuccessful) {
                                     Log.d(tag, "Add Friend to database: Success")
                                 } else {
@@ -105,7 +101,7 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
                                 }
                             }
 
-                    db.collection("users").document(user!!.uid).collection("invite")
+                    User.userDb.document(User.userAuth!!.uid).collection("invite")
                             .add(mapOf("id" to friend.uid, "isVerified" to -1, "name" to friend.name)).addOnCompleteListener{ task ->
                                 if (task.isSuccessful) {
                                     Log.d(tag, "Add Friend to database: Success")
@@ -138,13 +134,12 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
     }
 
     private fun updateInviteInf(friendId: String, friName: String, isAccepted: Int){
-        val userDb = db.collection("users")
         if (isAccepted == 1){
-            userDb.document(user!!.uid).collection("invitation").whereEqualTo("id", friendId).get()
+            User.userDb.document(User.userAuth!!.uid).collection("invitation").whereEqualTo("id", friendId).get()
                     .addOnCompleteListener { task1 ->
                         if (task1.isSuccessful){
                             for (document in task1.result!!){
-                                userDb.document(user!!.uid).collection("invitation").document(document.id).update("isAccepted", 1)
+                                User.userDb.document(User.userAuth!!.uid).collection("invitation").document(document.id).update("isAccepted", 1)
                                         .addOnCompleteListener { task2 ->
                                             if (task2.isSuccessful){
                                                 Log.d(tag, "Update invitation information: Success")
@@ -158,11 +153,11 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
                         }
                     }
 
-            userDb.document(friendId).collection("invite").whereEqualTo("id", user!!.uid).get()
+            User.userDb.document(friendId).collection("invite").whereEqualTo("id", User.userAuth!!.uid).get()
                     .addOnCompleteListener { task1 ->
                         if (task1.isSuccessful){
                             for (document in task1.result!!){
-                                userDb.document(friendId).collection("invite").document(document.id).update("isVerified", 1)
+                                User.userDb.document(friendId).collection("invite").document(document.id).update("isVerified", 1)
                                         .addOnCompleteListener { task2 ->
                                             if (task2.isSuccessful){
                                                 Log.d(tag, "Update invitation information: Success")
@@ -176,7 +171,7 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
                         }
                     }
 
-            userDb.document(user!!.uid).collection("friends").document(friendId).set(mapOf("name" to friName))
+            User.userDb.document(User.userAuth!!.uid).collection("friends").document(friendId).set(mapOf("name" to friName))
                     .addOnCompleteListener { task1 ->
                         if (task1.isSuccessful){
                             Log.d(tag, "Add friend: Success")
@@ -185,7 +180,7 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
                         }
                     }
 
-            userDb.document(friendId).collection("friends").document(user!!.uid).set(mapOf("name" to user!!.displayName))
+            User.userDb.document(friendId).collection("friends").document(User.userAuth!!.uid).set(mapOf("name" to User.userAuth!!.displayName))
                     .addOnCompleteListener { task1 ->
                         if (task1.isSuccessful){
                             Log.d(tag, "Add friend: Success")
@@ -194,11 +189,11 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
                         }
                     }
         } else {
-            userDb.document(user!!.uid).collection("invitation").whereEqualTo("id", friendId).get()
+            User.userDb.document(User.userAuth!!.uid).collection("invitation").whereEqualTo("id", friendId).get()
                     .addOnCompleteListener { task1 ->
                         if (task1.isSuccessful){
                             for (document in task1.result!!){
-                                userDb.document(user!!.uid).collection("invitation").document(document.id).update("isAccepted", 0)
+                                User.userDb.document(User.userAuth!!.uid).collection("invitation").document(document.id).update("isAccepted", 0)
                                         .addOnCompleteListener { task2 ->
                                             if (task2.isSuccessful){
                                                 Log.d(tag, "Update invitation information: Success")
@@ -212,11 +207,11 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
                         }
                     }
 
-            userDb.document(friendId).collection("invite").whereEqualTo("id", user!!.uid).get()
+            User.userDb.document(friendId).collection("invite").whereEqualTo("id", User.userAuth!!.uid).get()
                     .addOnCompleteListener { task1 ->
                         if (task1.isSuccessful){
                             for (document in task1.result!!){
-                                userDb.document(friendId).collection("invite").document(document.id).update("isVerified", 0)
+                                User.userDb.document(friendId).collection("invite").document(document.id).update("isVerified", 0)
                                         .addOnCompleteListener { task2 ->
                                             if (task2.isSuccessful){
                                                 Log.d(tag, "Update invitation information: Success")
