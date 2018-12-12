@@ -52,31 +52,6 @@ class User {
                         }
                     }
         }
-
-        fun addCoins(coins: ArrayList<Coin>, id: String){
-            val realId = if (id == "self") userAuth!!.uid else id
-            val db = userDb.document(realId)
-            for (coin in coins){
-                db.collection("balance_"+coin.type).document(coin.id!!)
-                        .set(coin, SetOptions.merge())
-                        .addOnCompleteListener {task ->
-                            if (task.isSuccessful){
-                                Log.d(tag, "update balance: Success")
-                            } else {
-                                Log.w(tag, "update balance: fail")
-                            }
-                        }
-
-                db.update("coinsId", FieldValue.arrayUnion(coin.id))
-                        .addOnCompleteListener {task ->
-                            if (task.isSuccessful){
-                                Log.d(tag, "update balance: Success")
-                            } else {
-                                Log.w(tag, "update balance: fail")
-                            }
-                        }
-            }
-        }
     }
 
     fun getData(){

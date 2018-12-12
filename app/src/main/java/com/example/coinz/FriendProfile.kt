@@ -51,10 +51,5 @@ class FriendProfile : AppCompatActivity() {
         tvFriendEmail!!.text = friend.email
         tvFriendGender!!.text = friend.gender
         tvFriendAge!!.text = friend.age.toString()
-        tvTodayStep!!.text = friend.todaySteps.toString()
-    }
-
-    private fun getFriend(){
-
     }
 }

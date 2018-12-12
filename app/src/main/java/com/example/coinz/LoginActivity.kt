@@ -9,13 +9,11 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 
-class LoginInterface : AppCompatActivity(){
+class LoginActivity : AppCompatActivity(){
     private var progressBar: ProgressBar? = null
     private var etUserName: EditText? = null
     private var etPassword: EditText? = null
@@ -23,12 +21,12 @@ class LoginInterface : AppCompatActivity(){
     private var tvInf: TextView? = null
     private var tvFPass: TextView? = null
 
-    private val tag = "LoginInterface"
+    private val tag = "LoginActivity"
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.login_interface)
+        setContentView(R.layout.activity_login)
 
         progressBar = findViewById(R.id.progressBar)
         etUserName = findViewById(R.id.etUserName)
@@ -38,7 +36,7 @@ class LoginInterface : AppCompatActivity(){
         tvInf = findViewById(R.id.tvInf)
 
         // Listener to update UI
-        User.mAuth.addAuthStateListener { mFirebaseAuth ->
+        User.mAuth.addAuthStateListener {
             if (User.mAuth.currentUser != null){
                 User.userAuth = User.mAuth.currentUser
                 Log.d(tag, "onAuthStateChanged:signed_in:" + User.userAuth!!.uid)
@@ -67,7 +65,7 @@ class LoginInterface : AppCompatActivity(){
         }
 
         tvFPass!!.setOnClickListener{
-            startActivity(Intent(this@LoginInterface, ResetPasswordActivity::class.java))
+            startActivity(Intent(this@LoginActivity, ResetPasswordActivity::class.java))
         }
     }
 
@@ -78,7 +76,7 @@ class LoginInterface : AppCompatActivity(){
 
     private fun updateUI(user: FirebaseUser?) {
         if (user != null) {
-            startActivity(Intent(this@LoginInterface, MainActivity::class.java))
+            startActivity(Intent(this@LoginActivity, MainActivity::class.java))
             finish()
         }
     }

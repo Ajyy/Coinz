@@ -12,10 +12,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class LoginInterfaceTest{
+class LoginActivityTest{
 
     @get: Rule
-    val mActivityRule = ActivityTestRule(LoginInterface::class.java)
+    val mActivityRule = ActivityTestRule(LoginActivity::class.java)
 
     @Test
     fun testLogin(){

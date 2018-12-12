@@ -38,6 +38,8 @@ import android.support.v7.widget.Toolbar
 import android.view.*
 import android.widget.*
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.mapbox.mapboxsdk.annotations.Icon
@@ -67,6 +69,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
     private var tvNavEmail: TextView? = null
     private var ivProfilePicture: ImageView? = null
     private var fabLocation: FloatingActionButton? = null
+    private var fabCollect: FloatingActionButton? = null
 
     private var mStorageReference: StorageReference? = null
 
@@ -75,7 +78,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
     private val pickName = 3
 
     private var coins = ArrayList<Coin>()
-    private var addCoins = ArrayList<Coin>()
+    //    private var addCoins = ArrayList<Coin>()
     private var coinsId = ArrayList<String>()
     private var markers = ArrayList<MarkerOptions>()
     private var ratesArr = hashMapOf("SHIL" to 0.0, "DOLR" to 0.0, "PENY" to 0.0, "QUID" to 0.0, "GOLD" to 1.0)
@@ -88,6 +91,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
 
         mapView = findViewById(R.id.mapView)
         fabLocation = findViewById(R.id.fabLocation)
+        fabCollect = findViewById(R.id.fabCollect)
         navigationView = findViewById(R.id.nav_view)
 
         val headView = navigationView.getHeaderView(0)
@@ -133,15 +137,14 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         super.onPause()
         mapView?.onPause()
 
-        for (coin in addCoins){
-            coinsId.add(coin.id!!)
+//        for (coin in addCoins){
+//            coinsId.add(coin.id!!)
+//
+//        }
 
-        }
-
-        if (addCoins.size != 0){
-            User.addCoins(addCoins, "self")
-            addCoins.clear()
-        }
+//        if (addCoins.size != 0){
+//            addCoins.clear()
+//        }
     }
 
     override fun onLowMemory() {
@@ -236,7 +239,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
 
     private fun initializeUser(user: FirebaseUser){
         tvNavEmail?.text = user.email
-        if (user.displayName != ""){
+        if (user.displayName != ""&&user.displayName != null){
             tvNavUserName!!.text = user.displayName
         } else {
             tvNavUserName!!.text = "SetYourName"
@@ -288,6 +291,31 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         }
     }
 
+    private fun addCoins(coin: Coin){
+        User.userDb.document(User.userAuth!!.uid).collection("balance_"+coin.type).document(coin.id!!)
+                .set(coin, SetOptions.merge())
+                .addOnCompleteListener {task ->
+                    if (task.isSuccessful){
+                        Log.d(tag, "update balance: Success")
+                    } else {
+                        Log.w(tag, "update balance: fail")
+                    }
+                }
+
+        User.userDb.document(User.userAuth!!.uid).update("coinsId", FieldValue.arrayUnion(coin.id))
+                .addOnCompleteListener {task ->
+                    if (task.isSuccessful){
+                        fabCollect!!.isEnabled = true
+                        val value = String.format("%.4f", coin.value)
+                        Toast.makeText(this@MainActivity, "Get a ${coin.type} coin with a value $value!!", Toast.LENGTH_SHORT).show()
+                        Log.d(tag, "update balance: Success")
+                    } else {
+                        Log.w(tag, "update balance: fail")
+                    }
+                }
+    }
+
+    @SuppressLint("MissingPermission")
     private fun enableLocation(){
         if (PermissionsManager.areLocationPermissionsGranted(this)){
             Log.d(tag, "Permissions are granted")
@@ -298,13 +326,28 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                 val lastLocation = locationEngine?.lastLocation
                 if (lastLocation != null) {
                     setCameraPosition(lastLocation)
+                }
+            }
+
+            fabCollect!!.setOnClickListener {
+                val lastLocation = locationEngine?.lastLocation
+                if (lastLocation != null) {
+                    val addCoinsArr = ArrayList<Coin>()
                     for (coin in coins){
                         val distance = LatLng(coin.latitude, coin.longitude).distanceTo(LatLng(lastLocation.latitude, lastLocation.longitude))
-                        if (distance <= 25&&coin !in addCoins){
-                            addCoins.add(coin)
-                            removeMarkers(coin)
-                            Toast.makeText(this@MainActivity, "Get a ${coin.type} coin with a value ${coin.value}!!", Toast.LENGTH_SHORT).show()
+                        if (distance <= 25){
+                            if (fabCollect!!.isEnabled){
+                                fabCollect!!.isEnabled = false
+                            }
+
+                            addCoinsArr.add(coin)
                         }
+                    }
+
+                    for (coin in addCoinsArr){
+                        addCoins(coin)
+                        removeMarkers(coin)
+                        coinsId.remove(coin.id)
                     }
                 }
             }
@@ -424,7 +467,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                 User.mAuth.signOut()
                 User.userAuth = User.mAuth.currentUser
                 finish()
-                startActivity(Intent(this@MainActivity, LoginInterface::class.java))
+                startActivity(Intent(this@MainActivity, LoginActivity::class.java))
             }
             R.id.nav_balance -> {
                 startActivity(Intent(this@MainActivity, BalanceActivity::class.java))
@@ -457,8 +500,8 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
             val today = String.format("%d/%02d/%02d", cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH))
 
             try {
-                val `is` = URL("http://homepages.inf.ed.ac.uk/stg/coinz/$today/coinzmap.geojson").openStream()
-                val rd = BufferedReader(InputStreamReader(`is`, Charset.forName("UTF-8")))
+                val geoJsonData = URL("http://homepages.inf.ed.ac.uk/stg/coinz/$today/coinzmap.geojson").openStream()
+                val rd = BufferedReader(InputStreamReader(geoJsonData, Charset.forName("UTF-8")))
                 val jsonText = StringBuilder()
                 var cp = rd.read()
                 while (cp != -1) {
@@ -485,8 +528,8 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                         if(type != null && type.toString() == "Point"){
                             val coord = geometry.getJSONArray("coordinates")
                             val latLng = LatLng(coord.getDouble(1), coord.getDouble(0))
-                            val point = Coin(properties.getString("id"), properties.getDouble("value")
-                                    , properties.getString("type"), properties.getString("marker-symbol")
+                            val point = Coin(properties.getString("id"), String.format("%.4f", properties.getDouble("value")).toDouble()
+                                    , properties.getString("currency"), properties.getString("marker-symbol")
                                     , properties.getString("marker-color"), latLng.latitude, latLng.longitude, false)
 
                             if (point.id !in coinsId){

@@ -21,11 +21,6 @@ import java.io.InputStreamReader
 import android.support.test.espresso.Espresso.onView
 import android.support.test.espresso.action.ViewActions.click
 import android.support.test.espresso.matcher.ViewMatchers.withId
-import android.support.test.espresso.assertion.ViewAssertions.matches
-import android.support.test.espresso.contrib.DrawerActions
-import android.support.test.espresso.contrib.DrawerMatchers.isClosed
-import android.support.test.espresso.contrib.NavigationViewActions
-import android.view.Gravity
 
 @RunWith(AndroidJUnit4::class)
 class MainActivityTest{
@@ -61,10 +56,10 @@ class MainActivityTest{
         try {
             var reader = BufferedReader(InputStreamReader(mActivityRule.activity.assets.open("trace1input")))
             var line = reader.readLine()
-                while (line != null){
-                    coords.add(arrayOf(line.substring(0, 9).toDouble(), line.substring(10, 19).toDouble()))
-                    line = reader.readLine()
-                }
+            while (line != null){
+                coords.add(arrayOf(line.substring(0, 9).toDouble(), line.substring(10, 19).toDouble()))
+                line = reader.readLine()
+            }
 
             reader = BufferedReader(InputStreamReader(mActivityRule.activity.assets.open("trace2input")))
             line = reader.readLine()
@@ -76,7 +71,9 @@ class MainActivityTest{
             print(e.localizedMessage)
         }
 
+        var count = 0
         for (coord in coords){
+            count++
             mockLocation.latitude = coord[1]
             mockLocation.longitude = coord[0]
             Log.d("MainActivityTest", coord[0].toString()+" "+coord[1].toString())
@@ -88,6 +85,9 @@ class MainActivityTest{
             }
             lm.setTestProviderLocation(mockLocationProvider, mockLocation)
             onView(withId(R.id.fabLocation)).perform(click())
+            if (count%5 == 0){
+                onView(withId(R.id.fabCollect)).perform(click())
+            }
         }
     }
 }
