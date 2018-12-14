@@ -100,7 +100,15 @@ class ExchangeActivity : AppCompatActivity() {
             val lastCal = Calendar.getInstance()
             lastCal.set(userData.demandTime[coinType]!!.substring(6, 10).toInt(), userData.demandTime[coinType]!!.substring(0, 2).toInt(),
                     userData.demandTime[coinType]!!.substring(3, 5).toInt())
-            val num = ChronoUnit.DAYS.between(lastCal.toInstant(), now!!.toInstant())
+            var num = ChronoUnit.DAYS.between(lastCal.toInstant(), now!!.toInstant())
+            if (num == 0L){
+                if (now.get(Calendar.DAY_OF_MONTH) != userData.demandTime[coinType]!!.substring(3, 5).toInt()){
+                    num++
+                }
+            } else if (num > 0){
+                num++
+            }
+
             userData.demandDeposit[coinType] = userData.demandDeposit[coinType]!! *(1+(0.35/360)*num)
         }
 

@@ -78,7 +78,7 @@ class AchievementActivity : AppCompatActivity() {
                             }
                         }
 
-                        tvAchieveInf!!.text = "Find ${task1.result!!.size()} achievements"
+                        tvAchieveInf!!.text = "Find ${userData.achievements.size} achievements"
                         myAdapter!!.notifyDataSetChanged()
                         Log.d(tag, "get achievements: Success")
                     } else {

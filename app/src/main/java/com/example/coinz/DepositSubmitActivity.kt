@@ -108,32 +108,37 @@ class DepositSubmitActivity : AppCompatActivity(){
 
             if (type == "time"){
                 val fromDemand = etTimeDemand!!.text.toString().toDouble()
-                // Once choose some coins, player can submit the deposit
-                if (coins.size != 0||fromDemand > 0){
-                    val time = btnCalendar!!.text.toString()
-                    if (sdf.format(now!!.time) !=  time&& time != "Calendar"){
-                        val dayNum = getDifferentToNow(time)
+                if (fromDemand <= userData.demandDeposit[coinType]!!){
+                    // Once choose some coins, player can submit the deposit
+                    if (coins.size != 0||fromDemand > 0){
+                        val time = btnCalendar!!.text.toString()
+                        if (sdf.format(now!!.time) !=  time&& time != "Calendar"){
+                            val dayNum = getDifferentToNow(time)
 
-                        // Set the time deposit interest rate
-                        val rate = when {
-                            dayNum <= 7 -> 0.05
-                            dayNum in 8..21 -> 0.10
-                            dayNum in 22..42 -> 0.20
-                            else -> 0.40
+                            // Set the time deposit interest rate
+                            val rate = when {
+                                dayNum <= 7 -> 0.05
+                                dayNum in 8..21 -> 0.10
+                                dayNum in 22..42 -> 0.20
+                                else -> 0.40
+                            }
+
+                            // Calculate the profit
+                            val profit =  (totalCoinValue+fromDemand)*rate
+
+                            val record = Record(System.currentTimeMillis().toString(),"time", coinType, sdf.format(now!!.time), btnCalendar!!.text as String,
+                                    totalCoinValue+fromDemand, profit)
+                            storeDeposit(record, coinType, type!!)
+                        } else {
+                            tvDepositInf!!.text = getString(R.string.deposit_inf_choose_date)
                         }
-
-                        // Calculate the profit
-                        val profit =  (totalCoinValue+fromDemand)*rate
-
-                        val record = Record(System.currentTimeMillis().toString(),"time", coinType, sdf.format(now!!.time), btnCalendar!!.text as String,
-                                totalCoinValue+fromDemand, profit)
-                        storeDeposit(record, coinType, type!!)
                     } else {
-                        tvDepositInf!!.text = getString(R.string.deposit_inf_choose_date)
+                        tvDepositInf!!.text = getString(R.string.deposit_inf_choose_some_coins_time)
                     }
                 } else {
-                    tvDepositInf!!.text = getString(R.string.deposit_inf_choose_some_coins_time)
+                    tvDepositInf!!.text = getString(R.string.the_amount_should_be_less_than_balance)
                 }
+
             } else if (type == "demand") {
                 if (coins.size != 0){
                     val record = Record(System.currentTimeMillis().toString(), "demand", coinType, sdf.format(now!!.time), "null", totalCoinValue, finish = true)
@@ -169,33 +174,38 @@ class DepositSubmitActivity : AppCompatActivity(){
         if (userData.depositTime == "no"){
             userData.limit = coins.size
             userData.depositTime = SimpleDateFormat("MM/dd/yyyy").format(now!!.time)
+            userData.exchange = false
         } else {
             val dayNum = getDifferentToNow(userData.depositTime)
             if (dayNum > 0){
                 // If dayNum > 0, it means today player has not deposit coins
                 userData.limit = coins.size
                 userData.depositTime = SimpleDateFormat("MM/dd/yyyy").format(now!!.time)
+                userData.exchange = false
             } else {
                 // == 0 means, add coins to limit directly
                 userData.limit+=coins.size
             }
         }
 
-        if (type == "demand"){
-            // Update the demand balance from last time player deposits
-            if (userData.demandTime[record.coinType] != "no"){
-                val num = getDifferentToNow(userData.demandTime[record.coinType]!!)
-                val addValue = userData.demandDeposit[record.coinType!!]!!*(0.35/360)*num
-                userData.demandDeposit[record.coinType!!] = userData.demandDeposit[record.coinType!!]!!+addValue
-                userData.addBalance(addValue, record.coinType!!)
-            }
+        // Update the demand balance from last time player deposits
+        if (userData.demandTime[record.coinType] != "no"){
+            val num = getDifferentToNow(userData.demandTime[record.coinType]!!)
+            val addValue = userData.demandDeposit[record.coinType!!]!!*(0.35/360)*num
+            userData.demandDeposit[record.coinType!!] = userData.demandDeposit[record.coinType!!]!!+addValue
+            userData.addBalance(addValue, record.coinType!!)
+            userData.demandTime[record.coinType!!] = SimpleDateFormat("MM/dd/yyyy").format(now!!.time)
+        }
 
+        if (type == "demand"){
             // Deposit the coins
             userData.demandDeposit[record.coinType!!] = userData.demandDeposit[record.coinType!!]!!+record.interest+record.deposit
             userData.demandTime[record.coinType!!] = SimpleDateFormat("MM/dd/yyyy").format(now!!.time)
-            userData.updateDemand(coinType)
+        } else {
+            userData.demandDeposit[coinType] = userData.demandDeposit[coinType]!!-record.deposit
         }
 
+        userData.updateDemand(coinType)
         User.addRecord(record, "self")
         setResult(Activity.RESULT_OK, intent)
         finish()
@@ -206,6 +216,14 @@ class DepositSubmitActivity : AppCompatActivity(){
         val lastCal = Calendar.getInstance()
         lastCal.set(time.substring(6, 10).toInt(), time.substring(0, 2).toInt()-1,
                 time.substring(3, 5).toInt())
-        return ChronoUnit.DAYS.between(lastCal.toInstant(), now!!.toInstant())
+        var value = ChronoUnit.DAYS.between(lastCal.toInstant(), now!!.toInstant())
+        if (value == 0L){
+            if (now!!.get(Calendar.DAY_OF_MONTH) != time.substring(3, 5).toInt()){
+                value++
+            }
+        } else if (value > 0){
+            value++
+        }
+        return value
     }
 }

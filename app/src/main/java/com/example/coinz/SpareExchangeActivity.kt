@@ -3,6 +3,7 @@ package com.example.coinz
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.icu.text.SimpleDateFormat
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
@@ -16,7 +17,6 @@ import kotlin.collections.ArrayList
 
 // This activity is used to exchange coins with friends for spare change
 class SpareExchangeActivity : AppCompatActivity() {
-
     private var rgSpareType: RadioGroup? = null
     private var btnChooseSpare: Button? = null
     private var btnSubmitSpare: Button? = null
@@ -35,7 +35,6 @@ class SpareExchangeActivity : AppCompatActivity() {
     private var totalValue = 0.0
     private var num = 0
 
-    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_spare_exchange)
@@ -76,35 +75,47 @@ class SpareExchangeActivity : AppCompatActivity() {
 
         btnSubmitSpare!!.setOnClickListener {
             if (coins.size != 0){
-                // Check today user has deposit how many coins
-                if (userData.limit >= 25){
-                    // Get coins' type
-                    val coinType: String = when{
-                        rgSpareType!!.checkedRadioButtonId == R.id.rbShil -> "SHIL"
-                        rgSpareType!!.checkedRadioButtonId == R.id.rbDolr -> "DOLR"
-                        rgSpareType!!.checkedRadioButtonId == R.id.rbQuid -> "QUID"
-                        else  -> "PENY"
+                val sdf = SimpleDateFormat("MM/dd/yyyy")
+                if (sdf.format(now!!.time) == userData.depositTime){
+                    if (userData.limit >= 25){
+                        // Check today user has deposit how many coins
+                        if (!userData.exchange){
+                            // Get coins' type
+                            val coinType: String = when{
+                                rgSpareType!!.checkedRadioButtonId == R.id.rbShil -> "SHIL"
+                                rgSpareType!!.checkedRadioButtonId == R.id.rbDolr -> "DOLR"
+                                rgSpareType!!.checkedRadioButtonId == R.id.rbQuid -> "QUID"
+                                else  -> "PENY"
+                            }
+
+                            // Update deposit for friend and user
+                            updateDeposit("friend", coinType)
+                            updateDeposit("user", coinType)
+                            userData.demandDeposit[coinType] = userData.demandDeposit[coinType]!!+totalValue
+                            friendData.demandDeposit[coinType] = friendData.demandDeposit[coinType]!!+totalValue
+                            userData.exchange = true
+
+                            User.deleteBalance(coins, coinType, "self")
+
+                            updateData("friend", coinType)
+                            updateData("user", coinType)
+
+                            Toast.makeText(this@SpareExchangeActivity, "Exchange Successfully", Toast.LENGTH_SHORT).show()
+
+                            userData.addBalance(totalValue, coinType)
+                            finish()
+                        } else {
+                            tvSpareInf!!.text = getString(R.string.you_have_exchanged_today)
+                        }
+                    } else {
+                        @SuppressLint("SetTextI18n")
+                        tvSpareInf!!.text = "You should deposit more than or equal to 25 coins, now: ${userData.limit}"
                     }
-
-                    // Update deposit for friend and user
-                    updateDeposit("friend", coinType)
-                    updateDeposit("user", coinType)
-                    userData.demandDeposit[coinType] = userData.demandDeposit[coinType]!!+totalValue
-                    friendData.demandDeposit[coinType] = friendData.demandDeposit[coinType]!!+totalValue
-                    userData.exchange = true
-
-                    User.deleteBalance(coins, coinType, "self")
-
-                    updateData("friend", coinType)
-                    updateData("user", coinType)
-
-                    Toast.makeText(this@SpareExchangeActivity, "Exchange Successfully", Toast.LENGTH_SHORT).show()
-
-                    userData.addBalance(totalValue, coinType)
-                    finish()
                 } else {
-                    tvSpareInf!!.text = "You should deposit more than 25 coins, now: ${userData.limit}"
+                    tvSpareInf!!.text = getString(R.string.please_deposit_enough_money)
                 }
+
+
             } else {
                 tvSpareInf!!.text = getString(R.string.spare_exchenge_inf_hint1)
             }
@@ -136,7 +147,14 @@ class SpareExchangeActivity : AppCompatActivity() {
             val lastCal = Calendar.getInstance()
             lastCal.set(data.demandTime[coinType]!!.substring(6, 10).toInt(), data.demandTime[coinType]!!.substring(0, 2).toInt(),
                     data.demandTime[coinType]!!.substring(3, 5).toInt())
-            val num = ChronoUnit.DAYS.between(lastCal.toInstant(), now!!.toInstant())
+            var num = ChronoUnit.DAYS.between(lastCal.toInstant(), now!!.toInstant())
+            if (num == 0L){
+                if (now!!.get(Calendar.DAY_OF_MONTH) != data.demandTime[coinType]!!.substring(3, 5).toInt()){
+                    num++
+                }
+            } else if (num > 0){
+                num++
+            }
             val addValue = (0.35/360)*data.demandDeposit[coinType]!!*num
             data.demandDeposit[coinType] = data.demandDeposit[coinType]!!+addValue
             userData.addBalance(addValue, coinType)

@@ -133,7 +133,8 @@ class User {
                 "demandTime.$coinType", demandTime[coinType],
                 "demandDeposit.$coinType", demandDeposit[coinType],
                 "limit", limit,
-                "depositTime", depositTime
+                "depositTime", depositTime,
+                "exchange", exchange
         ).addOnCompleteListener { task ->
             if (task.isSuccessful){
                 Log.d(tag, "Update user inf: Success")

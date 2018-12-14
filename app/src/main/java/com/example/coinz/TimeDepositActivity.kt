@@ -159,7 +159,15 @@ class TimeDepositActivity : AppCompatActivity() {
     private fun getDifferenceToNow(lastTime: String): Long{
         val lastCal = Calendar.getInstance()
         lastCal.set(lastTime.substring(6, 10).toInt(), lastTime.substring(0, 2).toInt()-1, lastTime.substring(3, 5).toInt())
-        return ChronoUnit.DAYS.between(lastCal.toInstant(), now!!.toInstant())
+        var value = ChronoUnit.DAYS.between(lastCal.toInstant(), now!!.toInstant())
+        if (value == 0L){
+            if (now!!.get(Calendar.DAY_OF_MONTH) != lastTime.substring(3, 5).toInt()){
+                value++
+            }
+        } else if (value > 0){
+            value++
+        }
+        return value
     }
 
     private fun getUserData(){

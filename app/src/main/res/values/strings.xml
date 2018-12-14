@@ -115,4 +115,7 @@
     <string name="submit_message">submit message</string>
     <string name="enter_your_message">enter your message…</string>
     <string name="forget_password">Forget Password?</string>
+    <string name="you_have_exchanged_today">You have exchanged today!</string>
+    <string name="please_deposit_enough_money">Please deposit enough money today</string>
+    <string name="the_amount_should_be_less_than_balance">The amount should be less than balance!</string>
 </resources>
