@@ -6,11 +6,9 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.widget.TextView
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 
+// History activity to check the record
 class HistoryActivity : AppCompatActivity() {
-
     private var records = ArrayList<Record>()
     private var recyclerView: RecyclerView? = null
     private var myAdapter: RecordAdapter? = null
@@ -33,11 +31,12 @@ class HistoryActivity : AppCompatActivity() {
         recyclerView!!.layoutManager = layoutManager
         getRecords()
 
-        myAdapter = RecordAdapter(this@HistoryActivity, records)
+        myAdapter = RecordAdapter(records)
 
         recyclerView!!.adapter = myAdapter
     }
 
+    // Get all the records including time and demand deposit
     private fun getRecords(){
         User.userDb.document(User.userAuth!!.uid).collection("records").get()
                 .addOnCompleteListener { task1 ->

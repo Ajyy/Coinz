@@ -13,6 +13,7 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.SetOptions
 
+// Login activity
 class LoginActivity : AppCompatActivity(){
     private var progressBar: ProgressBar? = null
     private var etUserName: EditText? = null
@@ -42,11 +43,11 @@ class LoginActivity : AppCompatActivity(){
                 Log.d(tag, "onAuthStateChanged:signed_in:" + User.userAuth!!.uid)
                 updateUI(User.userAuth)
             } else {
-                Log.d(tag, "onAuthStateChanged:signed_out")
+                Log.w(tag, "onAuthStateChanged:signed_out")
             }
         }
 
-        // Login or Sign up
+        // Login or Sign up Button
         btnLogin!!.setOnClickListener {
             if (etUserName!!.text.isEmpty()&&etPassword!!.text.isEmpty()){
                 tvInf!!.text = "Please enter your email and password"
@@ -64,6 +65,7 @@ class LoginActivity : AppCompatActivity(){
             }
         }
 
+        // Click this textView to reset password
         tvFPass!!.setOnClickListener{
             startActivity(Intent(this@LoginActivity, ResetPasswordActivity::class.java))
         }
@@ -76,11 +78,13 @@ class LoginActivity : AppCompatActivity(){
 
     private fun updateUI(user: FirebaseUser?) {
         if (user != null) {
+            // If user != null, enter the game
             startActivity(Intent(this@LoginActivity, MainActivity::class.java))
             finish()
         }
     }
 
+    // Validate the email and password. If not exist, create a account
     private fun validate(userName: String, password: String){
         User.mAuth.signInWithEmailAndPassword(userName, password).addOnCompleteListener {task ->
             if (task.isSuccessful){
@@ -92,6 +96,7 @@ class LoginActivity : AppCompatActivity(){
         }
     }
 
+    // Sign up
     private fun signUp(userName: String, password: String){
         User.mAuth.createUserWithEmailAndPassword(userName, password).addOnCompleteListener { task1 ->
             if (task1.isSuccessful){
@@ -110,7 +115,7 @@ class LoginActivity : AppCompatActivity(){
                                     }
                                 }
 
-                                Log.d(tag, "Add to database: Fail")
+                                Log.w(tag, "Add to database: Fail")
                                 progressBar!!.visibility = View.GONE
                             }
                 }
@@ -124,7 +129,7 @@ class LoginActivity : AppCompatActivity(){
                     Log.d(tag, "createUserWithEmail: exist_email")
                     tvInf!!.text = "Wrong password"
                 } catch (e: Exception) {
-                    Log.d(tag, "createUserWithEmail: " + e.message)
+                    Log.w(tag, "createUserWithEmail: " + e.message)
                 }
             }
         }

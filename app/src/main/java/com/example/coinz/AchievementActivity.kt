@@ -7,9 +7,8 @@ import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 
+// This class is used to show the achievement
 class AchievementActivity : AppCompatActivity() {
     private var rvAchieveList: RecyclerView?  = null
     private var myAdapter: AchievementAdapter? = null
@@ -17,7 +16,7 @@ class AchievementActivity : AppCompatActivity() {
     private var tvAchieveInf: TextView? = null
 
     private var achievements = ArrayList<Achievement>()
-    private var userData: User? = null
+    private var userData = User()
 
     private val tag = "AchievementActivity"
 
@@ -35,27 +34,51 @@ class AchievementActivity : AppCompatActivity() {
         layoutManager = LinearLayoutManager(this@AchievementActivity, LinearLayoutManager.VERTICAL, false)
         rvAchieveList!!.layoutManager = layoutManager
 
-        myAdapter = AchievementAdapter(this@AchievementActivity, achievements)
+        myAdapter = AchievementAdapter(achievements)
         rvAchieveList!!.adapter = myAdapter
 
-        userData!!.getData()
+        userData.getData()
         getAchievement()
     }
 
+    // This method is used to get the achievement of user and check whether new achievements are gotten
     private fun getAchievement(){
         Achievement.achieveDb.get()
-                .addOnCompleteListener {task ->
-                    if (task.isSuccessful) {
-                        for (document in task.result!!){
+                .addOnCompleteListener {task1 ->
+                    if (task1.isSuccessful) {
+                        for (document in task1.result!!){
                             val achievement = document.toObject(Achievement::class.java)
-                            if (achievement.id in userData!!.achievements){
-                                achievement.isGet = true
-                            }
+                            if (achievement.id in userData.achievements){
+                                // Add the achievement which has already gotten
+                                achievement.get = true
+                                achievements.add(achievement)
+                            } else {
+                                // Check new achievement
+                                if (achievement.title == "Social Talent: Primary"){
+                                    User.userDb.document(User.userAuth!!.uid).collection("friends").get()
+                                            .addOnCompleteListener {task2 ->
+                                                if (task2.isSuccessful){
+                                                    // Check whether the conditions are satisified
+                                                    if (task2.result!!.size() >= 1){
+                                                        achievement.get = true
+                                                        achievements.add(achievement)
+                                                        userData.addAchievement(achievement.id)
+                                                        Toast.makeText(this@AchievementActivity, "Congratulations!! Get achievement: " +
+                                                                achievement.title, Toast.LENGTH_SHORT).show()
+                                                    }
 
-                            achievements.add(achievement)
+                                                    myAdapter!!.notifyDataSetChanged()
+
+                                                    Log.d(tag, "get number of friends: Success")
+                                                } else {
+                                                    Log.d(tag, "get number of friends: Fail")
+                                                }
+                                            }
+                                }
+                            }
                         }
 
-                        tvAchieveInf!!.text = "Find ${task.result!!.size()} achievements"
+                        tvAchieveInf!!.text = "Find ${task1.result!!.size()} achievements"
                         myAdapter!!.notifyDataSetChanged()
                         Log.d(tag, "get achievements: Success")
                     } else {

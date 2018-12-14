@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -12,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
-        android:text="Exchange"
+        android:text="@string/exchange"
         android:textSize="30sp"
         android:textStyle="bold|italic" />
 
@@ -22,7 +21,7 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
-        android:text="From"
+        android:text="@string/from"
         android:textSize="20sp"
         android:textStyle="bold" />
 
@@ -34,7 +33,7 @@
         android:layout_marginTop="10dp"
         android:background="@drawable/button"
         android:gravity="center"
-        android:text="Coin's type"
+        android:text="@string/coin_s_type"
         android:textColor="@color/common_google_signin_btn_text_dark_default" />
 
     <TextView
@@ -43,7 +42,7 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
-        android:text="To"
+        android:text="@string/to"
         android:textSize="20sp"
         android:textStyle="bold" />
 
@@ -55,7 +54,7 @@
         android:layout_marginTop="10dp"
         android:background="@drawable/button"
         android:gravity="center"
-        android:text="Coin's Type"
+        android:text="@string/coin_s_type"
         android:textColor="@color/common_google_signin_btn_text_dark_default" />
 
     <TextView
@@ -73,7 +72,7 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
-        android:text="Amount"
+        android:text="@string/amount"
         android:textSize="20sp"
         android:textStyle="bold" />
 
@@ -86,7 +85,8 @@
         android:layout_marginEnd="20dp"
         android:ems="10"
         android:inputType="numberDecimal"
-        android:text="0.0" />
+        android:text="@string/_0_0"
+        android:autofillHints="" />
 
     <Button
         android:id="@+id/btnSubmitExchange"
@@ -95,9 +95,9 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="20dp"
-        android:background="@color/buttonColor"
+        android:background="@color/colorPrimary"
         android:elevation="5dp"
-        android:text="Button"
+        android:text="@string/button"
         android:textColor="@color/buttonTextColor" />
 
     <TextView

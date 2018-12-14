@@ -61,8 +61,8 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
     private var map: MapboxMap? = null
     private lateinit var permissionManager: PermissionsManager
     private lateinit var originLocation: Location
-    private var locationEngine: LocationEngine? = null//component gives us the user location
-    private var locationLayerPlugin: LocationLayerPlugin? = null//showing icon representing the users current locatuon
+    private var locationEngine: LocationEngine? = null// Component gives us the user location
+    private var locationLayerPlugin: LocationLayerPlugin? = null// Showing icon representing the users current locatuon
 
     private lateinit var navigationView: NavigationView
     private var tvNavUserName: TextView? = null
@@ -78,10 +78,8 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
     private val pickName = 3
 
     private var coins = ArrayList<Coin>()
-    //    private var addCoins = ArrayList<Coin>()
     private var coinsId = ArrayList<String>()
     private var markers = ArrayList<MarkerOptions>()
-    private var ratesArr = hashMapOf("SHIL" to 0.0, "DOLR" to 0.0, "PENY" to 0.0, "QUID" to 0.0, "GOLD" to 1.0)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -104,12 +102,16 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
 
         initializeUser(User.userAuth!!)
         navigationView.setNavigationItemSelectedListener(this@MainActivity)
+
+        // Get coins player has gotten
         getCoinsId()
 
+        // Set mapbox
         Mapbox.getInstance(applicationContext, getString(R.string.access_token))
         mapView?.onCreate(savedInstanceState)
         mapView?.getMapAsync (this)
 
+        // Set navigation view, drawer
         setSupportActionBar(toolbar)
         val toggle = ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
@@ -136,15 +138,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
     override fun onPause() {
         super.onPause()
         mapView?.onPause()
-
-//        for (coin in addCoins){
-//            coinsId.add(coin.id!!)
-//
-//        }
-
-//        if (addCoins.size != 0){
-//            addCoins.clear()
-//        }
     }
 
     override fun onLowMemory() {
@@ -182,7 +175,8 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         return super.onOptionsItemSelected(item)
     }
 
-    @SuppressLint("InflateParams")
+    // Set popup window to check the coins information in the map
+    @SuppressLint("InflateParams", "SetTextI18n")
     fun onInfShowPopupWindowClick(view: View){
         val inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupView = inflater.inflate(R.layout.popup_map_coins_inf, null)
@@ -192,6 +186,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         val tvQuidMap = popupView.findViewById<View>(R.id.tvQuidMap) as TextView
         val tvPenyMap = popupView.findViewById<View>(R.id.tvPenyMap) as TextView
 
+        // Get the number of differet kinds of coins
         val num = intArrayOf(0, 0, 0, 0)
         for (coin in coins){
             if (coin.id !in coinsId){
@@ -210,7 +205,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         tvQuidMap.text = "Number of QUID: ${num[2]}"
         tvPenyMap.text = "Number of PENY: ${num[3]}"
 
-        val width = 1000
+        val width = LinearLayout.LayoutParams.WRAP_CONTENT
         val height = LinearLayout.LayoutParams.WRAP_CONTENT
 
         val popupWindow = PopupWindow(popupView, width, height, true)
@@ -223,10 +218,12 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         }
     }
 
+    // Get all coins Id from Firebase and start to get today's coins
     private fun getCoinsId(){
         User.userDb.document(User.userAuth!!.uid).get()
                 .addOnCompleteListener {task ->
                     if (task.isSuccessful){
+                        @Suppress("UNCHECKED_CAST")
                         coinsId = task.result!!["coinsId"] as ArrayList<String>
                         DrawGeoJson().execute()
                         Log.d(tag, "get user data: Success")
@@ -236,7 +233,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                 }
     }
 
-
+    // Initialize user's information
     private fun initializeUser(user: FirebaseUser){
         tvNavEmail?.text = user.email
         if (user.displayName != ""&&user.displayName != null){
@@ -246,6 +243,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
             Log.d(tag, "username not found")
         }
 
+        // Get player's avatar
         val pathReference = mStorageReference!!.child("images/"+user.email+".jpg")
         pathReference.downloadUrl
                 .addOnSuccessListener { filePath ->
@@ -256,6 +254,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                     Log.w(tag, "down avatar: failure\n"+exception.message)
                 }
 
+        // Set the listener to change user's avatar
         ivProfilePicture!!.setOnClickListener{
             val intent = Intent()
             intent.type = "image/*"
@@ -264,6 +263,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         }
     }
 
+    // Upload user's avatar
     private fun uploadFile(bitmap: Bitmap, filePath: Uri){
         val riversRef = mStorageReference!!.child("images/"+User.userAuth!!.email+".jpg")
         riversRef.putFile(filePath)
@@ -291,7 +291,9 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         }
     }
 
+    // Add collected coins to Firebase
     private fun addCoins(coin: Coin){
+        // Add to the coins collection
         User.userDb.document(User.userAuth!!.uid).collection("balance_"+coin.type).document(coin.id!!)
                 .set(coin, SetOptions.merge())
                 .addOnCompleteListener {task ->
@@ -302,6 +304,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                     }
                 }
 
+        // Add coins' id to the attribute coinsId
         User.userDb.document(User.userAuth!!.uid).update("coinsId", FieldValue.arrayUnion(coin.id))
                 .addOnCompleteListener {task ->
                     if (task.isSuccessful){
@@ -313,6 +316,19 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                         Log.w(tag, "update balance: fail")
                     }
                 }
+
+        // Add coins value to the total balance
+        User.userDb.document(User.userAuth!!.uid).get()
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful){
+                        val user = User()
+                        user.totalBal = task.result!!["totalBal"] as Double
+                        user.addBalance(coin.value!!, coin.type!!)
+                        Log.d(tag, "get total balance: Success")
+                    } else {
+                        Log.w(tag, "get total balance: fail")
+                    }
+                }
     }
 
     @SuppressLint("MissingPermission")
@@ -322,6 +338,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
             initializeLocationEngine()
             initializeLocationLayer()
 
+            // Set flout action button listener
             fabLocation!!.setOnClickListener{
                 val lastLocation = locationEngine?.lastLocation
                 if (lastLocation != null) {
@@ -335,6 +352,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                     val addCoinsArr = ArrayList<Coin>()
                     for (coin in coins){
                         val distance = LatLng(coin.latitude, coin.longitude).distanceTo(LatLng(lastLocation.latitude, lastLocation.longitude))
+                        // Once the distance is less than 25 meter, collect it
                         if (distance <= 25){
                             if (fabCollect!!.isEnabled){
                                 fabCollect!!.isEnabled = false
@@ -344,6 +362,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                         }
                     }
 
+                    // add coins and remove markers
                     for (coin in addCoinsArr){
                         addCoins(coin)
                         removeMarkers(coin)
@@ -446,14 +465,14 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
 
         when (id) {
             R.id.nav_profile -> {
+                User.reloadUser()
                 startActivityForResult(Intent(this@MainActivity, ProfileActivity::class.java), profile)
             }
             R.id.nav_central_park -> {
-                val intent = Intent(this@MainActivity, CentralBankActivity::class.java)
-                intent.putExtra("rates", ratesArr)
-                startActivity(intent)
+                startActivity(Intent(this@MainActivity, CentralBankActivity::class.java))
             }
             R.id.nav_friend -> {
+                User.reloadUser()
                 startActivity(Intent(this@MainActivity, FriendActivity::class.java))
             }
             R.id.nav_share -> {
@@ -464,6 +483,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                 startActivity(sendIntent)
             }
             R.id.nav_log_out -> {
+                // Log out and update userAuth
                 User.mAuth.signOut()
                 User.userAuth = User.mAuth.currentUser
                 finish()
@@ -482,6 +502,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         return true
     }
 
+    // Remove marker by find the same one in the markers list
     private fun removeMarkers(coin: Coin){
         for (markerOption in markers){
             if (coin.latitude == markerOption.position.latitude&& coin.longitude == markerOption.position.longitude){
@@ -491,6 +512,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
         }
     }
 
+    @SuppressLint("StaticFieldLeak")
     private inner class DrawGeoJson : AsyncTask<Void, Void, List<Coin>>() {
         override fun doInBackground(vararg voids: Void): List<Coin> {
 
@@ -512,10 +534,10 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                 // Parse JSON
                 val json = JSONObject(jsonText.toString())
                 val rates = json.getJSONObject("rates")
-                ratesArr["SHIL"] = rates.getDouble("SHIL")
-                ratesArr["DOLR"] = rates.getDouble("DOLR")
-                ratesArr["QUID"] = rates.getDouble("QUID")
-                ratesArr["PENY"] = rates.getDouble("PENY")
+                Coin.ratesArr["SHIL"] = rates.getDouble("SHIL")
+                Coin.ratesArr["DOLR"] = rates.getDouble("DOLR")
+                Coin.ratesArr["QUID"] = rates.getDouble("QUID")
+                Coin.ratesArr["PENY"] = rates.getDouble("PENY")
 
                 val features = json.getJSONArray("features")
                 for (i in 0 until features.length()){
@@ -532,6 +554,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
                                     , properties.getString("currency"), properties.getString("marker-symbol")
                                     , properties.getString("marker-color"), latLng.latitude, latLng.longitude, false)
 
+                            // Only the coins which have not been collected are added to the map
                             if (point.id !in coinsId){
                                 coins.add(point)
                                 points.add(point)

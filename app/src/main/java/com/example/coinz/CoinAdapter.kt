@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 
+// Coin adapter
 class CoinAdapter(private var context: Context, private var coins: ArrayList<Coin>, private var type: String): RecyclerView.Adapter<CoinAdapter.ViewHolder>(){
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
         val v = LayoutInflater.from(viewGroup.context).inflate(R.layout.coin_list, viewGroup, false)
@@ -23,6 +24,7 @@ class CoinAdapter(private var context: Context, private var coins: ArrayList<Coi
     override fun onBindViewHolder(viewHolder: ViewHolder, i: Int) {
         viewHolder.itemView.tag = coins[i]
         when {
+            // Set the image with the specific coin's type
             coins[i].type == "PENY" ->{viewHolder.ivCoin.setImageResource(R.drawable.ic_peny)}
             coins[i].type == "QUID" ->{viewHolder.ivCoin.setImageResource(R.drawable.ic_quid)}
             coins[i].type == "SHIL" ->{viewHolder.ivCoin.setImageResource(R.drawable.ic_shil)}
@@ -41,14 +43,15 @@ class CoinAdapter(private var context: Context, private var coins: ArrayList<Coi
             itemView.setOnClickListener {
                 when {
                     type != "balance" ->{
+                        // When the coin's cardView is clicked, the background will change
                         val point = itemView.tag as Coin
                         val colorStateList = ContextCompat.getColorStateList(context, R.color.colorPrimaryLight)
                         if (cvCoin.cardBackgroundColor == colorStateList){
                             cvCoin.setCardBackgroundColor(getColor(context, R.color.secondaryText))
-                            point.isChecked = true
+                            point.checked = true
                         } else {
                             cvCoin.setCardBackgroundColor(getColor(context, R.color.colorPrimaryLight))
-                            point.isChecked = false
+                            point.checked = false
                         }
                     }
                 }

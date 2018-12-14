@@ -1,6 +1,7 @@
 package com.example.coinz
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.ColorDrawable
@@ -8,13 +9,11 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.PopupWindow
-import android.widget.TextView
+import android.widget.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
+// This activity is used for demand deposit, player can check the balance of demand deposit and deposit money
 class DemandDepositActivity : AppCompatActivity() {
 
     private var btnDemandDeposit: Button? = null
@@ -43,7 +42,16 @@ class DemandDepositActivity : AppCompatActivity() {
         }
     }
 
-    @SuppressLint("InflateParams")
+    // Receive result from deposit submit activity
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK){
+            Toast.makeText(this@DemandDepositActivity, "Deposit Successfully!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Set popup window
+    @SuppressLint("InflateParams", "SetTextI18n")
     fun onButtonShowPopupWindowClick(view: View){
         val inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupView = inflater.inflate(R.layout.popup_balance, null)
@@ -53,19 +61,21 @@ class DemandDepositActivity : AppCompatActivity() {
         val tvQuidBal = popupView.findViewById<View>(R.id.tvQuidBal) as TextView
         val tvPenyBal = popupView.findViewById<View>(R.id.tvPenyBal) as TextView
 
-        tvGoldBal.text = "GOLD: "+balance!!["GOLD"].toString()
-        tvShilBal.text = "SHIL: "+balance!!["SHIL"].toString()
-        tvDolrBal.text = "DOLR: "+balance!!["DOLR"].toString()
-        tvQuidBal.text = "QUID: "+balance!!["QUID"].toString()
-        tvPenyBal.text = "PENY: "+balance!!["PENY"].toString()
+        tvGoldBal.text = "GOLD: "+String.format("%.4f", balance!!["GOLD"].toString().toDouble())
+        tvShilBal.text = "SHIL: "+String.format("%.4f", balance!!["SHIL"].toString().toDouble())
+        tvDolrBal.text = "DOLR: "+String.format("%.4f", balance!!["DOLR"].toString().toDouble())
+        tvQuidBal.text = "QUID: "+String.format("%.4f", balance!!["QUID"].toString().toDouble())
+        tvPenyBal.text = "PENY: "+String.format("%.4f", balance!!["PENY"].toString().toDouble())
 
         val width = 1000
         val height = LinearLayout.LayoutParams.WRAP_CONTENT
 
+        // Set the background
         val lp = window.attributes
         lp.alpha = 0.4f
         window.attributes = lp
 
+        // Click anywhere the popup window will disappear
         val popupWindow = PopupWindow(popupView, width, height, true)
         popupWindow.isOutsideTouchable = false
         popupWindow.isFocusable = false
@@ -80,6 +90,7 @@ class DemandDepositActivity : AppCompatActivity() {
         }
     }
 
+    // Get the demand balance
     private fun getBalance(v: View){
         val userDocRef = FirebaseFirestore.getInstance().collection("users")
         userDocRef.document(user!!.uid).get()
@@ -88,6 +99,8 @@ class DemandDepositActivity : AppCompatActivity() {
                         Log.d(tag, "getBalance: Success")
                         val userData = document.toObject(User::class.java)
                         balance = userData!!.demandDeposit
+
+                        // Open popup window
                         onButtonShowPopupWindowClick(v)
                     } else {
                         Log.w(tag, "getBalance: Fail")

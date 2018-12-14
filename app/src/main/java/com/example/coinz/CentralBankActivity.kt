@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.widget.Button
 
+// This activity is used for central bank
 class CentralBankActivity : AppCompatActivity() {
 
     private var btnDeposit: Button? = null
@@ -12,15 +13,11 @@ class CentralBankActivity : AppCompatActivity() {
     private var btnSpareChange: Button? = null
     private var btnHistory: Button? = null
     private var btnExchange: Button? = null
-    private var ratesArray: HashMap<String, Double>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_central_bank)
         title = "Central Bank"
-
-        val intent1 = intent
-        ratesArray = intent1.getSerializableExtra("rates") as HashMap<String, Double>
 
         btnDeposit = findViewById(R.id.btnDeposit)
         btnRate = findViewById(R.id.btnRate)
@@ -28,6 +25,7 @@ class CentralBankActivity : AppCompatActivity() {
         btnHistory = findViewById(R.id.btnHistory)
         btnExchange = findViewById(R.id.btnExchange)
 
+        // Start activity
         btnHistory!!.setOnClickListener {
             val intent2 = Intent(this@CentralBankActivity, HistoryActivity::class.java)
             startActivity(intent2)
@@ -43,9 +41,7 @@ class CentralBankActivity : AppCompatActivity() {
         }
 
         btnExchange!!.setOnClickListener {
-            val intent4 = Intent(this@CentralBankActivity, ExchangeInfActivity::class.java)
-            intent4.putExtra("rates", ratesArray)
-            startActivity(intent4)
+            startActivity(Intent(this@CentralBankActivity, ExchangeInfActivity::class.java))
         }
     }
 }

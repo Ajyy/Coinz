@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bank_background"
     android:orientation="vertical"
     tools:context=".CentralBankActivity">
 
@@ -11,18 +11,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
-        android:text="Welcome to"
+        android:text="@string/welcome_to"
         android:textSize="24sp" />
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="8dp"
         android:gravity="center"
-        android:text="Central Bank"
+        android:text="@string/central_bank"
         android:textAllCaps="true"
         android:textSize="36sp"
         android:textStyle="bold|italic" />
@@ -32,7 +32,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="50dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="20dp"
         android:layout_marginEnd="50dp"
         android:background="@color/colorPrimary"
         android:drawableStart="@drawable/ic_money_deposit"
@@ -53,7 +53,7 @@
         android:drawableStart="@drawable/ic_exchange_rate"
         android:paddingStart="30dp"
         android:paddingEnd="45dp"
-        android:text="Exchange"
+        android:text="@string/exchange"
         android:textColor="@color/common_google_signin_btn_text_dark_default" />
 
     <Button
@@ -63,11 +63,11 @@
         android:layout_marginStart="50dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="50dp"
-        android:background="@color/buttonColor"
+        android:background="@color/colorPrimary"
         android:drawableStart="@drawable/ic_exchange"
         android:paddingStart="30dp"
         android:paddingEnd="45dp"
-        android:text="Spare Change"
+        android:text="@string/spare_change"
         android:textColor="@color/buttonTextColor" />
 
     <Button

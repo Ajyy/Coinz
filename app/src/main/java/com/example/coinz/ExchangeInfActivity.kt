@@ -14,25 +14,20 @@ import android.widget.LinearLayout
 import android.widget.PopupWindow
 import android.widget.TextView
 
+// This activity is used for exchanging information
 class ExchangeInfActivity : AppCompatActivity() {
-
     private var btnExchange: Button? = null
     private var btnRate: Button? = null
-    private var ratesArray: HashMap<String, Double>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_exchange_inf)
 
-        ratesArray = intent.getSerializableExtra("rates") as HashMap<String, Double>
-
         btnExchange = findViewById(R.id.btnExchange)
         btnRate = findViewById(R.id.btnRate)
 
         btnExchange!!.setOnClickListener {
-            val intent = Intent(this@ExchangeInfActivity, ExchangeActivity::class.java)
-            intent.putExtra("rates", ratesArray)
-            startActivity(intent)
+            startActivity(Intent(this@ExchangeInfActivity, ExchangeActivity::class.java))
         }
 
         btnRate!!.setOnClickListener {view ->
@@ -40,6 +35,7 @@ class ExchangeInfActivity : AppCompatActivity() {
         }
     }
 
+    // Set the popup window
     @SuppressLint("InflateParams")
     fun onButtonShowPopupWindowClick(view: View){
         val inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -49,10 +45,10 @@ class ExchangeInfActivity : AppCompatActivity() {
         val tvQuidRate = popupView.findViewById<View>(R.id.tvQuidRate) as TextView
         val tvPenyRate = popupView.findViewById<View>(R.id.tvPenyRate) as TextView
 
-        tvShilRate.text = String.format("SHIL:  %.10f", ratesArray!!["SHIL"])
-        tvDolrRate.text = String.format("DOLR:  %.10f", ratesArray!!["DOLR"])
-        tvQuidRate.text = String.format("QUID:  %.10f", ratesArray!!["QUID"])
-        tvPenyRate.text = String.format("PENY:  %.10f", ratesArray!!["PENY"])
+        tvShilRate.text = String.format("SHIL:  %.10f", Coin.ratesArr["SHIL"])
+        tvDolrRate.text = String.format("DOLR:  %.10f", Coin.ratesArr["DOLR"])
+        tvQuidRate.text = String.format("QUID:  %.10f", Coin.ratesArr["QUID"])
+        tvPenyRate.text = String.format("PENY:  %.10f", Coin.ratesArr["PENY"])
 
         val width = LinearLayout.LayoutParams.WRAP_CONTENT
         val height = LinearLayout.LayoutParams.WRAP_CONTENT

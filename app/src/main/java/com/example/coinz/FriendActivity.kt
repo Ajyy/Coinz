@@ -1,6 +1,5 @@
 package com.example.coinz
 
-import android.app.Activity
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -12,11 +11,9 @@ import android.view.MenuItem
 import android.widget.TextView
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 
-
+// This activity is used for friends' list
 class FriendActivity : AppCompatActivity() {
-
     private var friends = ArrayList<Friend>()
     private var recyclerView: RecyclerView? = null
     private var myAdapter: FriendAdapter? = null
@@ -55,9 +52,15 @@ class FriendActivity : AppCompatActivity() {
         if (item!!.itemId == R.id.inf_icon){
             startActivityForResult(Intent(this@FriendActivity, FriendInfActivity::class.java), friendInfActivity)
         } else {
-            val intent = Intent(this@FriendActivity, AddFriendActivity::class.java)
-            intent.putExtra("friendsList", friends)
-            startActivityForResult(intent, addFriendActivity)
+            User.mAuth = FirebaseAuth.getInstance()
+            User.userAuth = User.mAuth.currentUser
+            if (User.userAuth!!.isEmailVerified){
+                val intent = Intent(this@FriendActivity, AddFriendActivity::class.java)
+                intent.putExtra("friendsList", friends)
+                startActivityForResult(intent, addFriendActivity)
+            } else {
+                Toast.makeText(this@FriendActivity, "Please confirm your email first of all!", Toast.LENGTH_SHORT).show()
+            }
         }
 
         return super.onOptionsItemSelected(item)
@@ -76,6 +79,7 @@ class FriendActivity : AppCompatActivity() {
         }
     }
 
+    // Get friends from Firebase
     private fun getFriends(){
         User.userDb.document(User.userAuth!!.uid).collection("friends").get()
                 .addOnCompleteListener { task1 ->
@@ -83,6 +87,7 @@ class FriendActivity : AppCompatActivity() {
                         Log.d(tag, "getFriend: Success")
                         for (document1 in task1.result!!){
                             if (document1!!.exists()){
+                                // Get detailed information
                                 User.userDb.document(document1.id).get()
                                         .addOnCompleteListener{ task2 ->
                                             if (task2.isSuccessful){
@@ -91,9 +96,8 @@ class FriendActivity : AppCompatActivity() {
                                                 val document2 = task2.result
                                                 if (document2!!.exists()){
                                                     val userFriend = document2.toObject(User::class.java)
-                                                    print(userFriend?.name)
                                                     friends.add(Friend(document2.id, userFriend!!.name, userFriend.email!!,
-                                                            userFriend.age!!, userFriend.gender))
+                                                            userFriend.age!!, userFriend.totalBal, userFriend.gender))
 
                                                     if (myAdapter != null){
                                                         myAdapter!!.notifyDataSetChanged()
@@ -103,7 +107,7 @@ class FriendActivity : AppCompatActivity() {
                                                     Log.w(tag, "No such user")
                                                 }
                                             } else {
-                                                Log.w(tag, "getFriendUser: Fail")
+                                                Log.w(tag, "getFriendUser: Fail", task2.exception)
                                             }
                                         }
                             } else {
@@ -113,7 +117,7 @@ class FriendActivity : AppCompatActivity() {
 
                         tvFriendInf!!.text = "Find "+ task1.result!!.size()+" friend(s)"
                     } else {
-                        Log.w(tag, "getFriend: Fail")
+                        Log.w(tag, "getFriend: Fail", task1.exception)
                     }
                 }
     }

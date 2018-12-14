@@ -8,6 +8,7 @@ import android.widget.TextView
 import com.google.firebase.storage.FirebaseStorage
 import com.squareup.picasso.Picasso
 
+// This activity is used for friend profile
 class FriendProfile : AppCompatActivity() {
 
     private var ivFriendPicture: ImageView? = null
@@ -15,7 +16,6 @@ class FriendProfile : AppCompatActivity() {
     private var tvFriendEmail: TextView? = null
     private var tvFriendGender: TextView? = null
     private var tvFriendAge: TextView? = null
-    private var tvTodayStep: TextView? = null
 
     private var mStorageReference = FirebaseStorage.getInstance().reference
 
@@ -25,7 +25,7 @@ class FriendProfile : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_friend_profile)
 
-        title = "ProfileActivity"
+        title = "Friend Profile"
 
         val intent = intent
         val friend = intent.getSerializableExtra("friend") as Friend
@@ -35,8 +35,8 @@ class FriendProfile : AppCompatActivity() {
         tvFriendEmail = findViewById(R.id.tvFriendEmail)
         tvFriendGender = findViewById(R.id.tvFriendGender)
         tvFriendAge = findViewById(R.id.tvFriendAge)
-        tvTodayStep = findViewById(R.id.tvTodayStep)
 
+        // Get friends' avatar
         val pathReference = mStorageReference.child("images/"+friend.email+".jpg")
         pathReference.downloadUrl
                 .addOnSuccessListener { filePath ->

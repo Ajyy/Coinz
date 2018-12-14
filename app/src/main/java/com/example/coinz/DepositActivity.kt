@@ -3,12 +3,9 @@ package com.example.coinz
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
-import android.widget.Toast
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 
+// This activity is used to deposit for time and demand mode
 class DepositActivity : AppCompatActivity() {
 
     private var btnTime: Button? = null
@@ -33,6 +30,5 @@ class DepositActivity : AppCompatActivity() {
             intent2.putExtra("type", "demand")
             startActivity(intent2)
         }
-
     }
 }

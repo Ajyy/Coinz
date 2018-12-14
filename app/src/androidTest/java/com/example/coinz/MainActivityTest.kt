@@ -24,9 +24,13 @@ import android.support.test.espresso.matcher.ViewMatchers.withId
 
 @RunWith(AndroidJUnit4::class)
 class MainActivityTest{
+
+    val tag = "MainActivityTest"
+
     @get: Rule
     val mActivityRule = ActivityTestRule(MainActivity::class.java)
 
+    // Grant the location permission
     @Before
     fun grantPermission(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
@@ -37,6 +41,7 @@ class MainActivityTest{
         }
     }
 
+    // Please make sure login already
     @Test
     fun testCollectCoins(){
         val lm = mActivityRule.activity.getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -52,6 +57,7 @@ class MainActivityTest{
         val loc = Location(mockLocationProvider)
         val mockLocation = Location(mockLocationProvider)
 
+        // Get the test locations
         val coords = ArrayList<Array<Double>>()
         try {
             var reader = BufferedReader(InputStreamReader(mActivityRule.activity.assets.open("trace1input")))
@@ -71,6 +77,7 @@ class MainActivityTest{
             print(e.localizedMessage)
         }
 
+        // Mock the location
         var count = 0
         for (coord in coords){
             count++

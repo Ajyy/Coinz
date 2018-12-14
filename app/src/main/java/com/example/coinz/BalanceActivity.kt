@@ -3,12 +3,9 @@ package com.example.coinz
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
-import android.widget.TextView
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 
+// This activity is used to see the coins' balance
 class BalanceActivity : AppCompatActivity() {
 
     private var btnShil: Button? = null
@@ -27,6 +24,7 @@ class BalanceActivity : AppCompatActivity() {
         btnQuid = findViewById(R.id.btnQuid)
         btnPeny = findViewById(R.id.btnPeny)
 
+        // Start the activity with the corresponding coin's type
         btnPeny!!.setOnClickListener {
             val intent = Intent(this@BalanceActivity, ChooseCoinActivity::class.java)
             intent.putExtra("inf", arrayOf("PENY", "balance"))

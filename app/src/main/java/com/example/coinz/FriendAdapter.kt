@@ -9,11 +9,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.squareup.picasso.Picasso
 
+// Friend adapter
 class FriendAdapter(private val context: Context, private val friends: ArrayList<Friend>): RecyclerView.Adapter<FriendAdapter.ViewHolder>(){
 
     private var mStorageReference = FirebaseStorage.getInstance().reference
@@ -30,6 +29,7 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
     override fun onBindViewHolder(viewHolder: FriendAdapter.ViewHolder, i: Int) {
         viewHolder.itemView.tag = friends[i]
 
+        // Get the avatar of the friends
         val pathReference = mStorageReference.child("images/"+friends[i].email+".jpg")
         pathReference.downloadUrl
                 .addOnSuccessListener { filePath ->
@@ -43,20 +43,21 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
 
         viewHolder.tvFriendName.text = friends[i].name
         if (context.javaClass.simpleName != "FriendInfActivity") {
+            // Only FriendInfActivity need the following things
             viewHolder.tvFriInf!!.visibility = View.GONE
             viewHolder.btnAccept!!.visibility = View.GONE
             viewHolder.btnReject!!.visibility = View.GONE
         } else {
             if (friends[i].isAccepted == -1L){
                 viewHolder.btnAccept!!.setOnClickListener {
-                    updateInviteInf(friends[i].uid, friends[i].name,1)
+                    updateInviteInf(friends[i].uid, friends[i].name, friends[i].email, 1)
                     viewHolder.btnAccept!!.visibility = View.GONE
                     viewHolder.btnReject!!.visibility = View.GONE
                     viewHolder.tvFriInf!!.text = "Accepted"
                 }
 
                 viewHolder.btnReject!!.setOnClickListener {
-                    updateInviteInf(friends[i].uid, friends[i].name,0)
+                    updateInviteInf(friends[i].uid, friends[i].name, friends[i].email,0)
                     viewHolder.btnAccept!!.visibility = View.GONE
                     viewHolder.btnReject!!.visibility = View.GONE
                     viewHolder.tvFriInf!!.text = "Rejected"
@@ -71,19 +72,25 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
                 }
             }
 
-            if (friends[i].isVerified == 0L){
-                viewHolder.tvFriInf!!.text = "Respond: Rejected"
-            } else if (friends[i].isVerified == 1L) {
-                viewHolder.tvFriInf!!.text = "Respond: Accepted"
-            } else if (friends[i].isVerified == -1L) {
-                viewHolder.tvFriInf!!.text = "Wait for Accept"
+            when {
+                friends[i].isVerified == 0L -> viewHolder.tvFriInf!!.text = "Respond: Rejected"
+                friends[i].isVerified == 1L -> viewHolder.tvFriInf!!.text = "Respond: Accepted"
+                friends[i].isVerified == -1L -> viewHolder.tvFriInf!!.text = "Wait for Accept"
             }
+        }
+
+        if (context.javaClass.simpleName == "FriendActivity"){
+            val totalBal = String.format("%.4f", friends[i].totalBal)
+            viewHolder.tvTotalBal.text = "Total Balance: $totalBal"
+        } else {
+            viewHolder.tvTotalBal.visibility = View.GONE
         }
     }
 
     inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
         var ivPicture: ImageView = itemView.findViewById(R.id.ivPicture)
         var tvFriendName: TextView = itemView.findViewById(R.id.tvFriendName)
+        var tvTotalBal: TextView = itemView.findViewById(R.id.tvTotalBal)
         var tvFriInf: TextView? = itemView.findViewById(R.id.tvFriInf)
         var btnAccept: Button? = itemView.findViewById(R.id.btnAccept)
         var btnReject: Button? = itemView.findViewById(R.id.btnReject)
@@ -93,23 +100,23 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
                 context.javaClass.simpleName == "AddFriendActivity" -> itemView.setOnClickListener {
                     val friend = itemView.tag as Friend
                     User.userDb.document(friend.uid).collection("invitation")
-                            .add(mapOf("id" to User.userAuth!!.uid,"isAccepted" to -1, "name" to User.userAuth!!.displayName)).addOnCompleteListener{ task ->
+                            .add(mapOf("id" to User.userAuth!!.uid,"isAccepted" to -1, "name" to User.userAuth!!.displayName, "email" to User.userAuth!!.email)).addOnCompleteListener{ task ->
                                 if (task.isSuccessful) {
                                     Log.d(tag, "Add Friend to database: Success")
                                 } else {
-                                    Log.d(tag, "Add Friend to database: Fail")
+                                    Log.d(tag, "Add Friend to database: Fail", task.exception)
                                 }
                             }
 
                     User.userDb.document(User.userAuth!!.uid).collection("invite")
-                            .add(mapOf("id" to friend.uid, "isVerified" to -1, "name" to friend.name)).addOnCompleteListener{ task ->
+                            .add(mapOf("id" to friend.uid, "isVerified" to -1, "name" to friend.name, "email" to User.userAuth!!.email)).addOnCompleteListener{ task ->
                                 if (task.isSuccessful) {
                                     Log.d(tag, "Add Friend to database: Success")
                                     val activity = context as Activity
                                     Toast.makeText(context, "Invitation sent", Toast.LENGTH_LONG).show()
                                     activity.finish()
                                 } else {
-                                    Log.d(tag, "Add Friend to database: Fail")
+                                    Log.d(tag, "Add Friend to database: Fail", task.exception)
                                 }
                             }
                 }
@@ -133,7 +140,8 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
         }
     }
 
-    private fun updateInviteInf(friendId: String, friName: String, isAccepted: Int){
+    // Update the information when player accept or reject
+    private fun updateInviteInf(friendId: String, friName: String, friEmail: String, isAccepted: Int){
         if (isAccepted == 1){
             User.userDb.document(User.userAuth!!.uid).collection("invitation").whereEqualTo("id", friendId).get()
                     .addOnCompleteListener { task1 ->
@@ -144,12 +152,12 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
                                             if (task2.isSuccessful){
                                                 Log.d(tag, "Update invitation information: Success")
                                             } else {
-                                                Log.w(tag, "Update invitation information: Fail")
+                                                Log.w(tag, "Update invitation information: Fail", task2.exception)
                                             }
                                         }
                             }
                         } else {
-                            Log.w(tag, "Update invitation information: Fail")
+                            Log.w(tag, "Update invitation information: Fail", task1.exception)
                         }
                     }
 
@@ -162,30 +170,30 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
                                             if (task2.isSuccessful){
                                                 Log.d(tag, "Update invitation information: Success")
                                             } else {
-                                                Log.w(tag, "Update invitation information: Fail")
+                                                Log.w(tag, "Update invitation information: Fail", task2.exception)
                                             }
                                         }
                             }
                         } else {
-                            Log.w(tag, "Update invitation information: Fail")
+                            Log.w(tag, "Update invitation information: Fail", task1.exception)
                         }
                     }
 
-            User.userDb.document(User.userAuth!!.uid).collection("friends").document(friendId).set(mapOf("name" to friName))
+            User.userDb.document(User.userAuth!!.uid).collection("friends").document(friendId).set(mapOf("name" to friName, "email" to friEmail))
                     .addOnCompleteListener { task1 ->
                         if (task1.isSuccessful){
                             Log.d(tag, "Add friend: Success")
                         } else {
-                            Log.w(tag, "Add friend: Fail")
+                            Log.w(tag, "Add friend: Fail", task1.exception)
                         }
                     }
 
-            User.userDb.document(friendId).collection("friends").document(User.userAuth!!.uid).set(mapOf("name" to User.userAuth!!.displayName))
+            User.userDb.document(friendId).collection("friends").document(User.userAuth!!.uid).set(mapOf("name" to User.userAuth!!.displayName, "email" to friEmail))
                     .addOnCompleteListener { task1 ->
                         if (task1.isSuccessful){
                             Log.d(tag, "Add friend: Success")
                         } else {
-                            Log.w(tag, "Add friend: Fail")
+                            Log.w(tag, "Add friend: Fail", task1.exception)
                         }
                     }
         } else {
@@ -198,12 +206,12 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
                                             if (task2.isSuccessful){
                                                 Log.d(tag, "Update invitation information: Success")
                                             } else {
-                                                Log.w(tag, "Update invitation information: Fail")
+                                                Log.w(tag, "Update invitation information: Fail", task2.exception)
                                             }
                                         }
                             }
                         } else {
-                            Log.w(tag, "Update invitation information: Fail")
+                            Log.w(tag, "Update invitation information: Fail", task1.exception)
                         }
                     }
 
@@ -216,12 +224,12 @@ class FriendAdapter(private val context: Context, private val friends: ArrayList
                                             if (task2.isSuccessful){
                                                 Log.d(tag, "Update invitation information: Success")
                                             } else {
-                                                Log.w(tag, "Update invitation information: Fail")
+                                                Log.w(tag, "Update invitation information: Fail", task2.exception)
                                             }
                                         }
                             }
                         } else {
-                            Log.w(tag, "Update invitation information: Fail")
+                            Log.w(tag, "Update invitation information: Fail", task1.exception)
                         }
                     }
         }

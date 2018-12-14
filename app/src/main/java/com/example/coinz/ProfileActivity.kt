@@ -6,14 +6,10 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.*
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
-import com.google.firebase.firestore.FirebaseFirestore
-
 
 class ProfileActivity : AppCompatActivity() {
-
     private var etName: EditText? = null
     private var etAge: EditText? = null
     private var rgGender: RadioGroup? = null
@@ -22,9 +18,6 @@ class ProfileActivity : AppCompatActivity() {
     private var btnSubmit: Button? = null
     private var btnConfirm: Button? = null
 
-
-    private var mAuth: FirebaseAuth? = null
-    private var db: FirebaseFirestore? = null
     private val tag = "ProfileActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,9 +34,7 @@ class ProfileActivity : AppCompatActivity() {
         btnConfirm = findViewById(R.id.btnConfirm)
         btnSubmit = findViewById(R.id.btnSubmit)
 
-        mAuth = FirebaseAuth.getInstance()
-        db = FirebaseFirestore.getInstance()
-        val user = mAuth?.currentUser
+        val user = User.userAuth
 
         // initialize user information
         initializeInf(user!!)
@@ -51,8 +42,9 @@ class ProfileActivity : AppCompatActivity() {
         // submit profile information
         btnSubmit!!.setOnClickListener {
             when {
-                etName!!.text.isEmpty() -> tvNotify!!.text = "Please enter the name"
-                etAge!!.text.isEmpty() -> tvNotify!!.text = "Please enter age"
+                etName!!.text.isEmpty() -> tvNotify!!.text = getString(R.string.user_profile_hint1)
+                etAge!!.text.isEmpty() -> tvNotify!!.text = getString(R.string.user_profile_hint2)
+                etAge!!.text.toString().toInt() <= 0 -> tvNotify!!.text = getString(R.string.user_profile_hint3)
                 else -> {
                     updateProfile(user)
                 }
@@ -61,12 +53,15 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     private fun updateProfile(user: FirebaseUser){
+        // Get the gender
         val gender = when {
             rgGender!!.checkedRadioButtonId == R.id.rbtnMale -> "Male"
             rgGender!!.checkedRadioButtonId == R.id.rbtnFemale -> "Female"
             else -> "Unknown"
         }
-        db!!.collection("users").document(user.uid).update(
+
+        // Update the user data in Firebase
+        User.userDb.document(user.uid).update(
                 "age", etAge!!.text.toString().toInt(),
                 "name", etName!!.text.toString(),
                 "gender", gender
@@ -103,7 +98,7 @@ class ProfileActivity : AppCompatActivity() {
         tvEmail!!.text = user.email
 
         // get data and set gender and name
-        db!!.collection("users").document(user.uid).get()
+        User.userDb.document(user.uid).get()
                 .addOnSuccessListener { documentSnapshot ->
                     if (documentSnapshot.exists()) {
                         val userClass = documentSnapshot.toObject(User::class.java)

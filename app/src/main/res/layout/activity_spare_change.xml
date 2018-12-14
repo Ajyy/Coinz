@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -13,7 +12,7 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="40dp"
         android:layout_marginEnd="20dp"
-        android:text="Spare Change"
+        android:text="@string/spare_change"
         android:textColor="@color/bodyTextColor"
         android:textSize="30sp"
         android:textStyle="bold|italic" />
@@ -26,9 +25,10 @@
         android:layout_marginTop="30dp"
         android:layout_marginEnd="50dp"
         android:ems="10"
-        android:hint="Enter your friend's name..."
+        android:hint="@string/enter_your_friend_s_name"
         android:inputType="textPersonName"
-        android:textStyle="italic" />
+        android:textStyle="italic"
+        android:autofillHints="" />
 
     <Button
         android:id="@+id/btnSpareSearch"
@@ -37,8 +37,8 @@
         android:layout_marginStart="50dp"
         android:layout_marginTop="5dp"
         android:layout_marginEnd="50dp"
-        android:background="@color/buttonColor"
-        android:text="Search"
+        android:background="@color/colorPrimary"
+        android:text="@string/search"
         android:textColor="@color/buttonTextColor" />
 
     <TextView

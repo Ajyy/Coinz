@@ -1,5 +1,6 @@
 package com.example.coinz
 
+import android.annotation.SuppressLint
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
@@ -8,9 +9,8 @@ import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 
+// This activity is used for spare change, player can search friends
 class SpareChangeActivity : AppCompatActivity() {
 
     private var etSpareChange: EditText? = null
@@ -45,6 +45,7 @@ class SpareChangeActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun getFriendData(){
         if (!etSpareChange!!.text.isEmpty()){
             val name = etSpareChange!!.text.toString()
@@ -54,7 +55,7 @@ class SpareChangeActivity : AppCompatActivity() {
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful){
                             for (document in task.result!!){
-                                spareFriends.add(Friend(uid = document.id, name = document["name"] as String))
+                                spareFriends.add(Friend(uid = document.id, name = document["name"] as String, email = document["email"] as String))
                             }
 
                             tvSpareInf!!.text = "Find ${task.result!!.size()} friend(s)"
@@ -62,7 +63,7 @@ class SpareChangeActivity : AppCompatActivity() {
                             myAdapter!!.notifyDataSetChanged()
                             Log.d(tag, "search friend: success")
                         } else {
-                            Log.d(tag, "search friend: fail")
+                            Log.w(tag, "search friend: fail"+task.exception!!.message)
                         }
                     }
         }

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -31,14 +30,30 @@
                 android:layout_marginBottom="10dp"
                 android:contentDescription="@string/picture_descr" />
 
-            <TextView
-                android:id="@+id/tvFriendName"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|start"
-                android:layout_marginStart="10dp"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:layout_gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvFriendName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical|start"
+                    android:layout_marginStart="10dp"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvTotalBal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="1" />
+
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/tvFriInf"
@@ -55,18 +70,18 @@
                 android:layout_gravity="center_vertical"
                 android:background="@drawable/button"
                 android:elevation="5dp"
-                android:text="Accept"
+                android:text="@string/accept"
                 android:textColor="@color/common_google_signin_btn_text_dark_default" />
 
             <Button
                 android:id="@+id/btnReject"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="right|center_vertical"
+                android:layout_gravity="center_vertical|end"
                 android:layout_marginStart="20dp"
                 android:background="@drawable/button_reject"
                 android:elevation="5dp"
-                android:text="Reject"
+                android:text="@string/reject"
                 android:textColor="@color/common_google_signin_btn_text_dark_default" />
 
         </LinearLayout>

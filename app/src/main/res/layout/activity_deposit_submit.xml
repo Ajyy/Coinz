@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -12,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
-        android:text="Deposit Your Money"
+        android:text="@string/deposit_your_money"
         android:textSize="30sp"
         android:textStyle="bold|italic" />
 
@@ -22,7 +21,7 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
-        android:text="Coins' Type"
+        android:text="@string/coins_type"
         android:textSize="20sp"
         android:textStyle="bold" />
 
@@ -41,28 +40,28 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="QUID" />
+            android:text="@string/quid" />
 
         <RadioButton
             android:id="@+id/rbDolr"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="DOLR" />
+            android:text="@string/dolr" />
 
         <RadioButton
             android:id="@+id/rbShil"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="SHIL" />
+            android:text="@string/shil" />
 
         <RadioButton
             android:id="@+id/rbPeny"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="3"
-            android:text="PENY" />
+            android:text="@string/peny" />
 
     </RadioGroup>
 
@@ -72,7 +71,7 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
-        android:text="Choose Your CoIns"
+        android:text="@string/choose_your_coins"
         android:textSize="20sp"
         android:textStyle="bold" />
 
@@ -89,17 +88,18 @@
             android:layout_marginTop="10dp"
             android:background="@drawable/button"
             android:gravity="center"
-            android:text="Your coins"
+            android:text="@string/your_coins"
             android:textColor="@color/common_google_signin_btn_text_dark_default" />
 
         <TextView
             android:id="@+id/tvCoinInf"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginTop="5dp"
+            android:layout_marginEnd="20dp"
             android:layout_weight="1"
-            android:textSize="18sp" />
+            android:textSize="14sp" />
     </LinearLayout>
 
     <TextView
@@ -109,7 +109,7 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
-        android:text="From Your Demand Deposit"
+        android:text="@string/from_your_demand_deposit"
         android:textSize="20sp"
         android:textStyle="bold" />
 
@@ -120,9 +120,10 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="20dp"
+        android:autofillHints=""
         android:ems="10"
         android:inputType="numberDecimal"
-        android:text="0.0" />
+        android:text="@string/_0_0" />
 
     <TextView
         android:id="@+id/tvEndTime"
@@ -131,7 +132,7 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
-        android:text="End Time"
+        android:text="@string/end_time"
         android:textSize="20sp"
         android:textStyle="bold" />
 
@@ -143,7 +144,7 @@
         android:layout_marginTop="10dp"
         android:background="@drawable/button"
         android:gravity="center"
-        android:text="Calendar"
+        android:text="@string/calendar"
         android:textColor="@color/common_google_signin_btn_text_dark_default" />
 
     <Button
@@ -155,7 +156,7 @@
         android:layout_marginEnd="20dp"
         android:background="@color/colorPrimary"
         android:elevation="5dp"
-        android:text="Submit"
+        android:text="@string/submit"
         android:textColor="@color/common_google_signin_btn_text_dark_default" />
 
     <TextView

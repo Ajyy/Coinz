@@ -1,5 +1,6 @@
 package com.example.coinz
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
@@ -10,16 +11,16 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 
+// This activity is used when player needs to choose some coins or check the coins
 class ChooseCoinActivity : AppCompatActivity() {
-
     private var layoutManager: RecyclerView.LayoutManager? = null
     private var rvCoinChoose: RecyclerView? = null
     private var myAdapter: CoinAdapter? = null
     private var tvCoinInf: TextView? = null
 
+    // The first element in inf is coin's type
+    // The second element in inf is the information for judging which activity start this activity
     private var inf: Array<String>? = null
     private var coins = ArrayList<Coin>()
     private val tag = "ChooseCoinActivity"
@@ -42,6 +43,7 @@ class ChooseCoinActivity : AppCompatActivity() {
         getAllCoins()
     }
 
+    // Get all coins for the specific coin's type
     private fun getAllCoins(){
         User.userDb.document(User.userAuth!!.uid).collection("balance_"+inf!![0]).get()
                 .addOnCompleteListener { task ->
@@ -51,6 +53,7 @@ class ChooseCoinActivity : AppCompatActivity() {
                             coins.add(document.toObject(Coin::class.java))
                         }
 
+                        @SuppressLint("SetTextI18n")
                         tvCoinInf!!.text = "Find ${coins.size} coins whose type is ${inf!![0]}"
 
                         if (rvCoinChoose!!.adapter != null){
@@ -65,20 +68,19 @@ class ChooseCoinActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-
         if (inf!![1] != "balance"){
+            // Get the coins which have been checked
             val checkPoints = ArrayList<Coin>()
             for (coin in coins){
-                if (coin.isChecked!!){
+                if (coin.checked!!){
                     checkPoints.add(coin)
                 }
             }
 
-            val intent: Intent
-            if (inf!![1] == "spare"){
-                intent = Intent(this@ChooseCoinActivity, SpareExchangeActivity::class.java)
+            val intent: Intent = if (inf!![1] == "spare"){
+                Intent(this@ChooseCoinActivity, SpareExchangeActivity::class.java)
             } else {
-                intent = Intent(this@ChooseCoinActivity, DepositSubmitActivity::class.java)
+                Intent(this@ChooseCoinActivity, DepositSubmitActivity::class.java)
             }
 
             if (checkPoints.size != 0){

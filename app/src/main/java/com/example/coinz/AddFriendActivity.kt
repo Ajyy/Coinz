@@ -8,11 +8,8 @@ import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.firestore.FirebaseFirestore
 
+// This activity is used to add friend
 class AddFriendActivity : AppCompatActivity() {
 
     private var etFriendName: EditText? = null
@@ -32,6 +29,8 @@ class AddFriendActivity : AppCompatActivity() {
 
         title = "Add Friend"
 
+        // Get friends player has already added
+        @Suppress("UNCHECKED_CAST")
         friends = intent.getSerializableExtra("friendsList") as ArrayList<Friend>
 
         etFriendName = findViewById(R.id.etFriendName)
@@ -56,18 +55,28 @@ class AddFriendActivity : AppCompatActivity() {
     private fun getFriendData(){
         searchFriend.clear()
         if (etFriendName!!.text.isEmpty()){
-            tvSearchInf!!.text = "Please enter the name"
+            tvSearchInf!!.text = getString(R.string.add_friend_search_info_blank)
         } else {
+            // Query by friend's name
             val query = User.userDb.whereEqualTo("name", etFriendName!!.text.toString())
             query.get().addOnCompleteListener { task ->
                 if (task.isSuccessful){
+                    // FriendNum is used to count the number of people program find
                     var friendNum = 0
                     var size = task.result!!.size()
                     for (document in task.result!!){
                         val searchUserName = document["name"] as String
+                        val searchUserVeri = document["verified"] as Boolean
+                        val searchUserEmail = document["email"] as String
 
                         var isExist = false
                         for (friend in friends!!){
+                            // Check the email whether verified
+                            if (!searchUserVeri){
+                                continue
+                            }
+
+                            // Check the people we find whether are already added
                             if (friend.uid == document.id){
                                 friendNum+=1
                                 isExist = true
@@ -75,9 +84,10 @@ class AddFriendActivity : AppCompatActivity() {
                             }
                         }
 
+                        // If these people are not the player's friend, check whether search player-self
                         if (!isExist) {
                             if (document.id != User.userAuth!!.uid){
-                                searchFriend.add(Friend(uid = document.id, name = searchUserName))
+                                searchFriend.add(Friend(uid = document.id, name = searchUserName, email = searchUserEmail))
                             } else {
                                 size-=1
                             }
