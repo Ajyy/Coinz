@@ -8,6 +8,11 @@ the University of Edinburgh’s Central Area. Also, this is a coursework of a co
 
 **Number**: INFR09051
 
+## Student Information
+**Name**: AO Junyi
+
+**Student number**: s1889530
+
 ## Some Features
 * Using [Mapbox](https://www.mapbox.com/) to get the location and set the map.
 * Mock the coordinate of users by Espresso.
